@@ -1,0 +1,15 @@
+version: '3.4'
+services:
+  space-fe:
+    image: space-fe
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    container_name: space-fe
+    restart: always
+    ports:
+      - "3000:3000"
+
+
+
+

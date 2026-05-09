@@ -1,0 +1,338 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+@import 'leaflet/dist/leaflet.css';
+
+.leaflet-container {
+    height: 100%;
+    width: 100%;
+}
+
+.leaflet-control-attribution,
+.leaflet-control {
+    display: none;
+}
+
+html {
+    -webkit-text-size-adjust: 100%;
+    -moz-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    font-size: 87.5%; /* Reduces base size to 14px (1rem = 14px) */
+}
+
+* {
+    font-family: 'Figtree';
+    box-sizing: border-box;
+}
+
+a,
+button,
+label,
+select,
+summary,
+[role='button'],
+[role='link'],
+[role='tab'],
+[role='menuitem'],
+[tabindex='0'],
+input[type='button'],
+input[type='submit'],
+input[type='reset'],
+input[type='checkbox'],
+input[type='radio'],
+.cursor-pointer,
+.clickable {
+    cursor: pointer !important;
+}
+
+body {
+    overflow-x: hidden;
+}
+
+*::-webkit-scrollbar {
+    display: none;
+}
+* {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
+    --font-sans: var(--font-geist-sans);
+    --font-mono: var(--font-geist-mono);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-primary-p1: #f7cd29;
+    --color-primary-p2: #d89d03;
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --radius-sm: calc(var(--radius) - 4px);
+    --radius-md: calc(var(--radius) - 2px);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) + 4px);
+}
+
+:root {
+    --radius: 0.625rem;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.646 0.222 41.116);
+    --chart-2: oklch(0.6 0.118 184.704);
+    --chart-3: oklch(0.398 0.07 227.392);
+    --chart-4: oklch(0.828 0.189 84.429);
+    --chart-5: oklch(0.769 0.188 70.08);
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.488 0.243 264.376);
+    --chart-2: oklch(0.696 0.17 162.48);
+    --chart-3: oklch(0.769 0.188 70.08);
+    --chart-4: oklch(0.627 0.265 303.9);
+    --chart-5: oklch(0.645 0.246 16.439);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+    * {
+        @apply border-border outline-ring/50;
+    }
+    body {
+        @apply bg-background text-foreground;
+    }
+}
+
+/* Add to your global.css */
+input[type='radio'] {
+    appearance: none;
+    border: 2px solid #d1d5db; /* gray-300 */
+    border-radius: 50%;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    position: relative;
+}
+
+input[type='radio']:checked {
+    border-color: #facc15; /* [#F6CD28] */
+    background-color: #facc15;
+}
+
+input[type='radio']:checked::after {
+    content: '';
+    position: absolute;
+    top: 5.5px;
+    left: 5.5px;
+    width: 8.5px;
+    height: 8.5px;
+    background-color: white;
+    border-radius: 50%;
+}
+
+/* google auth font class */
+.nsm7Bb-HzV7m-LgbsSe-BPrWId {
+    color: #27272a; /* text-zinc-800 */
+    font-size: 1rem; /* text-base */
+    line-height: 1.5; /* leading-normal */
+    font-weight: 500;
+}
+
+@keyframes pulseLogo {
+    0% {
+        opacity: 0.2;
+    }
+    50% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.2;
+    }
+}
+.pulse-logo {
+    animation: pulseLogo 1.5s infinite ease-in-out;
+}
+
+.custom-horizontal-scroll {
+    overflow-x: auto;
+    scrollbar-width: auto;
+    scrollbar-color: #d1d5db #f1f1f1;
+    /* Force scrollbar visibility on all platforms including Mac */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Always show scrollbar - Force visibility */
+.custom-horizontal-scroll::-webkit-scrollbar {
+    height: 8px;
+    display: block;
+}
+
+.custom-horizontal-scroll::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+.custom-horizontal-scroll::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+    border-radius: 4px;
+    min-width: 40px;
+}
+
+.custom-horizontal-scroll::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+}
+
+/* Ensure scrollbar is always visible on WebKit browsers (Mac Safari/Chrome) */
+@supports (-webkit-appearance: none) {
+    .custom-horizontal-scroll {
+        scrollbar-gutter: stable;
+    }
+}
+
+/* --- WATI Widget Scoped Overrides --- */
+/* IMPORTANT: All selectors must be scoped to the widget to avoid global side effects */
+
+/* 1. Hide "Powered by" branding - Maximum specificity */
+html body .wa-chat-box-poweredby,
+html body #wa-chat-widget .wa-chat-box-poweredby,
+html body div.wa-chat-box-poweredby,
+html body [class='wa-chat-box-poweredby'],
+html body [class*='wa-chat-box-poweredby'],
+.wa-chat-box-poweredby.wa-chat-box-poweredby,
+#wa-chat-widget .wa-chat-box-poweredby.wa-chat-box-poweredby,
+div.wa-chat-box-poweredby.wa-chat-box-poweredby {
+    display: none !important;
+    visibility: hidden !important;
+    opacity: 0 !important;
+    height: 0 !important;
+    max-height: 0 !important;
+    min-height: 0 !important;
+    width: 0 !important;
+    max-width: 0 !important;
+    overflow: hidden !important;
+    pointer-events: none !important;
+    position: absolute !important;
+    left: -9999px !important;
+    top: -9999px !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
+    font-size: 0 !important;
+    clip: rect(0, 0, 0, 0) !important;
+    clip-path: inset(50%) !important;
+    white-space: nowrap !important;
+}
+
+/* 2. Chat Header & Brand Section - Force White */
+#wa-chat-widget .wa-chat-box-header,
+#wa-chat-widget .wa-chat-box-brand-section,
+div[id*='wati'] [class*='BrandSection'],
+div[id*='wati'] [class*='ChatBoxHeader'] {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+}
+
+/* 3. Text Colors in Header */
+#wa-chat-widget .wa-chat-box-brand-name,
+#wa-chat-widget .wa-chat-box-brand-subtitle,
+div[id*='wati'] [class*='BrandName'],
+div[id*='wati'] [class*='BrandSubTitle'] {
+    color: #000000 !important;
+}
+
+/* 4. Logo Sizing - STRICTLY SCOPED to widget container */
+#wa-chat-widget .wa-chat-box-brand-img,
+div[id*='wati'] [class*='BrandImg'] {
+    width: 50px !important;
+    height: 50px !important;
+    max-width: 50px !important;
+    max-height: 50px !important;
+    object-fit: contain !important;
+    background-color: white !important;
+    padding: 4px !important;
+    border-radius: 8px !important;
+    margin-right: 12px !important;
+}
+
+.wa-chat-box-brand {
+    background-color: #ffffff !important;
+    image-rendering: optimizeQuality !important;
+    object-fit: contain !important;
+    border: none !important;
+    border-radius: 0% !important;
+}
