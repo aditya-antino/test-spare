@@ -308,9 +308,14 @@ const BookingCard: React.FC<BookingCardProps> = ({
                         <Star className="text-[#F6CD28] fill-current w-4 h-4" />
                         <Typography size="sm" color="text-gray-800 font-normal">
                             {space?.rating ? Number(space.rating).toFixed(1) : '-'}
-                            <span className="text-gray-500 font-normal">
-                                ({space?.reviews || ''})
-                            </span>
+                            {/* {
+                               
+                                    <span className="text-gray-500 font-normal">
+                                        ({space?.reviews || 'hi'})
+                                    </span>     
+                               
+                            } */}
+
                         </Typography>
                     </div>
                 ) : null}

@@ -56,6 +56,14 @@ const Step6: React.FC<Step6Props> = ({
     return (
         <div className="w-full mx-auto space-y-8 animate-in fade-in duration-500">
             <Header />
+            <div className="space-y-2 text-center">
+                {/* <Typography size="2xl" weight="bold" className="text-gray-900 tracking-tight" align="center">
+                    Secure Your Account
+                </Typography> */}
+                <p className="text-gray-500 text-sm max-w-xs mx-auto">
+                    Please provide an email and set a password to complete your signup.
+                </p>
+            </div>
             <form
                 onSubmit={handleSubmit}
                 className="w-full flex flex-col gap-6 animate-in slide-in-from-right-4 duration-300"

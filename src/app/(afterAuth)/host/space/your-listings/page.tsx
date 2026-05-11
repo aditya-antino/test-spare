@@ -87,7 +87,6 @@ export default function YourListingsPage() {
                     />
                 </div>
             )}
-
             <Pagination
                 limit={ITEMS_PER_PAGE}
                 count={(spaceListResponse?.data as any)?.totalRows || spaceListResponse?.data?.rows?.length || 1}

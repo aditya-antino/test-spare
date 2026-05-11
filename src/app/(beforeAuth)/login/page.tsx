@@ -6,6 +6,7 @@ import Step2 from './step2';
 import Step3 from './step3';
 import PhoneLoginVerify from './phoneLoginVerify';
 import Step6 from '../sign-up/step6';
+import UserSelection from './userSelection';
 import { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import { useRouter } from 'next/navigation';
@@ -37,6 +38,8 @@ const Login = () => {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
     const [isSendingOtp, setIsSendingOtp] = useState(false);
+    const [multiUsers, setMultiUsers] = useState<any[]>([]);
+    const [selectedUserId, setSelectedUserId] = useState<number | null>(null);
 
     const router = useRouter();
     const dispatch = useDispatch();
@@ -252,7 +255,7 @@ const Login = () => {
     };
 
     // New Phone Login Verify Function
-    const handlePhoneLoginVerify = async () => {
+    const handlePhoneLoginVerify = async (userId?: number) => {
         if (!otp) return;
         try {
             setIsVerifyingOtp(true);
@@ -266,9 +269,17 @@ const Login = () => {
                     countryCode: code,
                     phoneNumber: phone?.slice(code?.length || 0),
                     otp,
-                    roleId
+                    roleId,
+                    ...(userId && { userId })
                 }
             );
+
+            // Handle multi-user selection case
+            if (response.data?.data?.isMultiUser) {
+                setMultiUsers(response.data.data.users);
+                setCurrentStep(7);
+                return;
+            }
 
             handleAuthSuccess(response.data.data, 'Logged in successfully');
         } catch (error: any) {
@@ -276,6 +287,11 @@ const Login = () => {
         } finally {
             setIsVerifyingOtp(false);
         }
+    };
+
+    const handleSelectUser = (userId: number) => {
+        setSelectedUserId(userId);
+        handlePhoneLoginVerify(userId);
     };
 
     // Verify OTP function (for signup)
@@ -451,6 +467,15 @@ const Login = () => {
                         onPasswordChange={setPassword}
                         handleAddEmail={handleAddEmail}
                         isSubmitting={isSubmitting}
+                    />
+                );
+            case 7:
+                return (
+                    <UserSelection
+                        users={multiUsers}
+                        onSelect={handleSelectUser}
+                        onBack={() => setCurrentStep(5)}
+                        isVerifying={isVerifyingOtp}
                     />
                 );
             default:
