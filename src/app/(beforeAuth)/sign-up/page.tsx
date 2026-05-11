@@ -247,7 +247,12 @@ const SignUp = () => {
 
             // If successful, the next logical step is to verify the email they just added (Step 2)
             if (addEmailResponse.data?.data) {
-                dispatch(setUserProfile(addEmailResponse.data.data));
+                const updatedUser = addEmailResponse.data.data;
+                dispatch(setUserProfile(updatedUser));
+                setUserData({
+                    email: updatedUser.email || email,
+                    roleId: updatedUser.roles?.[0] || 0,
+                });
             }
             toast.success(addEmailResponse.data?.message || 'Email added successfully! Please verify it.');
             setCurrentStep(SIGNUP_STEPS.EMAIL_VERIFY);
@@ -406,7 +411,15 @@ const SignUp = () => {
                     />
                 );
             case 2:
-                return <Step2 userData={userData} handleVerification={() => setCurrentStep(3)} />;
+                return (
+                    <Step2
+                        userData={{
+                            email: userData.email || user?.email || '',
+                            roleId: userData.roleId || (user?.roles?.[0] as number) || 0,
+                        }}
+                        handleVerification={() => setCurrentStep(3)}
+                    />
+                );
             case 3:
                 return (
                     <Step3
