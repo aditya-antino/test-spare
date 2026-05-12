@@ -2,6 +2,7 @@ import { Card } from '@/components/ui/card';
 import { SpaceDetailsInterface } from '@/services';
 import { Star, Zap, User, Share2, Share, Building, Users, IndianRupee, Info } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import { Button } from '../ui/button';
 import { usePathname, useRouter } from 'next/navigation';
 import { useGuestMode } from '@/hooks';
@@ -109,13 +110,6 @@ export default function SpaceOverview({
     const grossBasePrice = basePrice * taxMultiplier;
     const grossDiscountedPrice = discountedPrice * taxMultiplier;
 
-    const handleHostClick = () => {
-        if (data?.User?.id) {
-            const url = `${PATHS.GUEST_HOST_PROFILE}/${data.User.id}`;
-            router.push(url);
-        }
-    };
-
     const handleMessageHost = () => {
         setShowMessageModal(true);
     };
@@ -201,36 +195,58 @@ export default function SpaceOverview({
             {/* Host */}
             <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
-                    <div
-                        className={`flex items-center gap-2 text-muted-foreground p-2 rounded-lg transition-colors ${
-                            isGuestMode ? 'cursor-pointer hover:bg-gray-50' : 'cursor-default'
-                        }`}
-                        onClick={isGuestMode ? handleHostClick : undefined}
-                    >
-                        {data?.User?.avatar ? (
-                            <img
-                                src={data?.User?.avatar || '/user-avatar.jpg'}
-                                alt="host"
-                                className="w-12 h-12 rounded-full object-cover"
-                            />
-                        ) : (
-                            <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
-                                <User className="w-6 h-6 text-gray-500" />
+                    {isGuestMode && data?.User?.id ? (
+                        <Link
+                            href={`${PATHS.GUEST_HOST_PROFILE}/${data.User.id}`}
+                            className="flex items-center gap-2 text-muted-foreground p-2 rounded-lg transition-colors cursor-pointer hover:bg-gray-50"
+                        >
+                            {data?.User?.avatar ? (
+                                <img
+                                    src={data?.User?.avatar || '/user-avatar.jpg'}
+                                    alt="host"
+                                    className="w-12 h-12 rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <User className="w-6 h-6 text-gray-500" />
+                                </div>
+                            )}
+                            <div>
+                                <div className="text-sm text-gray-500">Hosted by</div>
+                                <span className="font-semibold text-black hover:underline">
+                                    {data?.User
+                                        ? `${data.User.first_name || ''} ${
+                                              data.User.last_name ? data.User.last_name[0] + '.' : ''
+                                          }`.trim()
+                                        : '-'}
+                                </span>
                             </div>
-                        )}
-                        <div>
-                            <div className="text-sm text-gray-500">Hosted by</div>
-                            <span
-                                className={`font-semibold text-black ${isGuestMode ? 'hover:underline' : ''}`}
-                            >
-                                {data?.User
-                                    ? `${data.User.first_name || ''} ${
-                                          data.User.last_name ? data.User.last_name[0] + '.' : ''
-                                      }`.trim()
-                                    : '-'}
-                            </span>
+                        </Link>
+                    ) : (
+                        <div className="flex items-center gap-2 text-muted-foreground p-2 rounded-lg transition-colors cursor-default">
+                            {data?.User?.avatar ? (
+                                <img
+                                    src={data?.User?.avatar || '/user-avatar.jpg'}
+                                    alt="host"
+                                    className="w-12 h-12 rounded-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-12 h-12 rounded-full bg-gray-200 flex items-center justify-center">
+                                    <User className="w-6 h-6 text-gray-500" />
+                                </div>
+                            )}
+                            <div>
+                                <div className="text-sm text-gray-500">Hosted by</div>
+                                <span className="font-semibold text-black">
+                                    {data?.User
+                                        ? `${data.User.first_name || ''} ${
+                                              data.User.last_name ? data.User.last_name[0] + '.' : ''
+                                          }`.trim()
+                                        : '-'}
+                                </span>
+                            </div>
                         </div>
-                    </div>
+                    )}
 
                     {/* Price for Mobile View */}
                     {isGuestMode && (

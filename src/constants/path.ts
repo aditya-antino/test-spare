@@ -36,7 +36,7 @@ export const PATHS = {
     GUEST_WISHLISTS: '/wishlists',
     GUEST_CHAT_MESSAGES: '/chat-messages',
     GUEST_SPACE_DETAILS: '/space-details',
-    GUEST_HOST_PROFILE: '/host-profile',
+    GUEST_HOST_PROFILE: '/guest/host-profile',
     GUEST_DETAILS: `/guest-details`,
     SPACE_LISTING_PAGE_GUEST: '/space-list',
     GUEST_BOOK_SPACE: '/book',

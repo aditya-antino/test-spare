@@ -47,7 +47,7 @@ const UserSelection = ({ users, onSelect, onBack, isVerifying }: UserSelectionPr
 
             {/* User List */}
             <div className="space-y-4 max-h-[400px] overflow-y-auto px-1 custom-scrollbar">
-                {users.map((user) => (
+                {users.filter(user => user.firstName || user.lastName).map((user) => (
                     <div
                         key={user.id}
                         onClick={() => !isVerifying && setSelectedId(user.id)}

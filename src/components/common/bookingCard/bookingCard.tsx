@@ -71,7 +71,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
     const effectiveDiscount = space?.isRefundable ? discountPercent + 10 : discountPercent;
 
     const hasDiscount = effectiveDiscount > 0;
-    
+
     // discounted price of a space
     const discountedPrice = hasDiscount
         ? originalPrice - (originalPrice * effectiveDiscount) / 100
@@ -88,7 +88,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
     const taxMultiplier = (1 + platformFeePercentage) * (1 + cgstPercentage + sgstPercentage);
 
     // adding platform fee and taxes in final original price
-    const grossOriginalPrice = finalOriginalPrice * taxMultiplier; 
+    const grossOriginalPrice = finalOriginalPrice * taxMultiplier;
     // adding platform fee and taxes in final discounted price
     const grossDiscountedPrice = finalDiscountedPrice * taxMultiplier;
 
@@ -165,6 +165,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
                         onClick();
                     }
                 }}
+                prefetch
             >
                 <span className="sr-only">View {space?.title ?? 'Space'} Details</span>
             </Link>
@@ -187,8 +188,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
                     className="cursor-pointer w-8 h-8 bg-black/30 hover:bg-black/40 flex justify-center items-center rounded-full absolute right-2 top-2 z-30"
                 >
                     <Heart
-                        className={`w-5 ${isInWishList ? 'text-rose-600 fill-current' : 'text-white'
-                            }`}
+                        className={`w-5 ${
+                            isInWishList ? 'text-rose-600 fill-current' : 'text-white'
+                        }`}
                     />
                 </div>
             )}
@@ -301,7 +303,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
                             incl. of all taxes
                         </span>
                     )}
-
                 </div>
                 {space?.rating && Number(space.rating) > 0 ? (
                     <div className="flex items-center gap-1">
@@ -315,7 +316,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
                                     </span>     
                                
                             } */}
-
                         </Typography>
                     </div>
                 ) : null}

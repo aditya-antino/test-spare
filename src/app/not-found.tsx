@@ -11,7 +11,7 @@ const NotFound = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             router.push('/');
-        }, 8000);
+        }, 5000);
 
         return () => clearTimeout(timer);
     }, [router]);
@@ -66,7 +66,7 @@ const NotFound = () => {
 
                 {/* Quick actions */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-md mx-auto pt-8">
-                    <Button onClick={() => router.back()} variant="outline">
+                    <Button onClick={() => router.push('/')} variant="outline">
                         <Home className="w-6 h-6 text-primary-p2 group-hover:text-primary-p3" />
                         <span className="text-lg font-semibold text-tertiary-t1 group-hover:text-tertiary-t2">
                             Go Home

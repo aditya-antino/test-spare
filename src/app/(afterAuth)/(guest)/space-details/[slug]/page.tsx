@@ -17,7 +17,6 @@ async function getSpaceDetails(slug: string) {
     try {
         const endpoint = endpoints.GUEST_SPACE_DETAILS.replace(':slug', slug);
         const response: any = await ServerGet(endpoint);
-        console.log("RESPONSEEEE ...... ",response.data)
         return response?.data ?? response ?? null;
     } catch (error) {
         console.error('Error fetching space details on server:', error);
