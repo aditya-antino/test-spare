@@ -110,14 +110,16 @@ const HostProfileClient = () => {
                                     </div>
                                 )}
 
-                                <div className="flex items-center justify-center gap-1">
-                                    <Star className="w-4 h-4 text-[#F6CD28] fill-current" />
-                                    <span className="text-gray-700 text-sm font-medium">
-                                        {hostData?.avg_rating.toFixed(2)}
-                                        {hostData?.review_count > 0 &&
-                                            `(${hostData?.review_count + ' reviews'})`}
-                                    </span>
-                                </div>
+                                {hostData?.avg_rating && Number(hostData?.avg_rating) > 0 && (
+                                    <div className="flex items-center justify-center gap-1">
+                                        <Star className="w-4 h-4 text-[#F6CD28] fill-current" />
+                                        <span className="text-gray-700 text-sm font-medium">
+                                            {hostData?.avg_rating.toFixed(2)}
+                                            {hostData?.review_count > 0 &&
+                                                `(${hostData?.review_count + ' reviews'})`}
+                                        </span>
+                                    </div>
+                                )}
 
                                 {hostData?.bio && (
                                     <p className="text-gray-600 text-sm leading-snug mt-4">
