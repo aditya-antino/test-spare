@@ -113,10 +113,14 @@ export default function HostInformation({
                                   }`.trim()
                                 : '-'}
                         </span>
-                        <Star className="w-4 h-4 text-yellow-500" />
-                        <span className="text-yellow-500 font-semibold">
-                            {Number(hostReviewStats?.avg_rating).toFixed(1) ?? '0'}
-                        </span>
+                        {hostReviewStats?.avg_rating && Number(hostReviewStats?.avg_rating) > 0 && (
+                            <>
+                                <Star className="w-4 h-4 text-yellow-500" />
+                                <span className="text-yellow-500 font-semibold">
+                                    {Number(hostReviewStats?.avg_rating).toFixed(1) ?? '0'}
+                                </span>
+                            </>
+                        )}
                         {hostReviewStats?.total_reviews &&
                             Number(hostReviewStats?.total_reviews) > 0 && (
                                 <span className="text-muted-foreground">
