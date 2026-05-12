@@ -117,9 +117,12 @@ export default function HostInformation({
                         <span className="text-yellow-500 font-semibold">
                             {Number(hostReviewStats?.avg_rating).toFixed(1) ?? '0'}
                         </span>
-                        <span className="text-muted-foreground">
-                            ({hostReviewStats?.total_reviews ?? '0'} reviews)
-                        </span>
+                        {hostReviewStats?.total_reviews &&
+                            Number(hostReviewStats?.total_reviews) > 0 && (
+                                <span className="text-muted-foreground">
+                                    ({hostReviewStats?.total_reviews ?? '0'} reviews)
+                                </span>
+                            )}
                         {/* <span className="mx-2 text-muted-foreground">·</span>
                         <span className="text-muted-foreground">
                             {user.places_count ?? "-"} places
