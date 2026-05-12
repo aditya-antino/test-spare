@@ -180,9 +180,11 @@ const BookingHeader = ({
                         </div>
                         <span className="flex flex-row  items-center gap-2 text-gray-500 font-normal  text-xs md:text-sm font-poppins">
                             {parseFloat(spaceData?.avg_rating ?? '0').toFixed(1)}
-                            <span className="hidden md:block">
-                                ({spaceData?.reviewCount ?? 0} reviews)
-                            </span>
+                            {spaceData?.reviewCount && Number(spaceData?.reviewCount) > 0 && (
+                                <span className="hidden md:block">
+                                    ({spaceData?.reviewCount ?? 0} reviews)
+                                </span>
+                            )}
                         </span>
                     </div>
                 </div>
