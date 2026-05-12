@@ -110,7 +110,7 @@ const HostProfileClient = () => {
                                     </div>
                                 )}
 
-                                {hostData?.avg_rating && Number(hostData?.avg_rating) > 0 && (
+                                {Number(hostData?.avg_rating) > 0 && (
                                     <div className="flex items-center justify-center gap-1">
                                         <Star className="w-4 h-4 text-[#F6CD28] fill-current" />
                                         <span className="text-gray-700 text-sm font-medium">
