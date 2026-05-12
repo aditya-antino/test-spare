@@ -113,8 +113,9 @@ const HostProfileClient = () => {
                                 <div className="flex items-center justify-center gap-1">
                                     <Star className="w-4 h-4 text-[#F6CD28] fill-current" />
                                     <span className="text-gray-700 text-sm font-medium">
-                                        {hostData?.avg_rating.toFixed(2)} ({hostData?.review_count}{' '}
-                                        reviews)
+                                        {hostData?.avg_rating.toFixed(2)}
+                                        {hostData?.review_count > 0 &&
+                                            `(${hostData?.review_count + ' reviews'})`}
                                     </span>
                                 </div>
 
@@ -228,14 +229,16 @@ const HostProfileClient = () => {
                         )}
                     </div>
 
-                    <Reviews
-                        reviews={reviews}
-                        pagination={reviewPagination}
-                        onReviewUpdate={refetchReviews}
-                        onViewMore={handleSeeMoreReviews}
-                        isLoadingMore={reviewsLoading}
-                        isGuestMode={false}
-                    />
+                    {reviews && reviews?.length > 0 && (
+                        <Reviews
+                            reviews={reviews}
+                            pagination={reviewPagination}
+                            onReviewUpdate={refetchReviews}
+                            onViewMore={handleSeeMoreReviews}
+                            isLoadingMore={reviewsLoading}
+                            isGuestMode={false}
+                        />
+                    )}
 
                     <BecameHostBanner
                         customButtonText="Become a host"

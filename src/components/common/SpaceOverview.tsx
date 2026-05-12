@@ -183,10 +183,14 @@ export default function SpaceOverview({
                 <span className="font-semibold">
                     {data?.avg_rating ? Number(data.avg_rating).toFixed(1) : '0.0'}
                 </span>
-                <span className="text-muted-foreground whitespace-nowrap">
-                    ({data?.reviewCount || 0} reviews)
-                </span>
-                <span className="mx-2">·</span>
+                {data?.reviewCount && Number(data?.reviewCount) > 0 && (
+                    <>
+                        <span className="text-muted-foreground whitespace-nowrap">
+                            ({data?.reviewCount || 0} reviews)
+                        </span>
+                        <span className="mx-2">·</span>
+                    </>
+                )}
                 <span className="text-muted-foreground whitespace-nowrap ">
                     {[data?.area, data?.locality, data?.City?.city].filter(Boolean).join(', ')}
                 </span>
@@ -216,7 +220,9 @@ export default function SpaceOverview({
                                 <span className="font-semibold text-black hover:underline">
                                     {data?.User
                                         ? `${data.User.first_name || ''} ${
-                                              data.User.last_name ? data.User.last_name[0] + '.' : ''
+                                              data.User.last_name
+                                                  ? data.User.last_name[0] + '.'
+                                                  : ''
                                           }`.trim()
                                         : '-'}
                                 </span>
@@ -240,7 +246,9 @@ export default function SpaceOverview({
                                 <span className="font-semibold text-black">
                                     {data?.User
                                         ? `${data.User.first_name || ''} ${
-                                              data.User.last_name ? data.User.last_name[0] + '.' : ''
+                                              data.User.last_name
+                                                  ? data.User.last_name[0] + '.'
+                                                  : ''
                                           }`.trim()
                                         : '-'}
                                 </span>
@@ -388,7 +396,9 @@ export default function SpaceOverview({
                                     if (data?.slug) {
                                         router.push(`/booking-review/${data.slug}`);
                                     } else {
-                                        toast.error('Space slug is missing, cannot proceed to review');
+                                        toast.error(
+                                            'Space slug is missing, cannot proceed to review',
+                                        );
                                     }
                                 }}
                                 openVerificationModal={() => {
@@ -402,7 +412,9 @@ export default function SpaceOverview({
                                     if (data?.slug) {
                                         router.push(`/booking-review/${data.slug}`);
                                     } else {
-                                        toast.error('Space slug is missing, cannot proceed to review');
+                                        toast.error(
+                                            'Space slug is missing, cannot proceed to review',
+                                        );
                                     }
                                 }}
                             />

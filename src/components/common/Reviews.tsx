@@ -157,10 +157,11 @@ export default function Reviews({
                             {!isGuestMode && item.bookingId && (
                                 <div className="flex flex-col items-end gap-2">
                                     <button
-                                        className={`rounded-full px-4 py-2 text-white font-medium transition-colors ${item.flagged
-                                            ? 'bg-red-500 hover:bg-red-500'
-                                            : 'bg-gray-500 hover:bg-gray-500'
-                                            }`}
+                                        className={`rounded-full px-4 py-2 text-white font-medium transition-colors ${
+                                            item.flagged
+                                                ? 'bg-red-500 hover:bg-red-500'
+                                                : 'bg-gray-500 hover:bg-gray-500'
+                                        }`}
                                         onClick={() =>
                                             handleFlagToggle(
                                                 item.bookingId!.toString(),

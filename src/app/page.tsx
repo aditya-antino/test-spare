@@ -16,16 +16,14 @@ import AfterAuthLayout from './(afterAuth)/layout';
 
 export async function generateMetadata(): Promise<Metadata> {
     const headersList = await headers();
-    const host = headersList.get("host");
+    const host = headersList.get('host');
 
-    const protocol = host?.includes("localhost") ? "http" : "https";
+    const protocol = host?.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
-    console.log("BASE ", baseUrl)
 
     return {
-        title: "Find Unique Spaces for Activities | Spare Space",
-        description:
-        "Discover unique spaces for events, activities, meetings and more.",
+        title: 'Find Unique Spaces for Activities | Spare Space',
+        description: 'Discover unique spaces for events, activities, meetings and more.',
 
         robots: {
             index: true,
@@ -40,25 +38,25 @@ export async function generateMetadata(): Promise<Metadata> {
         },
 
         openGraph: {
-            title: "Find Unique Spaces for Activities | Spare Space",
-            description: "Discover unique spaces for events, activities, meetings and more.",
+            title: 'Find Unique Spaces for Activities | Spare Space',
+            description: 'Discover unique spaces for events, activities, meetings and more.',
             url: baseUrl,
-            siteName: "Spare Space",
+            siteName: 'Spare Space',
             images: [
                 {
                     url: `${baseUrl}/guest-home.png`,
                     width: 1200,
                     height: 630,
-                    alt: "Spare Space",
+                    alt: 'Spare Space',
                 },
             ],
-            type: "website",
+            type: 'website',
         },
 
         twitter: {
-            card: "summary_large_image",
-            title: "Find Unique Spaces for Activities | Spare Space",
-            description: "Discover unique spaces for events, activities, meetings and more.",
+            card: 'summary_large_image',
+            title: 'Find Unique Spaces for Activities | Spare Space',
+            description: 'Discover unique spaces for events, activities, meetings and more.',
             images: [`${baseUrl}/guest-home.png`],
         },
     };

@@ -71,7 +71,8 @@ export const useHostProfileLogic = () => {
         if (!apiResponse) return;
 
         const { reviews: newReviews = [], pagination } = apiResponse;
-        setReviews((prev) => (reviewPage === 1 ? newReviews : [...prev, ...newReviews]));
+        const filteredReviews = newReviews.filter((review) => review?.isDummy === false);
+        setReviews((prev) => (reviewPage === 1 ? filteredReviews : [...prev, ...filteredReviews]));
 
         if (pagination) {
             setHasMoreReviews(pagination.currentPage < pagination.totalPages);
