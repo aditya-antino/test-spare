@@ -76,16 +76,11 @@ const Login = () => {
         // Update profile in store
         dispatch(setUserProfile(userData));
 
-        // Check if user has completed all steps
-        const hasIncompleteProfile =
-            userData.isProfileCompleted === false || !userData.firstName || !userData.avatar;
-
         const isFullyComplete =
-            Boolean(userData.accessToken) &&
-            !hasIncompleteProfile &&
-            Boolean(userData.email) &&
-            Boolean(userData.isEmailVerified) && // always required
-            Boolean(userData.isPhoneVerified);
+            // Boolean(userData.accessToken) &&
+            Boolean(userData.isPhoneVerified) &&
+            Boolean(userData.isProfileCompleted) &&
+            Boolean(userData.isEmailVerified);
 
         // If everything is complete, set credentials and redirect to home
         if (isFullyComplete) {
@@ -121,7 +116,7 @@ const Login = () => {
             const response = await axiosInstance.post(endpoints.AUTH_LOGIN, loginData);
             handleAuthSuccess(response.data.data, response.data.message);
         } catch (error: any) {
-            toast.error('Invalid Credentials');
+            toast.error(error?.message || 'Invalid Credentials');
             console.error('Login failed', error);
         } finally {
             setIsPending(false);

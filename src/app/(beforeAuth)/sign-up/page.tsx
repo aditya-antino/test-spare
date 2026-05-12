@@ -96,7 +96,7 @@ const SignUp = () => {
 
         const { isProfileCompleted, isPhoneVerified, isEmailVerified, email } = userData;
 
-        if (isProfileCompleted && isPhoneVerified && (email ? isEmailVerified : true)) {
+        if (isProfileCompleted && isPhoneVerified && isEmailVerified) {
             router.replace(PATHS.HOME_PAGE);
             return;
         }
@@ -155,22 +155,12 @@ const SignUp = () => {
         const token = userData.accessToken || tempToken;
         const refreshToken = userData.refreshToken || tempRefreshToken;
 
-        // 3. Profile is incomplete if any key fields are missing
-        // For phone users: email is null initially — treat as incomplete until they provide one
-        // Note: Some APIs omit fields entirely rather than sending null. We only trigger incomplete
-        // if isProfileCompleted is explicitly false, OR if the fields are explicitly returned as null.
-        const hasIncompleteProfile =
-            userData.isProfileCompleted === false ||
-            userData.firstName === null ||
-            userData.avatar === null ||
-            (userData.email === null && !userData.isEmailVerified);
-
         // 4. Check if user has fully completed all onboarding steps
         const isFullyComplete =
-            Boolean(token) &&
-            !hasIncompleteProfile &&
-            Boolean(userData.isEmailVerified) && // always required
-            Boolean(userData.isPhoneVerified);
+            // Boolean(token) &&
+            Boolean(userData.isPhoneVerified) &&
+            Boolean(userData.isProfileCompleted) &&
+            Boolean(userData.isEmailVerified);
 
         // 5. If everything is complete, set credentials and redirect to home
         if (isFullyComplete) {
@@ -417,7 +407,7 @@ const SignUp = () => {
                             email: userData.email || user?.email || '',
                             roleId: userData.roleId || (user?.roles?.[0] as number) || 0,
                         }}
-                        handleVerification={() => setCurrentStep(3)}
+                        handleVerification={(data) => handleAuthSuccess(data.data)}
                     />
                 );
             case 3:
