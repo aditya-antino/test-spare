@@ -4,7 +4,6 @@ import FeaturedCategories from '@/components/homePage/FeaturedCategoreies';
 import BrowseByActivities from '@/components/homePage/BrowseByActivities';
 import WhyChoseSpaceSpare from '@/components/homePage/WhyChoseSpaceSpare';
 import ExploreSpaceInCities from '@/components/homePage/ExporeSpaceInCities';
-import HappeningCities from '@/components/homePage/HappeningCities';
 import StayUpdatedWithSpareSpace from '@/components/homePage/StayUpdatedWithSpareSpace';
 import BecameHostBanner from '@/components/homePage/BecameHostBanner';
 import HomeHeroSection from '@/components/homePage/HomeHeroSection';
@@ -13,6 +12,11 @@ import Footer from '@/components/layout/footer';
 import { TestimonialSection } from '@/components';
 import LandingPageTracker from '@/components/homePage/LandingPageTracker';
 import AfterAuthLayout from './(afterAuth)/layout';
+
+import { getCitiesData, getHomeSpacesData } from '@/services/landing/cities.services';
+import { getCategoriesData } from '@/services/guest/categories.services';
+
+export const revalidate = 900;
 
 export async function generateMetadata(): Promise<Metadata> {
     const headersList = await headers();
@@ -59,21 +63,59 @@ export async function generateMetadata(): Promise<Metadata> {
             description: 'Discover unique spaces for events, activities, meetings and more.',
             images: [`${baseUrl}/guest-home.png`],
         },
+        alternates: {
+            canonical: baseUrl,
+        },
     };
 }
 
-export default function Home() {
+export default async function Home() {
+    let initialCities = [];
+    let initialSpacesData = {};
+    let initialCategories = [];
+
+    try {
+        const [citiesRes, categoriesRes] = await Promise.allSettled([
+            getCitiesData(),
+            getCategoriesData(),
+        ]);
+
+        if (citiesRes.status === 'fulfilled' && citiesRes.value.status === 200) {
+            initialCities = citiesRes.value.data.data || [];
+            if (initialCities.length > 0) {
+                const firstCity = initialCities[0];
+                const spacesRes = await getHomeSpacesData(firstCity.id).catch(() => null);
+                if (spacesRes?.status === 200) {
+                    initialSpacesData = {
+                        [firstCity.city]: {
+                            mostBooked: spacesRes.data.data.mostBookedSpaces || [],
+                            recentlyAdded: spacesRes.data.data.recentlyAddedSpaces || [],
+                        },
+                    };
+                }
+            }
+        }
+
+        if (categoriesRes.status === 'fulfilled' && categoriesRes.value?.status === 200) {
+            initialCategories = categoriesRes.value.data?.data?.categories || [];
+        }
+    } catch (error) {
+        console.error('Error fetching initial data for SSR:', error);
+    }
+
     return (
         <AfterAuthLayout>
             <div className="flex flex-col w-full gap-8 md:gap-24">
                 <LandingPageTracker />
                 <HomeHeroSection />
                 <BrowseByActivities />
-                <FeaturedCategories />
-                <ExploreSpaceInCities />
+                <FeaturedCategories initialCategories={initialCategories} />
+                <ExploreSpaceInCities
+                    initialCities={initialCities}
+                    initialSpacesData={initialSpacesData}
+                />
                 <WhyChoseSpaceSpare />
                 <div>
-                    {/* <HappeningCities /> */}
                     <TestimonialSection />
                     <BecameHostBanner />
                 </div>

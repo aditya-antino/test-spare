@@ -18,6 +18,7 @@ import { useSpaceList, toSlug } from './useSpaceList';
 import { useGetGuestBookingDetails } from '@/services';
 import CategoryBanner from '@/components/common/CategoryBanner';
 import { CATEGORY_BANNERS, DEFAULT_BANNER, BannerContent } from '@/constants/categoryBanners';
+import Link from 'next/link';
 
 const transformCategoryData = (categories: any) => {
     if (!Array.isArray(categories)) {
@@ -66,18 +67,22 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
     const spacesData = fetchedSpacesData || initialSpaceData;
 
     // We also need to map the raw spaces from our initial data if fetchedSpacesData is missing
-    const spacesDataRaw = fetchedSpacesDataRaw?.length ? fetchedSpacesDataRaw : (spacesData?.data?.records || []);
+    const spacesDataRaw = fetchedSpacesDataRaw?.length
+        ? fetchedSpacesDataRaw
+        : spacesData?.data?.records || [];
 
-    const spaces = fetchedSpaces?.length ? fetchedSpaces : (spacesData?.data?.records || []).map((space: any) => ({
-        ...space,
-        price: parseFloat(space.pricePerHour) || 0,
-        rating: parseFloat(space.avgRating) || 0,
-        reviews: parseInt(space.reviewCount) || 0,
-        seats: space.capacity,
-        discountAmount: space.discountAmount || 0,
-        isWishlist: space.isWishlist,
-        isRefundable: space.isRefundable,
-    }));
+    const spaces = fetchedSpaces?.length
+        ? fetchedSpaces
+        : (spacesData?.data?.records || []).map((space: any) => ({
+              ...space,
+              price: parseFloat(space.pricePerHour) || 0,
+              rating: parseFloat(space.avgRating) || 0,
+              reviews: parseInt(space.reviewCount) || 0,
+              seats: space.capacity,
+              discountAmount: space.discountAmount || 0,
+              isWishlist: space.isWishlist,
+              isRefundable: space.isRefundable,
+          }));
 
     const { data: bookingDetails } = useGetGuestBookingDetails();
 
@@ -101,7 +106,7 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
             </div>
 
             {/* Dynamic Hero Banner for Space/Activity */}
-            <div className="w-full max-w-6xl mx-auto px-4 mt-8">
+            <div className="w-full max-w-6xl mx-auto px-4 mt-6">
                 {categoriesLoading || activitiesLoading ? (
                     <BannerSkeleton />
                 ) : (
@@ -204,8 +209,10 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
                                 slug: space.slug,
                                 location: space.location,
                                 pricePerHour: space.pricePerHour,
-                                discountAmount: space.discountAmount ?? space.SpaceListing?.discountAmount ?? 0,
-                                isRefundable: space.isRefundable ?? space.SpaceListing?.isRefundable ?? false,
+                                discountAmount:
+                                    space.discountAmount ?? space.SpaceListing?.discountAmount ?? 0,
+                                isRefundable:
+                                    space.isRefundable ?? space.SpaceListing?.isRefundable ?? false,
                             }))}
                             onSpaceClick={handleSpaceClick}
                             className="h-full"
@@ -233,7 +240,7 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
                                     space={spaceItem as any}
                                     onClick={() => handleSpaceClick(spaceItem.slug)}
                                     className="w-full"
-                                // bookDetail={bookingDetails}
+                                    // bookDetail={bookingDetails}
                                 />
                             ))}
                         </div>
@@ -270,8 +277,14 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
                                     location: space.location,
                                     pricePerHour: space.pricePerHour,
                                     image: space.spaceImages?.[0] || '',
-                                    discountAmount: space.discountAmount ?? space.SpaceListing?.discountAmount ?? 0,
-                                    isRefundable: space.isRefundable ?? space.SpaceListing?.isRefundable ?? false,
+                                    discountAmount:
+                                        space.discountAmount ??
+                                        space.SpaceListing?.discountAmount ??
+                                        0,
+                                    isRefundable:
+                                        space.isRefundable ??
+                                        space.SpaceListing?.isRefundable ??
+                                        false,
                                 }))}
                                 onSpaceClick={handleSpaceClick}
                                 className="w-full h-full rounded-2xl"

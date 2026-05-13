@@ -20,15 +20,23 @@ interface Category {
     };
 }
 
-export default function FeaturedCategories() {
+interface FeaturedCategoriesProps {
+    initialCategories?: Category[];
+}
+
+export default function FeaturedCategories({
+    initialCategories = [],
+}: FeaturedCategoriesProps) {
     const router = useRouter();
     const dispatch = useDispatch();
-    const [categories, setCategories] = useState<Category[]>([]);
+    const [categories, setCategories] = useState<Category[]>(initialCategories);
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
-        fetchCategories();
-    }, []);
+        if (initialCategories.length === 0) {
+            fetchCategories();
+        }
+    }, [initialCategories.length]);
 
     async function fetchCategories() {
         try {

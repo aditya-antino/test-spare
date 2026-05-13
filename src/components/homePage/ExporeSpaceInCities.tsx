@@ -1,6 +1,5 @@
 'use client';
 import React, { useEffect, useState } from 'react';
-import Typography from '@/components/ui/typoGraphy';
 import ArrowScrollWrapper from '@/components/ui/arrowScrollWrapper';
 import { Tabs } from '@/components/ui/tabs';
 import BookingCard from '@/components/common/bookingCard/bookingCard';
@@ -9,7 +8,6 @@ import { handleApiError } from '@/hooks/handleApiError';
 import { TabsSkeleton } from '../shimmers/TabsSkeleton';
 import { BookingCardSkeleton } from '../shimmers/BookingCardSkeleton';
 import { Space } from '@/services';
-import AutoScrollContainer from '../ui/AutoScrollContainer';
 
 interface City {
     id: number;
@@ -75,18 +73,30 @@ function mapApiToSpace(apiData: any): Space {
     };
 }
 
-export default function ExploreSpaceInCities() {
-    const [cityData, setCityData] = useState<City[]>([]);
-    const [activeCity, setActiveCity] = useState<string | null>(null);
-    const [spacesData, setSpacesData] = useState<SpacesByCity>({});
+interface ExploreSpaceInCitiesProps {
+    initialCities?: City[];
+    initialSpacesData?: SpacesByCity;
+}
+
+export default function ExploreSpaceInCities({
+    initialCities = [],
+    initialSpacesData = {},
+}: ExploreSpaceInCitiesProps) {
+    const [cityData, setCityData] = useState<City[]>(initialCities);
+    const [activeCity, setActiveCity] = useState<string | null>(
+        initialCities[0]?.city || null,
+    );
+    const [spacesData, setSpacesData] = useState<SpacesByCity>(initialSpacesData);
     const [loadingSpaces, setLoadingSpaces] = useState(false);
     const [loadingCities, setLoadingCities] = useState(false);
 
     const tabsData = (cityData || []).map((item) => ({ label: item.city, value: item.city }));
 
     useEffect(() => {
-        fetchCities();
-    }, []);
+        if (initialCities.length === 0) {
+            fetchCities();
+        }
+    }, [initialCities.length]);
 
     useEffect(() => {
         if (activeCity && !spacesData[activeCity]) {
@@ -172,7 +182,7 @@ export default function ExploreSpaceInCities() {
                                           key={index}
                                           space={mapApiToSpace(space)}
                                           isNotHomePage={false}
-                                        //   bookDetail={undefined as any}
+                                          //   bookDetail={undefined as any}
                                       />
                                   )) || <div className="text-gray-500">No spaces found</div>}
                         </ArrowScrollWrapper>
@@ -196,7 +206,7 @@ export default function ExploreSpaceInCities() {
                                           key={index}
                                           space={mapApiToSpace(space)}
                                           isNotHomePage={false}
-                                        //   bookDetail={undefined as any}
+                                          //   bookDetail={undefined as any}
                                       />
                                   )) || <div className="text-gray-500">No spaces found</div>}
                         </ArrowScrollWrapper>

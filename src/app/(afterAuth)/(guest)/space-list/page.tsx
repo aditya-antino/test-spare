@@ -91,9 +91,49 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
   };
 }
 
-async function getSpaceList() {
+async function getMetadata() {
     try {
-        const response: any = await ServerGet(endpoints.GUEST_SPACE_LIST + '?page=1&limit=10');
+        const response: any = await ServerGet(endpoints.GET_PUBLIC_CATEGORIES);
+        return response?.data ?? null;
+    } catch (error) {
+        return null;
+    }
+}
+
+async function getSpaceList(searchParams: any, metadata: any) {
+    try {
+        const params = new URLSearchParams();
+        params.append('page', '1');
+        params.append('limit', '10');
+
+        if (searchParams.space && metadata?.categories) {
+            const spaceSlugs = searchParams.space.split(',');
+            const matchedCategoryIds = metadata.categories
+                .filter((c: any) => c.CategoryMaster?.name && spaceSlugs.includes(toSlug(c.CategoryMaster.name)))
+                .map((c: any) => c.categoryId);
+            
+            if (matchedCategoryIds.length > 0) {
+                params.append('categoryIds', matchedCategoryIds.join(','));
+            }
+        }
+
+        if (searchParams.activity && metadata?.activities) {
+            const activitySlugs = searchParams.activity.split(',');
+            const matchedActivityIds = metadata.activities
+                .filter((a: any) => a.activity && activitySlugs.includes(toSlug(a.activity)))
+                .flatMap((a: any) => a.ids || [a.id]);
+            
+            if (matchedActivityIds.length > 0) {
+                params.append('activityIds', matchedActivityIds.join(','));
+            }
+        }
+
+        if (searchParams.minPrice) params.append('minPrice', searchParams.minPrice);
+        if (searchParams.maxPrice) params.append('maxPrice', searchParams.maxPrice);
+        if (searchParams.attendees) params.append('attendees', searchParams.attendees);
+        if (searchParams.instant === 'true') params.append('instantBooking', 'true');
+
+        const response: any = await ServerGet(`${endpoints.GUEST_SPACE_LIST}?${params.toString()}`);
         return response?.data ?? response ?? null;
     } catch (error) {
         console.error('Error fetching space list on server:', error);
@@ -101,8 +141,11 @@ async function getSpaceList() {
     }
 }
 
-export default async function ListingPage() {
-  const initialSpaceData = await getSpaceList();
-  
-  return <SpaceListClient initialSpaceData={initialSpaceData} />;
+const toSlug = (text: string) => text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+
+export default async function ListingPage({ searchParams }: Props) {
+    const metadata = await getMetadata();
+    const initialSpaceData = await getSpaceList(searchParams, metadata);
+    
+    return <SpaceListClient initialSpaceData={initialSpaceData} />;
 }

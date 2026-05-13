@@ -146,7 +146,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
         router.push(`/space-details/${space.slug}`, { scroll: true });
     };
 
-    const cardLink = space?.slug ? `/space-details/${space.slug}` : '#';
+    const cardLink = `/space-details/${space.slug ?? '#'}`;
 
     return (
         <Card
