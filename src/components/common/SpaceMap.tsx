@@ -34,7 +34,8 @@ interface SpaceMapProps {
 
 interface BookingCardProps {
     spaceId: number;
-    spaceIds: number[];
+    slug: string;
+    slugs: (string | undefined)[];
     currentIndex: number;
     onClose: () => void;
     onNavigateToDetails: (slug: string) => void;
@@ -45,7 +46,8 @@ interface BookingCardProps {
 // Booking Card Component
 const BookingCard: React.FC<BookingCardProps> = ({
     spaceId,
-    spaceIds,
+    slug,
+    slugs,
     currentIndex,
     onClose,
     onNavigateToDetails,
@@ -57,7 +59,7 @@ const BookingCard: React.FC<BookingCardProps> = ({
         isLoading,
         error,
     } = useGetGuestSpaceDetails({
-        spaceId: spaceId,
+        slug: slug,
     });
 
     const { data: bookingDetails } = useGetGuestBookingDetails();
@@ -140,9 +142,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
     // adding platform fee and taxes in final discounted price
     const grossDiscountedPrice = discountedPrice * taxMultiplier;
 
-    const hasMultipleSpaces = spaceIds.length > 1;
+    const hasMultipleSpaces = slugs.length > 1;
     const canGoPrevious = hasMultipleSpaces && currentIndex > 0;
-    const canGoNext = hasMultipleSpaces && currentIndex < spaceIds.length - 1;
+    const canGoNext = hasMultipleSpaces && currentIndex < slugs.length - 1;
 
     return (
         <div className="absolute top-4 right-4 w-80 bg-white rounded-2xl shadow-lg overflow-hidden z-10">
@@ -193,9 +195,9 @@ const BookingCard: React.FC<BookingCardProps> = ({
 
                     {/* Carousel Indicator */}
                     <div className="absolute bottom-2 left-1/2 -translate-x-1/2 z-20 bg-black/50 rounded-full px-3 py-1 flex items-center gap-1">
-                        {spaceIds.map((id, idx) => (
+                        {slugs.map((s, idx) => (
                             <button
-                                key={id}
+                                key={`${s}-${idx}`}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     // Navigate to specific space
@@ -337,7 +339,7 @@ const SpaceMap: React.FC<SpaceMapProps> = ({ spaces, onSpaceClick, className }) 
     const mapRef = useRef<HTMLDivElement>(null);
     const mapInstanceRef = useRef<any>(null);
     const markersRef = useRef<any[]>([]);
-    const [selectedSpaceIds, setSelectedSpaceIds] = useState<number[]>([]);
+    const [selectedSpaces, setSelectedSpaces] = useState<SpaceLocation[]>([]);
     const [currentSpaceIndex, setCurrentSpaceIndex] = useState<number>(0);
 
     const { data: bookingDetails } = useGetGuestBookingDetails();
@@ -482,8 +484,7 @@ const SpaceMap: React.FC<SpaceMapProps> = ({ spaces, onSpaceClick, className }) 
 
                 // Add click listener - set all space IDs at this location
                 marker.addListener('click', () => {
-                    const spaceIds = spacesAtLocation.map((s) => s.id);
-                    setSelectedSpaceIds(spaceIds);
+                    setSelectedSpaces(spacesAtLocation);
                     setCurrentSpaceIndex(0);
                 });
 
@@ -506,7 +507,7 @@ const SpaceMap: React.FC<SpaceMapProps> = ({ spaces, onSpaceClick, className }) 
     }, [spaces, onSpaceClick, bookingDetails]);
 
     const handleCloseBookingCard = () => {
-        setSelectedSpaceIds([]);
+        setSelectedSpaces([]);
         setCurrentSpaceIndex(0);
     };
 
@@ -516,7 +517,7 @@ const SpaceMap: React.FC<SpaceMapProps> = ({ spaces, onSpaceClick, className }) 
         } else {
             console.warn('Space slug is missing, cannot navigate');
         }
-        setSelectedSpaceIds([]);
+        setSelectedSpaces([]);
         setCurrentSpaceIndex(0);
     };
 
@@ -527,7 +528,7 @@ const SpaceMap: React.FC<SpaceMapProps> = ({ spaces, onSpaceClick, className }) 
     };
 
     const handleNext = () => {
-        if (currentSpaceIndex < selectedSpaceIds.length - 1) {
+        if (currentSpaceIndex < selectedSpaces.length - 1) {
             setCurrentSpaceIndex(currentSpaceIndex + 1);
         }
     };
@@ -539,10 +540,11 @@ const SpaceMap: React.FC<SpaceMapProps> = ({ spaces, onSpaceClick, className }) 
             </div>
 
             {/* Booking Card Overlay */}
-            {selectedSpaceIds.length > 0 && (
+            {selectedSpaces.length > 0 && selectedSpaces[currentSpaceIndex] && (
                 <BookingCard
-                    spaceId={selectedSpaceIds[currentSpaceIndex]}
-                    spaceIds={selectedSpaceIds}
+                    spaceId={selectedSpaces[currentSpaceIndex].id}
+                    slug={selectedSpaces[currentSpaceIndex].slug || ''}
+                    slugs={selectedSpaces.map((s) => s.slug)}
                     currentIndex={currentSpaceIndex}
                     onClose={handleCloseBookingCard}
                     onNavigateToDetails={handleNavigateToDetails}
