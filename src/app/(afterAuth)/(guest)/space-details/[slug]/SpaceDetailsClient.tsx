@@ -8,6 +8,7 @@ import SpaceInformation from '@/components/common/SpaceInformation';
 import SpaceOverview from '@/components/common/SpaceOverview';
 import SpaceRates from '@/components/common/SpaceRates';
 import ThingsToKnow from '@/components/common/ThingsToKnow';
+import RecommendedSpaces from '@/components/common/RecommendedSpaces';
 import Footer from '@/components/layout/footer';
 import React from 'react';
 import BookingForm from '../bookingForm';
@@ -139,6 +140,7 @@ const SpaceDetailsClient = ({ initialSpaceData }: SpaceDetailsClientProps) => {
                     </div>
                 </div>
 
+                {spaceData?.id && <RecommendedSpaces spaceId={spaceData?.id} />}
                 <Footer />
             </div>
 

@@ -1,4 +1,4 @@
-import { useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query';
+import { useMutation, UseMutationOptions, useQuery, UseQueryOptions, useInfiniteQuery, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { Post, Get, Put, Delete } from '@/services/api';
 import { endpoints } from '@/services/endPoints';
 import { ApiResponse } from '@/types/common.types';
@@ -393,6 +393,37 @@ export const useAfterAuthGetSpaceGuestList = (params?: any, options?: { enabled?
             return response as { data: { count: number; records: Array<Space> } };
         },
         enabled: options?.enabled !== false && params !== undefined,
+        ...options,
+    });
+};
+
+export const useInfiniteGetRecommendedSpaces = (
+    spaceId?: string | number,
+    limit: number = 5,
+    options?: Partial<UseInfiniteQueryOptions<any, any, any, any>>
+) => {
+    return useInfiniteQuery<any>({
+        queryKey: ['get-recommended-spaces-infinite', spaceId, limit],
+        queryFn: async ({ pageParam = 1 }) => {
+            const response = await Get<any>(
+                endpoints.GUEST_RECOMMENDED_SPACES(spaceId!, limit, pageParam as number)
+            );
+            return response;
+        },
+        initialPageParam: 1,
+        getNextPageParam: (lastPage: any, allPages: any[]) => {
+            let lastRecords = lastPage?.records || lastPage?.data?.records || lastPage?.data || lastPage || [];
+            
+            if (Array.isArray(lastRecords)) {
+                if (lastRecords.length < limit) {
+                    return undefined; // No more pages
+                }
+                return allPages.length + 1; // Fetch next page
+            }
+            return undefined;
+        },
+        enabled: !!spaceId && (options?.enabled ?? true),
+        staleTime: 10 * 60 * 1000,
         ...options,
     });
 };

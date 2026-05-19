@@ -67,6 +67,7 @@ export const endpoints = {
     GUEST_SPACE_LIST: '/guest/spaces',
     GUEST_SPACE_DETAILS: '/guest/spaces/:slug',
     GUEST_AUTH_SPACE_DETAILS: '/guest/auth/spaces/:slug',
+    GUEST_RECOMMENDED_SPACES: (spaceId: string | number, limit: number = 5, page: number = 1) => `/guest/spaces/${spaceId}/recommendations?limit=${limit}&page=${page}`,
     GUEST_REQUEST_BOOKING: '/guest/request-booking',
     GUEST_BOOKING_DETAILS: '/guest/setting',
     GUEST_CANCELLATION_POLICY: '/guest/policies',
