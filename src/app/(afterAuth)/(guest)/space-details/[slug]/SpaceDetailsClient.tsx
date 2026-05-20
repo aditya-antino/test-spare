@@ -14,6 +14,7 @@ import React from 'react';
 import BookingForm from '../bookingForm';
 import { PATHS } from '@/constants/path';
 import VerificationRequiredModal from '@/components/modals/VerificationRequiredModal';
+import AuthModal from '@/components/modals/AuthModal/AuthModal';
 import { SpaceDetailsSkeleton } from '@/components/skeletons';
 import { EmptyState } from '@/components/common';
 import { useSpaceDetails } from './useSpaceDetails';
@@ -33,6 +34,8 @@ const SpaceDetailsClient = ({ initialSpaceData }: SpaceDetailsClientProps) => {
         handleInstantBooking,
         showVerificationModal,
         setShowVerificationModal,
+        showAuthModal,
+        setShowAuthModal,
         router,
     } = useSpaceDetails(initialSpaceData);
 
@@ -99,6 +102,7 @@ const SpaceDetailsClient = ({ initialSpaceData }: SpaceDetailsClientProps) => {
                             bookingDetails={bookingDetails}
                             bookingSettings={bookingDetails}
                             isAuthenticated={isAuthenticated}
+                            openAuthModal={setShowAuthModal}
                         />
                         <SpaceInformation description={spaceData?.detailedDescription} />
                         <Amenities data={spaceData} />
@@ -136,6 +140,7 @@ const SpaceDetailsClient = ({ initialSpaceData }: SpaceDetailsClientProps) => {
                             onNavigateToReview={handleNavigateToReview}
                             onInstantBooking={handleInstantBooking}
                             openVerificationModal={setShowVerificationModal}
+                            openAuthModal={setShowAuthModal}
                         />
                     </div>
                 </div>
@@ -149,6 +154,11 @@ const SpaceDetailsClient = ({ initialSpaceData }: SpaceDetailsClientProps) => {
                 isOpen={showVerificationModal}
                 onClose={() => setShowVerificationModal(false)}
                 verificationPath={PATHS.GUEST_VERIFICATION}
+            />
+
+            <AuthModal 
+                isOpen={showAuthModal}
+                onClose={() => setShowAuthModal(false)}
             />
         </>
     );

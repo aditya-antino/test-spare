@@ -65,6 +65,7 @@ export default function SpaceOverview({
     bookingDetails,
     bookingSettings,
     isAuthenticated,
+    openAuthModal,
 }: {
     data: SpaceDetailsInterface;
     bookingDetails: any;
@@ -77,6 +78,7 @@ export default function SpaceOverview({
         guest_platform_fee?: string;
     };
     isAuthenticated: boolean;
+    openAuthModal?: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
     const router = useRouter();
     const dispatch = useDispatch();
@@ -361,10 +363,14 @@ export default function SpaceOverview({
 
             {/* Mobile Booking Form Modal */}
             {isGuestMode && showBookingForm && (
-                <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4 sm:hidden">
-                    <div className="bg-white rounded-2xl max-w-full w-full max-h-[90vh] overflow-y-auto">
-                        <div className="flex items-center justify-between p-4 border-b">
-                            <h2 className="text-lg font-semibold text-gray-900">Book This Space</h2>
+                <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-end justify-center z-50 sm:hidden animate-in fade-in duration-300">
+                    <div className="bg-white rounded-t-[32px] w-full max-h-[95vh] overflow-y-auto animate-in slide-in-from-bottom duration-300 shadow-2xl">
+                        {/* Mobile Handle Bar */}
+                        <div className="flex justify-center py-4">
+                            <div className="w-12 h-1.5 bg-gray-200 rounded-full" />
+                        </div>
+                        <div className="flex items-center justify-between px-6 pb-4 border-b">
+                            <h2 className="text-xl font-bold text-gray-900">Book This Space</h2>
                             <button
                                 onClick={() => setShowBookingForm(false)}
                                 className="p-2 hover:bg-gray-100 rounded-full transition-colors"
@@ -415,6 +421,11 @@ export default function SpaceOverview({
                                         toast.error(
                                             'Space slug is missing, cannot proceed to review',
                                         );
+                                    }
+                                }}
+                                openAuthModal={(isOpen) => {
+                                    if (openAuthModal) {
+                                        openAuthModal(isOpen);
                                     }
                                 }}
                             />

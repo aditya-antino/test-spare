@@ -18,6 +18,7 @@ export const useSpaceDetails = (initialSpaceData?: any) => {
     const slug = params.slug as string;
     const { isAuth: isAuthenticated } = useAuth();
     const [showVerificationModal, setShowVerificationModal] = useState(false);
+    const [showAuthModal, setShowAuthModal] = useState(false);
 
     // Fetch space details based on auth status
     const authSpaceDetails = useGetAuthGuestSpaceDetails(
@@ -73,6 +74,8 @@ export const useSpaceDetails = (initialSpaceData?: any) => {
         handleInstantBooking,
         showVerificationModal,
         setShowVerificationModal,
+        showAuthModal,
+        setShowAuthModal,
         router,
     };
 };

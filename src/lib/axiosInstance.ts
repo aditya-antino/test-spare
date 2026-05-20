@@ -143,10 +143,18 @@ axiosInstance.interceptors.response.use(
         }
 
         // ── Token expiry → Attempt Refresh ────────────────────────────────
+        // We only attempt to refresh the token if the request was originally authenticated
+        // and it's not a login/auth endpoint that naturally returns 401 on bad credentials.
+        const isAuthEndpoint =
+            originalRequest.url?.includes('/auth/login') ||
+            originalRequest.url?.includes('/auth/google-login');
+
         if (
             (error?.response?.status === 401 || message === TOKEN_EXPIRED_MESSAGE) &&
             !originalRequest._retry &&
-            originalRequest.url !== '/auth/refresh-token'
+            originalRequest.url !== '/auth/refresh-token' &&
+            !isAuthEndpoint &&
+            originalRequest.headers.Authorization
         ) {
             if (isRefreshing) {
                 return new Promise((resolve, reject) => {
@@ -162,14 +170,15 @@ axiosInstance.interceptors.response.use(
             originalRequest._retry = true;
             isRefreshing = true;
 
-            const refreshToken = localStorage.getItem('refreshToken');
-
-            if (!refreshToken) {
-                handleSessionExpired();
-                return Promise.reject(error?.response?.data);
-            }
-
             try {
+                const refreshToken = localStorage.getItem('refreshToken');
+
+                if (!refreshToken) {
+                    processQueue(new Error('No refresh token'), null);
+                    handleSessionExpired();
+                    return Promise.reject(error?.response?.data);
+                }
+
                 const response = await axiosInstance.post('/auth/refresh-token', {
                     refreshToken,
                 });

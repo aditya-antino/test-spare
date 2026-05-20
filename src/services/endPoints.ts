@@ -14,6 +14,7 @@ export const endpoints = {
     AUTH_PHONE_SIGNUP: '/auth/phone-signup',
     VERIFY_PHONE_SIGNUP_OTP: '/auth/verify-phone-signup',
     VERIFY_EMAIL: '/auth/verify-email',
+    VERIFY_EMAIL_OTP: '/auth/verify-email-otp',
     RESEND_VERIFICATION: '/auth/resend-verification',
     AUTH_PROFILE: '/auth/profile',
     AUTH_ADD_EMAIL_TO_ACCOUNT: '/auth/add-email',

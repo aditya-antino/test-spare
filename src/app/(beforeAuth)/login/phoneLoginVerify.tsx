@@ -158,7 +158,7 @@ const PhoneLoginVerify = ({
                     {isVerifyingOtp ? (
                         <Loader size={20} colorClass="text-gray-900" />
                     ) : (
-                        'Login'
+                        'Continue'
                     )}
                 </Button>
             </form>

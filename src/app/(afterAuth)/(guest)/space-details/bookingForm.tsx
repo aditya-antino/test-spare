@@ -1789,12 +1789,14 @@ const BookingForm = ({
     onNavigateToReview,
     onInstantBooking,
     openVerificationModal,
+    openAuthModal,
 }: {
     spaceData?: any;
     bookingDetails?: any;
     onNavigateToReview?: (bookingData: any) => void;
     onInstantBooking?: (bookingData: any) => void;
     openVerificationModal?: React.Dispatch<React.SetStateAction<boolean>>;
+    openAuthModal?: React.Dispatch<React.SetStateAction<boolean>>;
 }) => {
     const {
         message,
@@ -1813,6 +1815,7 @@ const BookingForm = ({
         onNavigateToReview,
         onInstantBooking,
         openVerificationModal: openVerificationModal as any,
+        openAuthModal: openAuthModal as any,
     });
 
     useEffect(() => {

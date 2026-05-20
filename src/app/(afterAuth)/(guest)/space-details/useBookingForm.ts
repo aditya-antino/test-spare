@@ -22,6 +22,7 @@ interface UseBookingFormProps {
     onNavigateToReview?: (bookingData: any) => void;
     onInstantBooking?: (bookingData: any) => void;
     openVerificationModal?: (open: boolean | any) => void;
+    openAuthModal?: (open: boolean | any) => void;
 }
 
 export const useBookingForm = ({
@@ -30,6 +31,7 @@ export const useBookingForm = ({
     onNavigateToReview,
     onInstantBooking,
     openVerificationModal,
+    openAuthModal,
 }: UseBookingFormProps) => {
     const dispatch = useDispatch();
     const isAuth = useSelector((state: RootState) => state.auth.isAuth) || false;
@@ -414,10 +416,7 @@ export const useBookingForm = ({
 
     const handleBook = useCallback(() => {
         if (!isAuth) {
-            toast.error('Sign in required to complete this action');
-            setTimeout(() => {
-                window.location.href = '/login';
-            }, 2000);
+            openAuthModal?.(true);
             return;
         }
 
