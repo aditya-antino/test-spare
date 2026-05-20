@@ -10,6 +10,7 @@ import { TabStatus } from '@/app/(afterAuth)/(guest)/my-bookings/useMyBookings';
 import { GuestBooking } from '@/types/@types.guestBookings';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { PATHS } from '@/constants/path';
 
 
 interface CardProps {
@@ -53,7 +54,7 @@ const MyBookingCard = ({
             }
             if (label === 'Host') {
                 if (spaceData?.id) {
-                    router.push(`/host-profile/${spaceData?.User?.id}`);
+                    router.push(`${PATHS.GUEST_HOST_PROFILE}/${spaceData?.User?.id}`);
                 }
             }
         };

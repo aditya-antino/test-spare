@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import Image from 'next/image';
 import { format, isToday, parse } from 'date-fns';
 import { Plus, Minus, ChevronDown, SquarePen, Info } from 'lucide-react';
@@ -11,9 +11,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Bell, MessageCircle, User, Timer } from 'lucide-react';
+import { ArrowLeft, Bell, MessageCircle, User, Timer, AlertTriangle, AlertCircle } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import { useGetGuestBookingCalendar, useGetGuestTimeSlots } from '@/services';
+import { useGetGuestBookingCalendar, useGetGuestTimeSlots, useGetKYCDoc } from '@/services';
 import { capitalizeWord } from '../../../../utils/helperFunctions';
 import { formatCurrency } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -762,6 +762,12 @@ const BookingReview: React.FC<BookingReviewProps> = ({
     isLoading = false,
 }) => {
     const router = useRouter();
+
+    const { data: kycDoc } = useGetKYCDoc();
+    const isKycVerified = useMemo(() => {
+        const docs = kycDoc?.data?.filter((doc: any) => doc.type !== 'pan' && doc.type !== 'gst') || [];
+        return docs.length > 0;
+    }, [kycDoc]);
 
     const [agreements, setAgreements] = useState({
         keepConversations: false,
@@ -1971,6 +1977,18 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                             </p>
                         </div>
 
+                        {!isKycVerified && (
+                            <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
+                                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                                <div>
+                                    <h3 className="font-semibold text-red-800 text-sm">Account Verification Required</h3>
+                                    <p className="text-red-700 text-xs mt-1 leading-relaxed">
+                                        You are currently booking without KYC verification. Please verify your KYC details within 6 hours of booking to prevent automatic cancellation. You can do this from your Account Verification page.
+                                    </p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* Message to Host */}
                         <div className="mb-6 md:mb-8">
                             <h2 className="text-sm md:text-base font-semibold text-[#333] mb-3 md:mb-4">
@@ -2574,6 +2592,14 @@ const BookingReview: React.FC<BookingReviewProps> = ({
 
                     {/* Book Now Button */}
                     <div className="space-y-2 md:space-y-3">
+                        {!isKycVerified && (
+                            <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
+                                <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                                <p className="text-red-800 text-xs leading-normal font-medium">
+                                    Please verify your KYC within 6 hours of booking to prevent automatic cancellation.
+                                </p>
+                            </div>
+                        )}
                         <Button
                             onClick={() => {
                                 // Re-validate before proceeding

@@ -420,10 +420,12 @@ export const useBookingForm = ({
             return;
         }
 
-        if (!filteredKycDoc || filteredKycDoc.length === 0) {
-            openVerificationModal?.(true);
-            return;
-        }
+        // if (!filteredKycDoc || filteredKycDoc.length === 0) {
+        //     openVerificationModal?.(true);
+        //     return;
+        // }
+
+        // KYC verification check is bypassed on frontend to allow guest booking without pre-verification
 
         const errors = getValidationErrors();
         if (errors.length > 0) {

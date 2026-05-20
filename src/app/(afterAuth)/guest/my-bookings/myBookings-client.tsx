@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense } from 'react';
+import { Suspense, useMemo } from 'react';
 import { Button } from '@/components/ui/button';
 import Pagination from '@/components/ui/CustomPagination';
 import { TableWithPagination } from '@/components/ui/table-with-pagination';
@@ -12,7 +12,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MoreHorizontal } from 'lucide-react';
+import { MoreHorizontal, AlertTriangle, AlertCircle } from 'lucide-react';
 import { StatusBadge } from '@/components/ui/status-badge';
 import MyBookingCard from '@/components/booking/MyBookingCard';
 import MobileModal from './MobileModal';
@@ -28,11 +28,18 @@ import {
 } from '@/components';
 import Link from 'next/link';
 import { PATHS } from '@/constants/path';
+import { useGetKYCDoc } from '@/services';
 
 
 import { useMyBookings, TabStatus } from './useMyBookings';
 
 const MyBookingsContent = () => {
+    const { data: kycDoc } = useGetKYCDoc();
+    const isKycVerified = useMemo(() => {
+        const docs = kycDoc?.data?.filter((doc: any) => doc.type !== 'pan' && doc.type !== 'gst') || [];
+        return docs.length > 0;
+    }, [kycDoc]);
+
     const {
         activeStatusTab,
         bookings,
@@ -107,7 +114,7 @@ const MyBookingsContent = () => {
                             className="font-semibold text-zinc-800 text-sm cursor-pointer hover:underline transition-colors"
                             onClick={() =>
                                 row?.Space?.User?.id &&
-                                router.push(`/host-profile/${row.Space.User.id}`)
+                                router.push(`${PATHS.GUEST_HOST_PROFILE}/${row.Space.User.id}`)
                             }
                         >
                             {row?.Space?.User
@@ -492,6 +499,26 @@ const MyBookingsContent = () => {
     return (
         <div className="max-w-[95%] mx-auto px-4 py-6 space-y-6">
             <h1 className="text-4xl sm:text-2xl font-bold text-[#F6CD28]">My Bookings</h1>
+
+            {!isKycVerified && (
+                <div className="bg-red-50 border border-red-200 rounded-2xl p-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 shadow-sm">
+                    <div className="flex items-start gap-3">
+                        <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                        <div>
+                            <h3 className="font-semibold text-red-800 text-sm">Account Verification Required</h3>
+                            <p className="text-red-700 text-xs mt-1 leading-relaxed">
+                                Please verify your KYC details within 6 hours of booking to prevent automatic cancellation of your reservations.
+                            </p>
+                        </div>
+                    </div>
+                    <Link
+                        href="/account/verification"
+                        className="bg-red-600 hover:bg-red-700 text-white text-xs font-semibold px-4 py-2 rounded-full shrink-0 transition-colors"
+                    >
+                        Verify Now
+                    </Link>
+                </div>
+            )}
 
             <Tabs
                 tabs={MY_BOOKING_STATUS_TAB}
