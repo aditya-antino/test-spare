@@ -1,5 +1,5 @@
 'use client';
-import React, { useRef } from 'react';
+import React from 'react';
 import BookingCard from '@/components/common/bookingCard/bookingCard';
 import { SkeletonCardGrid } from '@/components/skeletons/SkeletonCard';
 import { useInfiniteGetRecommendedSpaces } from '@/services/spaces/spaces.service';
@@ -14,8 +14,6 @@ interface RecommendedSpacesProps {
 
 const RecommendedSpaces: React.FC<RecommendedSpacesProps> = ({ spaceId }) => {
     const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } = useInfiniteGetRecommendedSpaces(spaceId, 10);
-    const navigationPrevRef = useRef<HTMLButtonElement>(null);
-    const navigationNextRef = useRef<HTMLButtonElement>(null);
 
     if (isLoading) {
         return (
@@ -74,14 +72,8 @@ const RecommendedSpaces: React.FC<RecommendedSpacesProps> = ({ spaceId }) => {
                     spaceBetween={20}
                     slidesPerView={1}
                     navigation={{
-                        prevEl: navigationPrevRef.current,
-                        nextEl: navigationNextRef.current,
-                    }}
-                    onBeforeInit={(swiper) => {
-                        // @ts-ignore
-                        swiper.params.navigation.prevEl = navigationPrevRef.current;
-                        // @ts-ignore
-                        swiper.params.navigation.nextEl = navigationNextRef.current;
+                        prevEl: '.swiper-button-prev-recommended',
+                        nextEl: '.swiper-button-next-recommended',
                     }}
                     onReachEnd={(swiper) => {
                         if (hasNextPage && !isFetchingNextPage) {
@@ -113,8 +105,7 @@ const RecommendedSpaces: React.FC<RecommendedSpacesProps> = ({ spaceId }) => {
                 </Swiper>
 
                 <button
-                    ref={navigationPrevRef}
-                    className="absolute left-2 sm:-left-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-full p-2.5 text-gray-800 hover:bg-gray-50 transition-all disabled:opacity-0 disabled:cursor-not-allowed flex"
+                    className="swiper-button-prev-recommended absolute left-2 sm:-left-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-full p-2.5 text-gray-800 hover:bg-gray-50 transition-all disabled:opacity-0 disabled:cursor-not-allowed flex"
                     aria-label="Previous spaces"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -122,13 +113,12 @@ const RecommendedSpaces: React.FC<RecommendedSpacesProps> = ({ spaceId }) => {
                     </svg>
                 </button>
                 <button
-                    ref={navigationNextRef}
                     onClick={() => {
                         if (hasNextPage && !isFetchingNextPage) {
                             fetchNextPage();
                         }
                     }}
-                    className="absolute right-2 sm:-right-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-full p-2.5 text-gray-800 hover:bg-gray-50 transition-all disabled:opacity-0 disabled:cursor-not-allowed flex"
+                    className="swiper-button-next-recommended absolute right-2 sm:-right-5 top-1/2 -translate-y-1/2 z-10 bg-white shadow-[0_4px_12px_rgba(0,0,0,0.1)] rounded-full p-2.5 text-gray-800 hover:bg-gray-50 transition-all disabled:opacity-0 disabled:cursor-not-allowed flex"
                     aria-label="Next spaces"
                 >
                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

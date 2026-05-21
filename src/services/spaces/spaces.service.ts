@@ -1,6 +1,7 @@
 import { useMutation, UseMutationOptions, useQuery, UseQueryOptions, useInfiniteQuery, UseInfiniteQueryOptions } from '@tanstack/react-query';
 import { Post, Get, Put, Delete } from '@/services/api';
 import { endpoints } from '@/services/endPoints';
+import { useAuth } from '@/hooks';
 import { ApiResponse } from '@/types/common.types';
 import { DdlData } from '@/types/common.types';
 import {
@@ -402,8 +403,9 @@ export const useInfiniteGetRecommendedSpaces = (
     limit: number = 5,
     options?: Partial<UseInfiniteQueryOptions<any, any, any, any>>
 ) => {
+    const { isAuth } = useAuth();
     return useInfiniteQuery<any>({
-        queryKey: ['get-recommended-spaces-infinite', spaceId, limit],
+        queryKey: ['get-recommended-spaces-infinite', spaceId, limit, isAuth],
         queryFn: async ({ pageParam = 1 }) => {
             const response = await Get<any>(
                 endpoints.GUEST_RECOMMENDED_SPACES(spaceId!, limit, pageParam as number)
