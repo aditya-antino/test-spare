@@ -185,7 +185,7 @@ const MyBookingCard = ({
                     <CardTypo label="Date" value={date} />
                     <CardTypo label="Time" value={time} />
                     <CardTypo
-                        label={`Total ${isCancellationTab ? 'Refund' : 'Payout'}`}
+                        label={`Total ${isCancellationTab ? 'Refund' : 'Paid'}`}
                         value={totalPayout}
                     />
                 </div>

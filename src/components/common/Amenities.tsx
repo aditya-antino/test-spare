@@ -15,7 +15,7 @@ export default function Amenities({ data }) {
     if (!Array.isArray(amenities) || amenities.length === 0) {
         return (
             <Card className="p-2 sm:p-8 flex flex-col gap-6">
-                <h3 className="text-gray-900 text-2xl font-semibold">Amenities</h3>
+                <h2 className="text-gray-900 text-2xl font-semibold">Amenities</h2>
                 <p className="text-gray-500 text-base font-medium">
                     About the space's amenities and services
                 </p>
@@ -29,7 +29,7 @@ export default function Amenities({ data }) {
 
     return (
         <Card className="p-2 sm:p-8 flex flex-col gap-6">
-            <h3 className="text-gray-900 text-2xl font-semibold">Sub Categories</h3>
+            <h2 className="text-gray-900 text-2xl font-semibold">Sub Categories</h2>
 
             {spaceTypes.length > 0 && (
                 <div className="flex flex-wrap gap-2">
@@ -50,7 +50,7 @@ export default function Amenities({ data }) {
                     ))}
                 </div>
             )}
-            <h3 className="text-gray-900 text-2xl font-semibold">Activities</h3>
+            <h2 className="text-gray-900 text-2xl font-semibold">Activities</h2>
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-5 w-full">
                 {activities.map((item) => (
                     <div key={item?.id || item?.activity} className="flex items-center gap-2">
@@ -58,7 +58,7 @@ export default function Amenities({ data }) {
                     </div>
                 ))}
             </div>
-            <h3 className="text-gray-900 text-2xl font-semibold">Amenities</h3>
+            <h2 className="text-gray-900 text-2xl font-semibold">Amenities</h2>
             <p className="text-gray-500 text-base font-medium">
                 About the space's amenities and services
             </p>

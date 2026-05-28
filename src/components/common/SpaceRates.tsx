@@ -32,7 +32,7 @@ export default function SpaceRates({
 
     return (
         <Card className="p-2 sm:p-8 flex flex-col gap-6">
-            <h3 className="text-gray-900 text-2xl font-semibold">Space Rates</h3>
+            <h2 className="text-gray-900 text-2xl font-semibold">Space Rates</h2>
             <p className="text-gray-500 text-base font-medium">
                 Prices may increase on weekends or holidays
             </p>

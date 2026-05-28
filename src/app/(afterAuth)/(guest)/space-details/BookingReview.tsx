@@ -2195,9 +2195,9 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                             </p>
                             <div className="flex items-center gap-1 mt-1">
                                 <span className="text-[#F6CD28] text-xs md:text-sm">★</span>
-                                <span className="text-xs md:text-sm text-gray-600">
-                                    {parseFloat(spaceData?.avg_rating || '0').toFixed(2)} (
-                                    {spaceData?.reviewCount || spaceData?.Reviews?.length || 0})
+                                 <span className="text-xs md:text-sm text-gray-600">
+                                    {parseFloat(spaceData?.avg_rating || '0').toFixed(2)}
+                                    {(spaceData?.reviewCount || spaceData?.Reviews?.length || 0) > 0 && ` (${spaceData?.reviewCount || spaceData?.Reviews?.length})`}
                                 </span>
                             </div>
                         </div>

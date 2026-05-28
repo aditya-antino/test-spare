@@ -73,12 +73,12 @@ export default function ThingsToKnow({ listing }: ThingsToKnowProps) {
 
     return (
         <Card className="p-2 sm:p-8 flex flex-col gap-6">
-            <h3 className="text-gray-900 text-2xl font-semibold">Things to Know</h3>
+            <h2 className="text-gray-900 text-2xl font-semibold">Things to Know</h2>
 
             {/* Cancellation Policy */}
             <section className="flex flex-col w-full gap-2">
                 <div className="flex flex-col">
-                    <h4 className="text-gray-800 text-lg font-semibold">Cancellation policy</h4>
+                    <h3 className="text-gray-800 text-lg font-semibold">Cancellation policy</h3>
 
                     {!listing?.isRefundable ? (
                         <p className="text-gray-800 text-base font-semibold">
@@ -116,7 +116,7 @@ export default function ThingsToKnow({ listing }: ThingsToKnowProps) {
 
             {/* Space Rules */}
             <section className="flex flex-col w-full gap-2.5">
-                <h4 className="text-gray-800 text-lg font-semibold">Space Rules</h4>
+                <h3 className="text-gray-800 text-lg font-semibold">Space Rules</h3>
                 <ul className="text-gray-500 list-disc pl-4 text-base font-medium">
                     {rules.length > 0 ? (
                         rules.map((rule, idx) => <li key={idx}>{rule}</li>)
@@ -132,9 +132,9 @@ export default function ThingsToKnow({ listing }: ThingsToKnowProps) {
             {listing.arrivalInstructions && (
                 <>
                     <section className="flex flex-col w-full gap-2.5">
-                        <h4 className="text-gray-800 text-lg font-semibold">
+                        <h3 className="text-gray-800 text-lg font-semibold">
                             Arrival Instructions
-                        </h4>
+                        </h3>
                         <p className="text-gray-500 text-base font-medium break-words">
                             {listing.arrivalInstructions}
                         </p>
@@ -145,7 +145,7 @@ export default function ThingsToKnow({ listing }: ThingsToKnowProps) {
 
             {/* Operating Hours */}
             <section className="flex flex-col max-w-md w-full gap-2.5">
-                <h4 className="text-gray-800 text-lg font-semibold">Operating Hours</h4>
+                <h3 className="text-gray-800 text-lg font-semibold">Operating Hours</h3>
                 <div className="flex flex-col gap-3 text-gray-500 text-base font-medium">
                     {operatingHours ? (
                         (() => {

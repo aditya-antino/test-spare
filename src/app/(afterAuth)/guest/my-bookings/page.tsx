@@ -1,16 +1,20 @@
-import type { Metadata } from "next";
-import MyBookingsClient from "./myBookings-client";
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: "My Bookings | SpareSpace",
-  description:
-    "View and manage your bookings on SpareSpace. Track upcoming reservations and review past bookings.",
-  robots: {
-    index: false,
-    follow: false,
-  },
+type Props = {
+    searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default function MyBookingsPage() {
-  return <MyBookingsClient />;
+export default function Page({ searchParams }: Props) {
+    const urlParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchParams)) {
+        if (value !== undefined) {
+            if (Array.isArray(value)) {
+                value.forEach(val => urlParams.append(key, val));
+            } else {
+                urlParams.append(key, value);
+            }
+        }
+    }
+    const queryString = urlParams.toString();
+    redirect(`/my-bookings${queryString ? `?${queryString}` : ''}`);
 }

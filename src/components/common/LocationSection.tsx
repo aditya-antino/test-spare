@@ -33,7 +33,7 @@ export default function LocationSection({ location, address, city, area, localit
 
     return (
         <Card className="p-2 sm:p-8 flex flex-col gap-6">
-            <h3 className="text-gray-900 text-2xl font-semibold">Location</h3>
+            <h2 className="text-gray-900 text-2xl font-semibold">Location</h2>
             <p className="text-gray-500 text-base font-medium">{formatAddress()}</p>
             <div className="w-16 border-t" />
 

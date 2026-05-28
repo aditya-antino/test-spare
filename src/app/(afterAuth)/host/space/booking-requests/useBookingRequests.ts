@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'react-toastify';
 import { useApproveBooking, useGetReservationList } from '@/services';
 import { updateHeaderNotification } from '@/store/slice/headerNotificationSlice';
+import { BookingRequest } from '@/types/reservations';
 
 const ITEMS_PER_PAGE = 10;
 
@@ -36,16 +37,50 @@ export const useBookingRequests = () => {
     const hostPlatformFeePercentage = Number(bookingRequestsData?.data?.host_platform_fee) || 0;
     const hostTDSPercentage = Number(bookingRequestsData?.data?.tds) || 0;
 
-    const calculateHostAmount = (amount: number): CalculatedRequestAmounts => {
-        const hostPlatformFee = (amount * hostPlatformFeePercentage) / 100;
-        const hostTDSFee = (amount * hostTDSPercentage) / 100;
-        const totalHostAmount = amount - (hostPlatformFee + hostTDSFee);
+    const calculateHostAmount = (
+        row: BookingRequest
+    ): CalculatedRequestAmounts => {
+        const amount = Number(row?.amount) || 0;
+        
+        const hostGst = Boolean(row?.hostGst);
+
+        // Host calculations based on percentages
+        const hostBaseAmount = amount;
+
+        // GST calculations
+        const cgstPercentage = Number(bookingRequestsData?.data?.cgst) || 0;
+        const sgstPercentage = Number(bookingRequestsData?.data?.sgst) || 0;
+        const cgstAmount = hostGst ? (hostBaseAmount * cgstPercentage) / 100 : 0;
+        const sgstAmount = hostGst ? (hostBaseAmount * sgstPercentage) / 100 : 0;
+        const hostGSTAmount = cgstAmount + sgstAmount;
+
+        const hostSubtotal = hostGst ? hostBaseAmount + hostGSTAmount : hostBaseAmount;
+
+        // Platform Fee (dynamic percentage from backend)
+        const hostPlatformFee = (hostBaseAmount * hostPlatformFeePercentage) / 100;
+
+        // GST on platform fee is standard 18% (9% cgst + 9% sgst)
+        const hostPlatformFeeGST = (hostPlatformFee * 18) / 100;
+
+        // TCS (dynamic percentage from backend, only if host has GST)
+        const hostTCSPercentage = Number(bookingRequestsData?.data?.tcs) || 0;
+        const hostTCS = hostGst ? (hostBaseAmount * hostTCSPercentage) / 100 : 0;
+
+        // TDS (dynamic percentage from backend)
+        const hostTDS = (hostBaseAmount * hostTDSPercentage) / 100;
+
+        // Calculate final payout
+        let totalHostAmount = hostSubtotal - hostPlatformFee - hostPlatformFeeGST - hostTDS;
+
+        if (hostGst) {
+            totalHostAmount = totalHostAmount - hostTCS;
+        }
 
         return {
-            amount,
-            totalHostAmount: Number(totalHostAmount.toFixed(2)),
+            amount: Number(hostBaseAmount.toFixed(2)),
             hostPlatformFee: Number(hostPlatformFee.toFixed(2)),
-            hostTDSFee: Number(hostTDSFee.toFixed(2)),
+            hostTDSFee: Number(hostTDS.toFixed(2)),
+            totalHostAmount: Number(totalHostAmount.toFixed(2)),
         };
     };
 

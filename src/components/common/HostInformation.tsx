@@ -83,7 +83,7 @@ export default function HostInformation({
 
     return (
         <Card className="p-2 sm:p-8 flex flex-col gap-6">
-            <h3 className="text-gray-900 text-2xl font-semibold">Host Information</h3>
+            <h2 className="text-gray-900 text-2xl font-semibold">Host Information</h2>
             <div className="w-16 border-t" />
 
             {/* Host Avatar & Info */}

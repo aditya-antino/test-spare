@@ -1,5 +1,7 @@
 'use client';
 
+import { useMemo } from 'react';
+
 import BookingRequestCard from '@/components/booking/BookingRequestCard';
 import Image from 'next/image';
 import yellowTick from '@/assets/yellow-tick.svg';
@@ -41,6 +43,21 @@ export default function BookingRequestsPage() {
         itemsPerPage,
         router,
     } = useBookingRequests();
+
+    const transformedRows = useMemo(() => {
+        return (
+            bookingRequestsData?.data?.rows?.map((row: any) => {
+                const transformed = transformBookingRequest({
+                    ...row,
+                    hostPlatformFeePer: hostPlatformFeePercentage,
+                    hostTDSPer: hostTDSPercentage,
+                });
+                const { totalHostAmount } = calculateHostAmount(transformed);
+                transformed.totalHostAmount = totalHostAmount;
+                return transformed;
+            }) || []
+        );
+    }, [bookingRequestsData, hostPlatformFeePercentage, hostTDSPercentage, calculateHostAmount]);
 
     const EmptyListComponent = () => (
         <div className="flex flex-col mx-auto mt-[12vh] max-w-96 items-center gap-4 h-full justify-center text-center">
@@ -105,11 +122,9 @@ export default function BookingRequestsPage() {
             key: 'amount',
             label: 'Total Payout',
             render: (_: any, row: BookingRequest) => {
-                const { totalHostAmount } = calculateHostAmount(Number(row?.amount) || 0);
-
                 return (
                     <div className="font-semibold text-zinc-800 text-sm">
-                        ₹{totalHostAmount}
+                        ₹{row.totalHostAmount ?? 0}
                     </div>
                 );
             },
@@ -186,13 +201,7 @@ export default function BookingRequestsPage() {
                         <TableWithPagination
                             columns={columns}
                             isLoading={isLoading}
-                            data={bookingRequestsData?.data?.rows?.map((row: any) =>
-                                transformBookingRequest({
-                                    ...row,
-                                    hostPlatformFeePer: hostPlatformFeePercentage,
-                                    hostTDSPer: hostTDSPercentage,
-                                }),
-                            )}
+                            data={transformedRows}
                             showPagination={true}
                             emptyMessage={<EmptyListComponent />}
                             totalPages={Math.ceil((bookingRequestsData?.data?.count || 0) / itemsPerPage)}
@@ -202,15 +211,9 @@ export default function BookingRequestsPage() {
                     </div>
 
                     {/* Mobile View */}
-                    {bookingRequestsData?.data?.rows?.length > 0 ? (
+                    {transformedRows.length > 0 ? (
                         <div className="flex flex-col sm:hidden gap-4 w-full my-4 mt-8">
-                            {bookingRequestsData?.data?.rows?.map((row: any) =>
-                                transformBookingRequest({
-                                    ...row,
-                                    hostPlatformFeePer: hostPlatformFeePercentage,
-                                    hostTDSPer: hostTDSPercentage,
-                                })
-                            ).map((item: any) => (
+                            {transformedRows.map((item: any) => (
                                 <BookingRequestCard
                                     key={item.id}
                                     item={item}
@@ -244,6 +247,7 @@ export default function BookingRequestsPage() {
                     title="Booking Request Accepted"
                     onClose={() => setIsAcceptOpen(false)}
                     spaceData={transformToReservation(selectedRow)}
+                    totalHostAmount={selectedRow?.totalHostAmount}
                 />
 
                 <CancelReservationModal

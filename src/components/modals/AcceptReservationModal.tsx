@@ -14,6 +14,7 @@ interface ModalProps {
     description?: string;
     icon?: React.ReactNode;
     isReason?: boolean;
+    totalHostAmount?: number;
 }
 
 const AcceptReservationModal = ({
@@ -24,6 +25,7 @@ const AcceptReservationModal = ({
     description,
     icon,
     isReason = false,
+    totalHostAmount: totalHostAmountProp,
 }: ModalProps) => {
     const pathname = usePathname();
     const isInHost = pathname.startsWith('/host');
@@ -33,7 +35,10 @@ const AcceptReservationModal = ({
     const hostGST = spaceData?.Financial?.hostGst;
     const hostTDSFee = (Number(spaceData?.amount) * Number(spaceData?.hostTDSPer)) / 100;
 
-    const totalHostAmount = Number(spaceData?.amount) - hostPlatformFee - hostTDSFee || 0;
+    const totalHostAmount =
+        totalHostAmountProp !== undefined
+            ? totalHostAmountProp
+            : Number(spaceData?.amount) - hostPlatformFee - hostTDSFee || 0;
     return (
         <Modal
             className="max-w-[343px]"

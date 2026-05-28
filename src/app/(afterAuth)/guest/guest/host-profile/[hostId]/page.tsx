@@ -1,16 +1,21 @@
-import type { Metadata } from "next";
-import HostProfileClient from "./hostProfile-client";
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-    title: "Host Profile | SpareSpace",
-    description:
-        "View host profile, listed spaces, and guest reviews on SpareSpace.",
-    robots: {
-        index: false,
-        follow: false,
-    },
+type Props = {
+    params: { hostId: string };
+    searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default function HostProfilePage() {
-    return <HostProfileClient />;
+export default function Page({ params, searchParams }: Props) {
+    const urlParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchParams)) {
+        if (value !== undefined) {
+            if (Array.isArray(value)) {
+                value.forEach(val => urlParams.append(key, val));
+            } else {
+                urlParams.append(key, value);
+            }
+        }
+    }
+    const queryString = urlParams.toString();
+    redirect(`/guest/host-profile/${params.hostId}${queryString ? `?${queryString}` : ''}`);
 }

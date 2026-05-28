@@ -55,6 +55,7 @@ export const PATHS = {
     TERMS: '/terms',
     PRIVACY: '/privacy',
     COOKIES: '/cookies',
+    PROUDLY_NOT_AI: '/proudly-not-ai',
 
     // social media paths
     SOCIAL_INSTAGRAM: 'https://www.instagram.com/sparespace.co.in?igsh=MWs2dnp6bTNxYzF2cA==',

@@ -107,7 +107,7 @@ function BlogCard({ post }: { post: Post }) {
 
                 <div className="flex items-center justify-between mt-auto pt-2 border-t border-gray-50/0">
                     <Link
-                        href={`/blogs/${post?.slug}`}
+                        href={`/blogs/${post?.slug || post?.id}`}
                         className="inline-flex items-center gap-2 text-primary-p3 font-semibold text-sm sm:text-base hover:text-primary-p2 transition-all duration-300 group/link shrink-0"
                     >
                         <span>Read more</span>
@@ -148,7 +148,6 @@ import BlogListClient from './BlogListClient';
 async function getInitialPosts() {
     try {
         const response: any = await ServerGet(endpoints.GET_BLOGS);
-        console.log('HI ', response);
         return response?.data || [];
     } catch (error) {
         console.error('Error fetching blogs:', error);

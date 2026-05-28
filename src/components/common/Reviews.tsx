@@ -110,7 +110,7 @@ export default function Reviews({
     return (
         <Card className="p-6 mb-8">
             <div className="flex items-center gap-2 mb-4">
-                <h3 className="text-xl font-semibold">Reviews ({reviewCount ?? reviews.length})</h3>
+                <h2 className="text-xl font-semibold">Reviews ({reviewCount ?? reviews.length})</h2>
                 {avgRating !== undefined && avgRating > 0 && (
                     <div className="flex items-center gap-1 text-base font-medium">
                         <Star className="w-4 h-4 fill-current text-black" />

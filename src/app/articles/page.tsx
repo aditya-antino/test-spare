@@ -24,7 +24,7 @@ export async function generateMetadata(): Promise<Metadata> {
         openGraph: {
             title,
             description,
-            url: `${baseUrl}/help-center`,
+            url: `${baseUrl}`,
             siteName: "Spare Space",
             images: [
                 {

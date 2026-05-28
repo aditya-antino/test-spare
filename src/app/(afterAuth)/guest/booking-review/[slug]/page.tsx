@@ -1,21 +1,21 @@
-import type { Metadata } from "next";
-import BookingReviewClient from "./bookingReview-client";
-import PersistGateWrapper from "@/components/common/PersistGateWrapper";
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: "Review Your Booking | SpareSpace",
-  description:
-    "Review your booking details before confirming your reservation on SpareSpace.",
-  robots: {
-    index: false,
-    follow: false,
-  },
+type Props = {
+    params: { slug: string };
+    searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default function BookingReviewPage() {
-  return (
-    <PersistGateWrapper>
-      <BookingReviewClient />
-    </PersistGateWrapper>
-  );
+export default function Page({ params, searchParams }: Props) {
+    const urlParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchParams)) {
+        if (value !== undefined) {
+            if (Array.isArray(value)) {
+                value.forEach(val => urlParams.append(key, val));
+            } else {
+                urlParams.append(key, value);
+            }
+        }
+    }
+    const queryString = urlParams.toString();
+    redirect(`/booking-review/${params.slug}${queryString ? `?${queryString}` : ''}`);
 }

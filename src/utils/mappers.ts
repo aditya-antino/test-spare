@@ -82,6 +82,8 @@ export function transformBookingRequest(data: any): BookingRequest {
         Space: data.Space ?? null,
         hostPlatformFeePer: data?.hostPlatformFeePer,
         hostTDSPer: data?.hostTDSPer,
+        isGst: data?.isGst ?? false,
+        hostGst: data?.hostGst ?? false,
     };
 }
 

@@ -1,13 +1,13 @@
 import { Card } from '@/components/ui/card';
 import { SpaceDetailsInterface } from '@/services';
-import { Star, Zap, User, Share2, Share, Building, Users, IndianRupee, Info } from 'lucide-react';
-import Image from 'next/image';
+import { Star, User, Share, Building, Users, IndianRupee } from 'lucide-react';
 import Link from 'next/link';
 import { Button } from '../ui/button';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useGuestMode } from '@/hooks';
 import { PATHS } from '@/constants/path';
 import { useState } from 'react';
+import ProudlyNotAi from './ProudlyNotAi';
 import MessageHostModal from '../modals/MessageHostModal';
 import ShareModal from '../modals/ShareModal';
 import Instant from '../icons/Instant';
@@ -136,16 +136,24 @@ export default function SpaceOverview({
             {/* Category + Instant Booking */}
 
             <div className="flex justify-between items-start">
-                <div
-                    data-dot="False"
-                    data-remove-button="False"
-                    data-size="Small"
-                    data-theme="Indigo"
-                    data-type="Basic"
-                    className="px-2 sm:px-2.5 py-0.5 sm:py-2 bg-indigo-100 rounded-[10px] sm:rounded-[12px] inline-flex justify-center items-center"
-                >
-                    <div className="text-center justify-start text-indigo-800 text-sm xs:text-xs sm:text-sm font-medium leading-none">
-                        {data?.CategoryMaster?.name || ''}
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
+                    {/* Proudly Not AI Unified Badge & Info Popover */}
+                    <div className=''>
+                        <ProudlyNotAi variant="badge" popoverAlign="right" />
+                    </div>
+
+                    {/* Category Tag */}
+                    <div
+                        data-dot="False"
+                        data-remove-button="False"
+                        data-size="Small"
+                        data-theme="Indigo"
+                        data-type="Basic"
+                        className="px-2 sm:px-2.5 py-0.5 sm:py-2 bg-indigo-100 rounded-[10px] sm:rounded-[12px] inline-flex justify-center items-center"
+                    >
+                        <div className="text-center justify-start text-indigo-800 text-sm xs:text-xs sm:text-sm font-medium leading-none">
+                            {data?.CategoryMaster?.name || ''}
+                        </div>
                     </div>
                 </div>
 
@@ -170,9 +178,9 @@ export default function SpaceOverview({
             </div>
 
             {/* Title */}
-            <div className="justify-start text-gray-800 text-4xl font-bold font-['Figtree'] leading-10">
+            <h1 className="justify-start text-gray-800 text-4xl font-bold font-['Figtree'] leading-10">
                 {data?.title || 'Untitled Space'}
-            </div>
+            </h1>
 
             {/* Description */}
             <div className="max-w-[739px] justify-start text-gray-600 text-base font-medium font-['Figtree'] leading-normal break-words whitespace-pre-wrap">
@@ -181,7 +189,8 @@ export default function SpaceOverview({
 
             {/* Rating + Location */}
             <div className="flex items-center gap-2 text-yellow-500 flex-wrap">
-                <Star className="w-5 h-5" />
+                <Star className="w-5 h-5" 
+                fill="currentColor"/>
                 <span className="font-semibold">
                     {data?.avg_rating ? Number(data.avg_rating).toFixed(1) : '0.0'}
                 </span>
@@ -221,11 +230,10 @@ export default function SpaceOverview({
                                 <div className="text-sm text-gray-500">Hosted by</div>
                                 <span className="font-semibold text-black hover:underline">
                                     {data?.User
-                                        ? `${data.User.first_name || ''} ${
-                                              data.User.last_name
-                                                  ? data.User.last_name[0] + '.'
-                                                  : ''
-                                          }`.trim()
+                                        ? `${data.User.first_name || ''} ${data.User.last_name
+                                                ? data.User.last_name[0] + '.'
+                                                : ''
+                                            }`.trim()
                                         : '-'}
                                 </span>
                             </div>
@@ -247,11 +255,10 @@ export default function SpaceOverview({
                                 <div className="text-sm text-gray-500">Hosted by</div>
                                 <span className="font-semibold text-black">
                                     {data?.User
-                                        ? `${data.User.first_name || ''} ${
-                                              data.User.last_name
-                                                  ? data.User.last_name[0] + '.'
-                                                  : ''
-                                          }`.trim()
+                                        ? `${data.User.first_name || ''} ${data.User.last_name
+                                                ? data.User.last_name[0] + '.'
+                                                : ''
+                                            }`.trim()
                                         : '-'}
                                 </span>
                             </div>

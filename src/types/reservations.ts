@@ -130,4 +130,7 @@ export interface BookingRequest {
     created_at?: string | null;
     updated_at?: string | null;
     Space?: any;
+    isGst?: boolean;
+    hostGst?: boolean;
+    totalHostAmount?: number;
 }

@@ -1,16 +1,20 @@
-import type { Metadata } from "next";
-import WishlistsClient from "./wishlists-client";
+import { redirect } from 'next/navigation';
 
-export const metadata: Metadata = {
-    title: "My Wishlist | SpareSpace",
-    description:
-        "View and manage your saved spaces on SpareSpace. Quickly access the venues you’ve added to your wishlist.",
-    robots: {
-        index: false,
-        follow: false,
-    },
+type Props = {
+    searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default function WishlistsPage() {
-    return <WishlistsClient />;
+export default function Page({ searchParams }: Props) {
+    const urlParams = new URLSearchParams();
+    for (const [key, value] of Object.entries(searchParams)) {
+        if (value !== undefined) {
+            if (Array.isArray(value)) {
+                value.forEach(val => urlParams.append(key, val));
+            } else {
+                urlParams.append(key, value);
+            }
+        }
+    }
+    const queryString = urlParams.toString();
+    redirect(`/wishlists${queryString ? `?${queryString}` : ''}`);
 }

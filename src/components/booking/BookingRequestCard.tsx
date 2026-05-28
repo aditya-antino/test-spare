@@ -46,7 +46,7 @@ const BookingRequestCard = ({ onAccept, onReject, item }: CardProps) => {
     const [collapsed, setCollapsed] = useState(false);
     const hostPlatformFee = (Number(item?.amount) * Number(item?.hostPlatformFeePer)) / 100;
     const hostTDSFee = (Number(item?.amount) * Number(item?.hostTDSPer)) / 100;
-    const totalHostAmount = Number(item.amount) - (hostPlatformFee + hostTDSFee) || 0;
+    const totalHostAmount = item.totalHostAmount ?? (Number(item.amount) - (hostPlatformFee + hostTDSFee) || 0);
 
     return (
         <div className="flex flex-col w-full bg-white rounded-2xl outline outline-offset-[-1px] overflow-hidden outline-black/30">

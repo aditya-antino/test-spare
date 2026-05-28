@@ -61,6 +61,9 @@ export async function generateMetadata(props: Props, parent: ResolvingMetadata):
     return {
         title,
         description,
+        alternates: {
+            canonical: `${baseUrl}/space-details/${slug}`,
+        },
         openGraph: {
             title,
             description,

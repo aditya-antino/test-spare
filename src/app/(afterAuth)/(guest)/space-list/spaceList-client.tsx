@@ -9,8 +9,8 @@ import { Users, Filter, X, MapPin, Tag } from 'lucide-react';
 import FilterPill from '@/components/common/FilterPills';
 import SpaceMap from '@/components/common/SpaceMap';
 import FiltersDrawerGeneric from '@/components/common/FilterDrawer';
-import { SpaceListSkeleton, SkeletonCardGrid, BannerSkeleton } from '@/components/skeletons';
-import { EmptyState } from '@/components/common';
+import { SkeletonCardGrid, BannerSkeleton } from '@/components/skeletons';
+import { EmptyState, ProudlyNotAi } from '@/components/common';
 import Pagination from '@/components/ui/CustomPagination';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -18,7 +18,6 @@ import { useSpaceList, toSlug } from './useSpaceList';
 import { useGetGuestBookingDetails } from '@/services';
 import CategoryBanner from '@/components/common/CategoryBanner';
 import { CATEGORY_BANNERS, DEFAULT_BANNER, BannerContent } from '@/constants/categoryBanners';
-import Link from 'next/link';
 
 const transformCategoryData = (categories: any) => {
     if (!Array.isArray(categories)) {
@@ -84,8 +83,6 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
               isRefundable: space.isRefundable,
           }));
 
-    const { data: bookingDetails } = useGetGuestBookingDetails();
-
     const categories = categoriesData?.data?.categories || [];
 
     const mainHeading = React.useMemo(() => {
@@ -106,7 +103,7 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
             </div>
 
             {/* Dynamic Hero Banner for Space/Activity */}
-            <div className="w-full max-w-6xl mx-auto px-4 mt-6">
+            <div className="w-full max-w-6xl mx-auto px-4 md:my-6">
                 {categoriesLoading || activitiesLoading ? (
                     <BannerSkeleton />
                 ) : (
@@ -118,54 +115,66 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
                 )}
             </div>
 
+
+            <div className="flex md:hidden px-4 w-full justify-start items-center border-b pb-4 mb-2">
+                <ProudlyNotAi variant="pill" popoverAlign="right" />
+            </div>
+
             {/* Main container with filters + listings on left, map on right */}
             <div className="px-4 md:px-16">
                 {/* all 3 Filters together */}
-                <div className="flex gap-3 overflow-x-auto scrollbar-hide py-2 pl-1">
-                    <FilterPill
-                        triggerMode="custom"
-                        placeholder="Price"
-                        custom={{
-                            type: 'price',
-                            value: {
-                                min: appliedFilters.minPrice,
-                                max: appliedFilters.maxPrice,
-                            },
-                            onApply: (newPrice) => {
-                                setAppliedFilters((prev) => ({
-                                    ...prev,
-                                    minPrice: newPrice.min,
-                                    maxPrice: newPrice.max,
-                                }));
-                            },
-                        }}
-                        className="flex-shrink-0 px-2"
-                    />
+                <div className="flex flex-col-reverse gap-3 md:flex-row md:justify-between md:items-center w-full">
+                    <div className="flex gap-3 overflow-x-auto scrollbar-hide py-1 pl-1">
+                        <FilterPill
+                            triggerMode="custom"
+                            placeholder="Price"
+                            custom={{
+                                type: 'price',
+                                value: {
+                                    min: appliedFilters.minPrice,
+                                    max: appliedFilters.maxPrice,
+                                },
+                                onApply: (newPrice) => {
+                                    setAppliedFilters((prev) => ({
+                                        ...prev,
+                                        minPrice: newPrice.min,
+                                        maxPrice: newPrice.max,
+                                    }));
+                                },
+                            }}
+                            className="flex-shrink-0 px-2"
+                        />
 
-                    <FilterPill
-                        triggerMode="custom"
-                        placeholder="Attendees"
-                        leftIcon={<Users className="h-4 w-4" />}
-                        custom={{
-                            type: 'attendees',
-                            value: appliedFilters.attendees,
-                            onApply: (newAttendees) => {
-                                setAppliedFilters((prev) => ({
-                                    ...prev,
-                                    attendees: newAttendees,
-                                }));
-                            },
-                        }}
-                        className="flex-shrink-0"
-                    />
+                        <FilterPill
+                            triggerMode="custom"
+                            placeholder="Attendees"
+                            leftIcon={<Users className="h-4 w-4" />}
+                            custom={{
+                                type: 'attendees',
+                                value: appliedFilters.attendees,
+                                onApply: (newAttendees) => {
+                                    setAppliedFilters((prev) => ({
+                                        ...prev,
+                                        attendees: newAttendees,
+                                    }));
+                                },
+                            }}
+                            className="flex-shrink-0"
+                        />
 
-                    <FilterPill
-                        triggerMode="external"
-                        placeholder="Filter"
-                        leftIcon={<Filter className="h-4 w-4" />}
-                        onTrigger={() => setIsFilterDrawerOpen(true)}
-                        className="flex-shrink-0"
-                    />
+                        <FilterPill
+                            triggerMode="external"
+                            placeholder="Filter"
+                            leftIcon={<Filter className="h-4 w-4" />}
+                            onTrigger={() => setIsFilterDrawerOpen(true)}
+                            className="flex-shrink-0"
+                        />
+                    </div>
+
+                    {/* Proudly Not AI Filter Pill Badge & Info Popover */}
+                    <div className="hidden md:block ">
+                        <ProudlyNotAi variant="pill" popoverAlign="left" />
+                    </div>
                 </div>
 
                 <div className="grid grid-cols-1 lg:grid-cols-4 gap-4 lg:gap-4 pt-6 items-stretch">

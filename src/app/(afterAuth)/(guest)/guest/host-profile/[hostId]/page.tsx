@@ -6,8 +6,8 @@ export const metadata: Metadata = {
     description:
         "View host profile, listed spaces, and guest reviews on SpareSpace.",
     robots: {
-        index: false,
-        follow: false,
+        index: true,
+        follow: true,
     },
 };
 
