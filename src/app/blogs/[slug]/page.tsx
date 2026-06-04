@@ -39,9 +39,11 @@ export async function generateMetadata({
         };
     }
 
-    const description = (post.description || post.excerpt || '')
-        .replace(/<[^>]*>/g, '')
-        .substring(0, 160);
+    const description = post.metaDescription && post.metaDescription.trim() !== ''
+        ? post.metaDescription
+        : (post.description || '')
+            .replace(/<[^>]*>/g, '')
+            .substring(0, 160);
 
     const ogImage = post.img_url || `${baseUrl}/og-image.png`;
 
@@ -122,7 +124,9 @@ export default async function BlogDetailPage({ params }: { params: Promise<{ slu
                         "@context": "https://schema.org",
                         "@type": "BlogPosting",
                         headline: post.title,
-                        description: (post.description || post.excerpt || '').replace(/<[^>]*>/g, '').substring(0, 160),
+                        description: post.metaDescription && post.metaDescription.trim() !== ''
+                            ? post.metaDescription
+                            : (post.description || '').replace(/<[^>]*>/g, '').substring(0, 160),
                         image: featureImg ? [featureImg] : [],
                         datePublished: post.created_at,
                         author: {

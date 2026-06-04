@@ -54,6 +54,8 @@ export type BookingDetailsType = {
     financial?: any;
     platformSettingDetail?: any;
     isPayout?: boolean;
+    discountAmount?: string | number;
+    couponCode?: string;
 };
 
 export interface LastBookingResponse {

@@ -12,7 +12,6 @@ import StayUpated from '@/components/homePage/StayUpated';
 import Footer from '@/components/layout/footer';
 import { TestimonialSection } from '@/components';
 import LandingPageTracker from '@/components/homePage/LandingPageTracker';
-import AfterAuthLayout from '../../../../layout';
 
 export async function generateMetadata(): Promise<Metadata> {
     const headersList = await headers();
@@ -65,23 +64,21 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default function Home() {
     return (
-        <AfterAuthLayout>
-            <div className="flex flex-col w-full gap-8 md:gap-24">
-                <LandingPageTracker />
-                <HomeHeroSection />
-                <BrowseByActivities />
-                <FeaturedCategories />
-                <ExploreSpaceInCities />
-                <WhyChoseSpaceSpare />
-                <div>
-                    {/* <HappeningCities /> */}
-                    <TestimonialSection />
-                    <BecameHostBanner />
-                </div>
-                <StayUpdatedWithSpareSpace />
-                <StayUpated />
-                <Footer />
+        <div className="flex flex-col w-full gap-8 md:gap-24">
+            <LandingPageTracker />
+            <HomeHeroSection />
+            <BrowseByActivities />
+            <FeaturedCategories />
+            <ExploreSpaceInCities />
+            <WhyChoseSpaceSpare />
+            <div>
+                {/* <HappeningCities /> */}
+                <TestimonialSection />
+                <BecameHostBanner />
             </div>
-        </AfterAuthLayout>
+            <StayUpdatedWithSpareSpace />
+            <StayUpated />
+            <Footer />
+        </div>
     );
 }

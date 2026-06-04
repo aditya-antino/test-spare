@@ -23,6 +23,8 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
         attendees = 0,
         status = 'N/A',
         tcs_percent = 0,
+        discountAmount = 0,
+        couponCode = '',
         Financial: {
             baseAmount = 0,
             hostGst = false,
@@ -51,7 +53,8 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
     const totalGuestSGST = Number(sgstAmount) + Number(guestPlatformFeeSgstAmount);
     const totalGuestGST = totalGuestCGST + totalGuestSGST;
 
-    const guestTotalAmount = guestSubtotal + totalGuestGST;
+    const discount = Number(discountAmount || 0);
+    const guestTotalAmount = Math.max(0, guestSubtotal + totalGuestGST - discount);
 
     // Pre-compute GST items for guest display
     const guestGSTItems = formatGSTForDisplay(
@@ -219,6 +222,17 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
                                 </Typography>
                             </div>
                         ))}
+
+                        {discount > 0 && (
+                            <div className="flex justify-between text-red-600 font-medium">
+                                <Typography color="text-red-600" size="sm" weight="font-medium">
+                                    Admin Discount {couponCode ? `(${couponCode})` : ''}
+                                </Typography>
+                                <Typography color="text-red-600" size="sm" weight="font-medium">
+                                    -{formatCurrency(discount)}
+                                </Typography>
+                            </div>
+                        )}
 
                         <div className="flex justify-between border-t border-gray-200 pt-2">
                             <Typography color="text-gray-900" size="sm" weight="font-semibold">

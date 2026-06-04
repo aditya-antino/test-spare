@@ -85,13 +85,7 @@ const poppins = Poppins({
     variable: '--font-poppins',
 });
 
-const PIXEL_IDS = [
-    '931500319426827',
-    '26205317115767871',
-    '1488641416224446',
-    '1227685289536472',
-    '938010465360814',
-];
+const GTM_ID = 'GTM-T5JZ8LHH';
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -101,34 +95,30 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             suppressHydrationWarning
         >
             <body className="h-screen">
+                {/* Google Tag Manager (noscript) - must be immediately after body opening */}
+                <noscript>
+                    <iframe
+                        src={`https://www.googletagmanager.com/ns.html?id=${GTM_ID}`}
+                        height="0"
+                        width="0"
+                        style={{ display: 'none', visibility: 'hidden' }}
+                    />
+                </noscript>
+
                 <RootProvider>{children}</RootProvider>
 
-                {/* Base Meta Pixel Setup */}
-                <Script id="meta-pixel-base" strategy="afterInteractive">
+                {/* Google Tag Manager - loads as early as possible (equivalent to top of <head>) */}
+                <Script id="gtm-script" strategy="beforeInteractive">
                     {`
-                        !function(f,b,e,v,n,t,s)
-                        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-                        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-                        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-                        n.queue=[];t=b.createElement(e);t.async=!0;
-                        t.src=v;s=b.getElementsByTagName(e)[0];
-                        s.parentNode.insertBefore(t,s)}(window, document,'script',
-                        'https://connect.facebook.net/en_US/fbevents.js');
-                        
-                        ${PIXEL_IDS.map((id) => `fbq('init', '${id}');`).join('\n                        ')}
+                        (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+                        new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+                        j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+                        'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+                        })(window,document,'script','dataLayer','${GTM_ID}');
                     `}
                 </Script>
-                {PIXEL_IDS.map((id) => (
-                    <noscript key={id}>
-                        <img
-                            height="1"
-                            width="1"
-                            style={{ display: 'none' }}
-                            src={`https://www.facebook.com/tr?id=${id}&ev=PageView&noscript=1`}
-                            alt=""
-                        />
-                    </noscript>
-                ))}
+
+                
 
                 {GA_MEASUREMENT_ID && (
                     <>

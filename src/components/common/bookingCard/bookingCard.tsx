@@ -14,7 +14,6 @@ import { toggleWishlistItem } from '@/services/guest/wishlist.services';
 import { toast } from 'react-toastify';
 import Instant from '@/components/icons/Instant';
 import { cn, formatCurrency } from '@/lib/utils';
-import { trackEvent, PIXEL_IDS } from '@/utils/metaPixel';
 import { capitalize } from '@/utils';
 import Link from 'next/link';
 
@@ -131,7 +130,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
     }
 
     const handleCardPress = () => {
-        trackEvent(PIXEL_IDS.SPACE_LISTING, 'PageView');
 
         if (onClick) {
             onClick();
@@ -159,7 +157,6 @@ const BookingCard: React.FC<BookingCardProps> = ({
                 href={cardLink}
                 className="absolute inset-0 z-10"
                 onClick={(e) => {
-                    trackEvent(PIXEL_IDS.SPACE_LISTING, 'PageView');
                     if (onClick) {
                         e.preventDefault();
                         onClick();

@@ -49,6 +49,13 @@ interface BookingReviewProps {
     onRequestToBook: () => void;
     onInstantBookingPayment?: () => void;
     isLoading?: boolean;
+    // Coupon props
+    couponCode?: string;
+    couponDiscountPer?: number;
+    couponLoading?: boolean;
+    couponError?: string;
+    onApplyCoupon?: (code: string) => Promise<void>;
+    onRemoveCoupon?: () => void;
 }
 
 import { containsPII } from '@/utils/piiValidation';
@@ -652,9 +659,20 @@ const AttendeesDropdown = ({
                     >
                         <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="text-2xl font-semibold text-gray-800 min-w-[3rem] text-center">
-                        {localAttendees}
-                    </span>
+                    <input
+                        type="text"
+                        className="text-2xl font-semibold text-gray-800 w-16 text-center border border-gray-300 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-[#F6CD28]"
+                        value={localAttendees}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            if (val === '') {
+                                setLocalAttendees(0);
+                            } else {
+                                const num = parseInt(val, 10);
+                                setLocalAttendees(Math.min(num, maxCapacity));
+                            }
+                        }}
+                    />
                     <Button
                         type="button"
                         variant="outline"
@@ -760,8 +778,15 @@ const BookingReview: React.FC<BookingReviewProps> = ({
     onRequestToBook,
     onInstantBookingPayment,
     isLoading = false,
+    couponCode,
+    couponDiscountPer = 0,
+    couponLoading = false,
+    couponError,
+    onApplyCoupon,
+    onRemoveCoupon,
 }) => {
     const router = useRouter();
+    const [localCouponInput, setLocalCouponInput] = useState<string>('');
 
     const { data: kycDoc } = useGetKYCDoc();
     const isKycVerified = useMemo(() => {
@@ -1839,15 +1864,18 @@ const BookingReview: React.FC<BookingReviewProps> = ({
 
     // Extra discount applied strictly to the base rate
     const extraDiscountAmount = appliedExtraDiscountPercentage > 0 ? baseAmount * (appliedExtraDiscountPercentage / 100) : 0;
+    const totalAmountBeforeCoupon = grossAmountBeforeExtra - extraDiscountAmount;
 
-    const totalAmount = grossAmountBeforeExtra - extraDiscountAmount;
+    // Coupon discount (admin discount) applied on base amount
+    const couponDiscountAmount = couponDiscountPer > 0 ? baseAmount * (couponDiscountPer / 100) : 0;
+    const totalAmount = totalAmountBeforeCoupon - couponDiscountAmount;
 
     // 6. Savings Tracking & UI Display Helpers
     const guestFeeMultiplier = 1 + guestPlatformFeePercentage;
     const taxMultiplier = 1 + gstTotalPercentage;
     const allInMultiplier = guestFeeMultiplier * taxMultiplier;
 
-    const basePriceWithAll = totalAmount / (bookingMinutes / 60);
+    const basePriceWithAll = totalAmountBeforeCoupon / (bookingMinutes / 60);
     const orig = originalBasePrice * allInMultiplier;
 
     const discountSavings = (originalBasePrice * (bookingMinutes / 60) * allInMultiplier) - totalAmount;
@@ -1856,7 +1884,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
 
     const origAllInTotal = (originalBasePrice / 60) * bookingMinutes * allInMultiplier;
 
-    const baseAmountWithAll = totalAmount; // Legacy name used in UI
+    const baseAmountWithAll = totalAmountBeforeCoupon; // Legacy name used in UI
 
     // Helper function to format hours like BookingForm
     const formatHours = (hours: number) => {
@@ -2463,6 +2491,16 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                                     </span>
                                                                 </div>
                                                             )}
+                                                            {couponDiscountPer > 0 && (
+                                                                <div className="flex justify-between items-center mt-2">
+                                                                    <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                        Coupon discount ({couponDiscountPer}%)
+                                                                    </span>
+                                                                    <span className="text-sm text-green-700 font-bold">
+                                                                        -₹{formatCurrency(couponDiscountAmount)}
+                                                                    </span>
+                                                                </div>
+                                                            )}
                                                         </div>
 
                                                         <div className="pt-3 border-t border-gray-100">
@@ -2546,11 +2584,17 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                                         ? `${baseDiscountPercentage}% space discount applied`
                                                                         : ''}
                                                                     {baseDiscountPercentage > 0 &&
-                                                                        isLongBooking
+                                                                        (isLongBooking || couponDiscountPer > 0)
                                                                         ? ' & '
                                                                         : ''}
                                                                     {isLongBooking
                                                                         ? `${appliedExtraDiscountPercentage}% hourly discount applied`
+                                                                        : ''}
+                                                                    {isLongBooking && couponDiscountPer > 0
+                                                                        ? ' & '
+                                                                        : ''}
+                                                                    {couponDiscountPer > 0
+                                                                        ? `${couponDiscountPer}% coupon discount applied`
                                                                         : ''}
                                                                 </p>
                                                             </div>
@@ -2569,6 +2613,69 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     ₹{formatCurrency(baseAmountWithAll)}
                                 </span>
                             </div>
+
+                            {couponDiscountPer > 0 && (
+                                <div className="flex justify-between text-green-600 font-medium text-xs md:text-sm mt-1">
+                                    <span>Coupon discount ({couponDiscountPer}%)</span>
+                                    <span>-₹{formatCurrency(couponDiscountAmount)}</span>
+                                </div>
+                            )}
+
+                            {/* Coupon Code Section */}
+                            <div className="border-t border-gray-100 pt-3 mt-2">
+                                <Label className="text-xs font-semibold text-gray-500 mb-1.5 block">
+                                    Coupon Code
+                                </Label>
+                                {!couponCode ? (
+                                    <div className="flex gap-2">
+                                        <Input
+                                            type="text"
+                                            placeholder="Enter coupon code"
+                                            value={localCouponInput}
+                                            onChange={(e) => setLocalCouponInput(e.target.value)}
+                                            disabled={couponLoading}
+                                            className="h-10 rounded-xl border border-gray-200 px-3 text-sm focus-visible:ring-[#F7CD29]"
+                                        />
+                                        <Button
+                                            type="button"
+                                            onClick={() => onApplyCoupon?.(localCouponInput)}
+                                            disabled={couponLoading || !localCouponInput.trim()}
+                                            className="h-10 px-4 bg-[#F7CD29] hover:bg-[#E2BB24] text-gray-900 font-semibold rounded-xl text-sm transition-colors shrink-0"
+                                        >
+                                            {couponLoading ? 'Applying...' : 'Apply'}
+                                        </Button>
+                                    </div>
+                                ) : (
+                                    <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl p-3">
+                                        <div className="flex flex-col">
+                                            <span className="text-xs font-bold text-green-700 tracking-wide uppercase">
+                                                {couponCode}
+                                            </span>
+                                            <span className="text-[10px] text-green-600 font-medium mt-0.5">
+                                                {couponDiscountPer}% discount applied
+                                            </span>
+                                        </div>
+                                        <Button
+                                            type="button"
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={() => {
+                                                onRemoveCoupon?.();
+                                                setLocalCouponInput('');
+                                            }}
+                                            className="h-7 w-7 p-0 rounded-full hover:bg-green-100 text-green-700"
+                                        >
+                                            ✕
+                                        </Button>
+                                    </div>
+                                )}
+                                {couponError && (
+                                    <p className="text-xs text-red-500 mt-1 font-medium pl-1">
+                                        {couponError}
+                                    </p>
+                                )}
+                            </div>
+
                             <div className="border-t border-gray-200 pt-2 md:pt-3">
                                 <div className="flex justify-between">
                                     <span className="text-gray-900 font-bold text-sm md:text-base">
@@ -2580,7 +2687,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                 </div>
                             </div>
 
-                            {isLongBooking && extraDiscountAmount > 0 && (
+                            {(extraDiscountAmount > 0 || couponDiscountAmount > 0) && (
                                 <div className="mt-2 bg-green-50 border border-green-100 rounded-xl p-3 flex items-center justify-start gap-2 text-green-700">
                                     <span className="text-base font-bold">
                                         You saved ₹{formatCurrency(discountSavings)} 🥳

@@ -56,6 +56,9 @@ export const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBooki
         totalGuestSGST,
     );
 
+    const discountAmount = Number(bookingDetails?.financial?.discountAmount) || Number(bookingDetails?.discountAmount) || 0;
+    const couponCode = bookingDetails?.financial?.couponCode || bookingDetails?.couponCode || '';
+
     if (isInHost) {
         return (
             <div className="mt-2 space-y-1">
@@ -102,6 +105,14 @@ export const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBooki
             {guestGSTItems.map((item, i) => (
                 <AmountRow key={i} label={item.label} value={item.amount} />
             ))}
+
+            {discountAmount > 0 && (
+                <AmountRow
+                    label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
+                    value={discountAmount}
+                    isNegative
+                />
+            )}
 
             <TotalRow label="Total Amount" value={totalAmountNum} />
         </div>

@@ -49,6 +49,12 @@ export default function BookingReviewClient() {
         handleMessageChange,
         handleBookingDetailsChange,
         isLoading,
+        couponCode,
+        couponDiscountPer,
+        couponLoading,
+        couponError,
+        handleApplyCoupon,
+        handleRemoveCoupon,
     } = useBookingReview();
 
     // Show skeleton while space data is being fetched
@@ -87,6 +93,12 @@ export default function BookingReviewClient() {
                 onRequestToBook={handleRequestToBook}
                 onInstantBookingPayment={handleInstantBookingPayment}
                 isLoading={isLoading}
+                couponCode={couponCode}
+                couponDiscountPer={couponDiscountPer}
+                couponLoading={couponLoading}
+                couponError={couponError}
+                onApplyCoupon={handleApplyCoupon}
+                onRemoveCoupon={handleRemoveCoupon}
             />
 
             <BookingSuccessModal

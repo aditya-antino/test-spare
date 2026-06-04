@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useRazorpay, RazorpayOrderOptions } from 'react-razorpay';
 import { toast } from 'react-toastify';
-import { trackEvent, PIXEL_IDS } from '@/utils/metaPixel';
 
 export default function RazorpayPaymentButton() {
     const { error, isLoading, Razorpay } = useRazorpay();
@@ -67,7 +66,6 @@ export default function RazorpayPaymentButton() {
                         const verifyResult = await verifyRes.json();
 
                         if (verifyResult.success) {
-                            trackEvent(PIXEL_IDS.PAYMENT_COMPLETED, 'PageView');
                             alert(
                                 `Payment Successful!\nPayment ID: ${response.razorpay_payment_id}`,
                             );

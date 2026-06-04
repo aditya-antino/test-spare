@@ -23,7 +23,6 @@ import {
     useGetGuestBookingCalendar,
     useGetGuestTimeSlots,
 } from '@/services/calendar/calendar.service';
-import { trackEvent, PIXEL_IDS } from '@/utils/metaPixel';
 import Instant from '@/components/icons/Instant';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/store/store';
@@ -750,9 +749,20 @@ const AttendeesDropdown = ({
                     >
                         <Minus className="h-4 w-4" />
                     </Button>
-                    <span className="text-2xl font-semibold text-gray-800 min-w-[3rem] text-center">
-                        {localAttendees}
-                    </span>
+                    <input
+                        type="text"
+                        className="text-2xl font-semibold text-gray-800 w-12 text-center rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-[#F6CD28]"
+                        value={localAttendees}
+                        onChange={(e) => {
+                            const val = e.target.value.replace(/\D/g, '');
+                            if (val === '') {
+                                setLocalAttendees(0);
+                            } else {
+                                const num = parseInt(val, 10);
+                                setLocalAttendees(Math.min(num, maxCapacity));
+                            }
+                        }}
+                    />
                     <Button
                         type="button"
                         variant="outline"
@@ -1748,7 +1758,6 @@ const BookButton = ({
             });
             return;
         }
-        trackEvent(PIXEL_IDS.BOOK_NOW, 'PageView');
         onBook();
     };
 

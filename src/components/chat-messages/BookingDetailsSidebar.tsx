@@ -516,6 +516,7 @@ export default function BookingDetailsSidebar({
     setAcceptModalView: React.Dispatch<React.SetStateAction<boolean>>;
     isLoading?: boolean;
 }) {
+    console.log("Hellllll yehahhhhhh ",bookingDetails)
     if (isLoading || !bookingDetails) {
         return <BookingDetailsSidebarSkeleton />;
     }

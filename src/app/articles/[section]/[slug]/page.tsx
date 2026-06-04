@@ -7,15 +7,6 @@ import { endpoints } from '@/services/endPoints';
 import { Metadata } from 'next';
 import { headers } from 'next/headers';
 
-interface HelpArticleType {
-    id: string;
-    slug?: string;
-    category: string;
-    title: string;
-    content: string;
-    updated_at?: string;
-}
-
 async function getArticleData(slug: string) {
     try {
         const response: any = await ServerGet(endpoints.GET_ARTICLE_DETAILS(slug));
@@ -28,6 +19,7 @@ async function getArticleData(slug: string) {
             title: details?.title || '',
             content: details?.description || details?.content || '',
             updated_at: details?.updated_at,
+            metaDescription: details?.metaDescription || null,
         };
     } catch (error) {
         console.error('Error fetching article details:', error);
@@ -55,9 +47,11 @@ export async function generateMetadata({
         };
     }
 
-    const description = article.content
-        ? article.content.substring(0, 160).replace(/<[^>]*>/g, '')
-        : 'Read this article to learn more about Spare Space.';
+    const description = article.metaDescription && article.metaDescription.trim() !== ''
+        ? article.metaDescription
+        : article.content
+            ? article.content.replace(/<[^>]*>/g, '').substring(0, 160)
+            : 'Read this article to learn more about Spare Space.';
 
     const ogImage = `${baseUrl}/og-image.png`;
 

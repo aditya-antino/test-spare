@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect } from 'react';
-import { trackEvent, PIXEL_IDS } from '@/utils/metaPixel';
 
 const WatiWidget = () => {
     useEffect(() => {
@@ -61,7 +60,6 @@ const WatiWidget = () => {
                 target.closest('[href*="whatsapp.com"]') ||
                 target.closest('[href*="wa.me"]')
             ) {
-                trackEvent(PIXEL_IDS.WHATSAPP_CLICK, 'PageView');
             }
         };
 

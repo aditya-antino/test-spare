@@ -21,6 +21,7 @@ import {
 import { toast } from 'react-toastify';
 import { PATHS } from '@/constants/path';
 import { handleApiError } from '@/hooks/handleApiError';
+import axiosInstance from '@/lib/axiosInstance';
 
 export const useBookingReview = () => {
     const router = useRouter();
@@ -32,6 +33,47 @@ export const useBookingReview = () => {
     const [showSuccessModal, setShowSuccessModal] = useState<boolean>(false);
     const [bookingId, setBookingId] = useState<number>(0);
     const [calculatedTotalAmount, setCalculatedTotalAmount] = useState<number>(0);
+
+    const [couponCode, setCouponCode] = useState<string>('');
+    const [couponDiscountPer, setCouponDiscountPer] = useState<number>(0);
+    const [couponLoading, setCouponLoading] = useState<boolean>(false);
+    const [couponError, setCouponError] = useState<string>('');
+
+    const handleApplyCoupon = async (code: string) => {
+        if (!code.trim()) {
+            setCouponError('Please enter a coupon code');
+            return;
+        }
+        setCouponLoading(true);
+        setCouponError('');
+        try {
+            const response = await axiosInstance.post('/guest/coupons/validate', {
+                couponCode: code,
+            });
+            const data = response?.data?.data || response?.data;
+            if (data && data.valid) {
+                const discount = parseFloat(data.discountPercentage || '0');
+                setCouponDiscountPer(discount);
+                setCouponCode(data.code || code);
+                toast.success('Coupon applied successfully!');
+            } else {
+                setCouponError(data?.message || 'Invalid coupon code');
+                toast.error(data?.message || 'Invalid coupon code');
+            }
+        } catch (error: any) {
+            const errMsg = error?.response?.data?.message || error?.message || 'Failed to validate coupon';
+            setCouponError(errMsg);
+            toast.error(errMsg);
+        } finally {
+            setCouponLoading(false);
+        }
+    };
+
+    const handleRemoveCoupon = () => {
+        setCouponCode('');
+        setCouponDiscountPer(0);
+        setCouponError('');
+    };
 
     const { data: spaceDetails, isLoading: isSpaceLoading } = useGetGuestSpaceDetails(
         { slug },
@@ -204,7 +246,7 @@ export const useBookingReview = () => {
         const cgstPercentage = parseFloat(bookingDetails?.data?.cgst || '9') / 100;
         const sgstPercentage = parseFloat(bookingDetails?.data?.sgst || '9') / 100;
 
-        // Calculate fees and taxes ON THE BASE AMOUNT (before extra duration discount)
+        // Calculate fees and taxes ON THE BASE AMOUNT (before extra duration discount or coupon discount)
         const guestPlatformFee = baseAmount * guestPlatformFeePercentage;
         const subtotal = baseAmount + guestPlatformFee;
         const cgstAmount = subtotal * cgstPercentage;
@@ -213,17 +255,21 @@ export const useBookingReview = () => {
 
         // Extra discount applied strictly to the base rate
         const extraDiscountAmount = appliedExtraDiscountPercentage > 0 ? baseAmount * (appliedExtraDiscountPercentage / 100) : 0;
+        const totalAmountBeforeCoupon = grossAmountBeforeExtra - extraDiscountAmount;
 
-        // Final total subtracts the extra discount from the fully-loaded gross amount
-        const totalAmount = grossAmountBeforeExtra - extraDiscountAmount;
+        // Coupon discount (admin discount) applied on base amount
+        const couponDiscountAmount = couponDiscountPer > 0 ? baseAmount * (couponDiscountPer / 100) : 0;
+        const totalAmount = totalAmountBeforeCoupon - couponDiscountAmount;
 
         return {
-            baseAmount: baseAmount - extraDiscountAmount, // Effective discounted base amount for UI compatibility
+            baseAmount: baseAmount - extraDiscountAmount - couponDiscountAmount, // For UI display only
+            preCouponBaseAmount: baseAmount - extraDiscountAmount,               // Original base sent to backend
             guestPlatformFee,
             cgstAmount,
             sgstAmount,
             totalAmount,
             bookingMinutes,
+            couponDiscountAmount,
         };
     };
 
@@ -278,12 +324,14 @@ export const useBookingReview = () => {
             endDatetime: endDateTime,
             attendees: currentBookingData.bookingDetails.attendees,
             guestMessage: currentBookingData.message || '',
-            amount: pricing.baseAmount,
+            amount: pricing.preCouponBaseAmount,      // Original base amount (pre-coupon) for host payout
             guestPlatformFee: pricing.guestPlatformFee,
             cgst: pricing.cgstAmount,
             sgst: pricing.sgstAmount,
-            totalAmount: pricing.totalAmount,
-        });
+            totalAmount: pricing.totalAmount,          // Guest-facing reduced total (Razorpay charge)
+            discountAmount: pricing.couponDiscountAmount, // Coupon discount amount
+            couponCode: couponCode || null,
+        } as any);
     };
 
     const handleRequestToBook = () => {
@@ -307,12 +355,14 @@ export const useBookingReview = () => {
             endDatetime: endDateTime,
             attendees: currentBookingData.bookingDetails.attendees,
             guestMessage: currentBookingData.message || '',
-            amount: pricing.baseAmount,
+            amount: pricing.preCouponBaseAmount,      // Original base amount (pre-coupon) for host payout
             guestPlatformFee: pricing.guestPlatformFee,
             cgst: pricing.cgstAmount,
             sgst: pricing.sgstAmount,
-            totalAmount: pricing.totalAmount,
-        });
+            totalAmount: pricing.totalAmount,          // Guest-facing reduced total (Razorpay charge)
+            discountAmount: pricing.couponDiscountAmount, // Coupon discount amount
+            couponCode: couponCode || null,
+        } as any);
     };
 
     const handleBack = () => router.back();
@@ -346,5 +396,12 @@ export const useBookingReview = () => {
             requestBookingMutation.isPending ||
             instantBookingMutation.isPending ||
             razorpayOrderMutation.isPending,
+        // Coupon Code fields
+        couponCode,
+        couponDiscountPer,
+        couponLoading,
+        couponError,
+        handleApplyCoupon,
+        handleRemoveCoupon,
     };
 };
