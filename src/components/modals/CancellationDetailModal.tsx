@@ -163,7 +163,18 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
     const currentTotal =
         guestBaseAmount + guestCgstAmount + guestSgstAmount + currentTotalGSTOnGuestPlatformFee;
 
-    const refundAmount = originalTotal - currentTotal;
+    const discountAmount =
+        Number((guestPayout as any)?.discountAmount) ||
+        Number(data?.financial?.discountAmount) ||
+        Number(data?.discountAmount) ||
+        0;
+    const couponCode =
+        (guestPayout as any)?.couponCode ||
+        data?.financial?.couponCode ||
+        data?.couponCode ||
+        '';
+
+    const refundAmount = Math.max(0, (originalTotal - discountAmount) - currentTotal);
 
     const refundPercentage = Number(hostPayout.refundPercentage) || 0;
 
@@ -369,14 +380,43 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     </Typography>
                                 </div>
                             ))}
-                            <div className="flex justify-between border-t border-gray-200 pt-2">
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    Total Amount Charged
-                                </Typography>
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    {formatCurrency(originalTotal)}
-                                </Typography>
-                            </div>
+                            {discountAmount > 0 ? (
+                                <>
+                                    <div className="flex justify-between border-t border-gray-200 pt-2">
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            Total Original Amount
+                                        </Typography>
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            {formatCurrency(originalTotal)}
+                                        </Typography>
+                                    </div>
+                                    <div className="flex justify-between text-gray-600 mt-1">
+                                        <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                            Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                        </Typography>
+                                        <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                            -{formatCurrency(discountAmount)}
+                                        </Typography>
+                                    </div>
+                                    <div className="flex justify-between border-t border-gray-200 pt-1">
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            Total Amount Charged
+                                        </Typography>
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            {formatCurrency(originalTotal - discountAmount)}
+                                        </Typography>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex justify-between border-t border-gray-200 pt-2">
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        Total Amount Charged
+                                    </Typography>
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        {formatCurrency(originalTotal)}
+                                    </Typography>
+                                </div>
+                            )}
                             <div className="flex justify-between border-t border-red-100 pt-2 bg-red-50 p-2 rounded">
                                 <Typography color="text-red-600" size="sm" weight="font-semibold">
                                     Refund Amount
@@ -439,14 +479,43 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     </Typography>
                                 </div>
                             ))}
-                            <div className="flex justify-between border-t border-gray-200 pt-2">
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    Total Original Amount
-                                </Typography>
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    {formatCurrency(originalTotal)}
-                                </Typography>
-                            </div>
+                            {discountAmount > 0 ? (
+                                <>
+                                    <div className="flex justify-between border-t border-gray-200 pt-2">
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            Total Original Amount
+                                        </Typography>
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            {formatCurrency(originalTotal)}
+                                        </Typography>
+                                    </div>
+                                    <div className="flex justify-between text-gray-600 mt-1">
+                                        <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                            Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                        </Typography>
+                                        <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                            -{formatCurrency(discountAmount)}
+                                        </Typography>
+                                    </div>
+                                    <div className="flex justify-between border-t border-gray-200 pt-1">
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            Total Amount Paid
+                                        </Typography>
+                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                            {formatCurrency(originalTotal - discountAmount)}
+                                        </Typography>
+                                    </div>
+                                </>
+                            ) : (
+                                <div className="flex justify-between border-t border-gray-200 pt-2">
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        Total Original Amount
+                                    </Typography>
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        {formatCurrency(originalTotal)}
+                                    </Typography>
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -465,7 +534,7 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     Base Amount Refund
                                 </Typography>
                                 <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                    -{formatCurrency(originalBaseAmount)}
+                                    {formatCurrency(originalBaseAmount)}
                                 </Typography>
                             </div>
                             <div className="flex justify-between">
@@ -473,7 +542,7 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     Platform Fee Refund
                                 </Typography>
                                 <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                    -{formatCurrency(isCancelledByGuest ? 0 : originalPlatformFeeAmount)}
+                                    {formatCurrency(isCancelledByGuest ? 0 : originalPlatformFeeAmount)}
                                 </Typography>
                             </div>
                             <div className="flex justify-between border-t border-gray-200 pt-2">
@@ -481,7 +550,7 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     Subtotal Refund
                                 </Typography>
                                 <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    -{formatCurrency(isCancelledByGuest ? originalBaseAmount : originalBaseAmount + originalPlatformFeeAmount)}
+                                    {formatCurrency(isCancelledByGuest ? originalBaseAmount : originalBaseAmount + originalPlatformFeeAmount)}
                                 </Typography>
                             </div>
                             {/* GST Refund Display - Shows IGST for non-Delhi states, CGST+SGST for Delhi */}
@@ -498,10 +567,20 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                         {gstItem.label} Refund
                                     </Typography>
                                     <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                        -{formatCurrency(gstItem.amount)}
+                                        {formatCurrency(gstItem.amount)}
                                     </Typography>
                                 </div>
                             ))}
+                            {discountAmount > 0 && (
+                                <div className="flex justify-between text-gray-600 mt-1">
+                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                        Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                    </Typography>
+                                    <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                        -{formatCurrency(discountAmount)}
+                                    </Typography>
+                                </div>
+                            )}
                             <div className="flex justify-between border-t border-green-100 pt-2 bg-green-50 p-2 rounded">
                                 <Typography color="text-green-600" size="sm" weight="font-semibold">
                                     Total Refund Amount
@@ -509,9 +588,9 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                 <Typography color="text-green-600" size="sm" weight="font-semibold">
                                     {isCancelledByGuest
                                         ? formatCurrency(
-                                            originalTotal - originalTotalGSTOnGuestPlatformFee,
+                                            Math.max(0, originalTotal - discountAmount - originalTotalGSTOnGuestPlatformFee),
                                         )
-                                        : formatCurrency(originalTotal)}
+                                        : formatCurrency(Math.max(0, originalTotal - discountAmount))}
                                 </Typography>
                             </div>
                         </div>
@@ -568,14 +647,43 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                 </Typography>
                             </div>
                         ))}
-                        <div className="flex justify-between border-t border-gray-200 pt-2">
-                            <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                Total Original Amount
-                            </Typography>
-                            <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                {formatCurrency(originalTotal)}
-                            </Typography>
-                        </div>
+                        {discountAmount > 0 ? (
+                            <>
+                                <div className="flex justify-between border-t border-gray-200 pt-2">
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        Total Original Amount
+                                    </Typography>
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        {formatCurrency(originalTotal)}
+                                    </Typography>
+                                </div>
+                                <div className="flex justify-between text-gray-600 mt-1">
+                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                        Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                    </Typography>
+                                    <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                        -{formatCurrency(discountAmount)}
+                                    </Typography>
+                                </div>
+                                <div className="flex justify-between border-t border-gray-200 pt-1">
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        Total Amount Paid
+                                    </Typography>
+                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                        {formatCurrency(originalTotal - discountAmount)}
+                                    </Typography>
+                                </div>
+                            </>
+                        ) : (
+                            <div className="flex justify-between border-t border-gray-200 pt-2">
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    Total Original Amount
+                                </Typography>
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    {formatCurrency(originalTotal)}
+                                </Typography>
+                            </div>
+                        )}
                     </div>
                 </div>
 

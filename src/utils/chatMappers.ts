@@ -78,7 +78,6 @@ export const formatBookingDetails = (fetchedData: any) => {
             ? `${capitalizeWord(hostUser.firstName || '')} ${hostUser.lastName ? hostUser.lastName[0].toUpperCase() + '.' : ''
                 }`.trim() || 'Host Name'
             : 'Host Name',
-        isGst: fetchedData?.isGst,
         hostAvatar: hostUser?.avatar || '/api/placeholder/60/60',
         spaceData: space || {},
         spaceId: space?.id || 0,

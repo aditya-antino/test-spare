@@ -2491,16 +2491,6 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                                     </span>
                                                                 </div>
                                                             )}
-                                                            {couponDiscountPer > 0 && (
-                                                                <div className="flex justify-between items-center mt-2">
-                                                                    <span className="text-sm text-green-600 font-medium whitespace-nowrap">
-                                                                        Coupon discount ({couponDiscountPer}%)
-                                                                    </span>
-                                                                    <span className="text-sm text-green-700 font-bold">
-                                                                        -₹{formatCurrency(couponDiscountAmount)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
                                                         </div>
 
                                                         <div className="pt-3 border-t border-gray-100">
@@ -2556,6 +2546,16 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                                 <span className="text-xs text-gray-400 line-through">
                                                                     ₹
                                                                     {formatCurrency(origAllInTotal)}
+                                                                </span>
+                                                            </div>
+                                                        )}
+                                                        {couponDiscountPer > 0 && (
+                                                            <div className="flex justify-between items-center mb-1">
+                                                                <span className="text-xs text-green-600 font-medium whitespace-nowrap">
+                                                                    Coupon discount ({couponDiscountPer}%)
+                                                                </span>
+                                                                <span className="text-xs text-green-700 font-bold">
+                                                                    -₹{formatCurrency(couponDiscountAmount)}
                                                                 </span>
                                                             </div>
                                                         )}
