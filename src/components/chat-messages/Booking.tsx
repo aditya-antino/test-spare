@@ -418,24 +418,35 @@ const BookingHeader = ({
 };
 
 const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBookingAmountsProps) => {
-    const { hostPlatFormFee, hostTDS, hostPlatformFeeGST, hostGrandTotal, totalAmountNum, amount } =
-        calculateHostPayout(bookingDetails);
+    const {
+        amount,
+        hostPlatFormFee,
+        hostPlatformFeeGST,
+        hostTDS,
+        hostGrandTotal,
+        totalAmountNum,
+        hasHostGST,
+        hostSubtotal,
+        cgst,
+        sgst,
+        tcsAmount,
+        penaltyAmount,
+        shouldDeductPenalty,
+    } = calculateHostPayout(bookingDetails);
+
     const guestFeeNum = Number(
         bookingDetails?.financial?.guestPlatformFeeAmount || bookingDetails?.guestPlatformFee || 0,
     );
-    const hostTCSAmount = Number(bookingDetails?.financial?.tcsAmount || 0);
-    const hostHasGST = bookingDetails?.financial?.hostGst || false;
-    const sgstNum = Number(bookingDetails?.financial?.cgstAmount || bookingDetails?.sgst || 0);
-    const cgstNum = Number(bookingDetails?.financial?.sgstAmount || bookingDetails?.cgst || 0);
-    const totalHostGST = sgstNum + cgstNum;
 
-    // Guest GST breakdown - use formatGSTForDisplay for dynamic IGST/CGST+SGST display
-    const totalGuestCGST =
-        Number(bookingDetails?.financial?.cgstAmount || bookingDetails?.cgst || 0) +
-        Number(bookingDetails?.financial?.guestPlatformFeeCgstAmount || 0);
-    const totalGuestSGST =
-        Number(bookingDetails?.financial?.sgstAmount || bookingDetails?.sgst || 0) +
-        Number(bookingDetails?.financial?.guestPlatformFeeSgstAmount || 0);
+    const discountAmount = Number(bookingDetails?.financial?.discountAmount) || Number((bookingDetails as any)?.discountAmount) || 0;
+    const couponCode = bookingDetails?.financial?.couponCode || (bookingDetails as any)?.couponCode || '';
+
+    // Calculate subtotal after platform fee and admin/coupon discount
+    const guestSubtotal = amount + guestFeeNum - discountAmount;
+
+    // Guest GST breakdown (calculated over subtotal after admin discount)
+    const totalGuestCGST = guestSubtotal * 0.09;
+    const totalGuestSGST = guestSubtotal * 0.09;
 
     const guestGSTItems = formatGSTForDisplay(
         bookingDetails.state || bookingDetails.spaceData?.City?.state,
@@ -443,39 +454,62 @@ const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBookingAmoun
         totalGuestSGST,
     );
 
+    if (isInHost) {
+        return (
+            <div className="mt-2 space-y-1">
+                <AmountRow label="Base Amount" value={amount} />
+                {hasHostGST && (
+                    <AmountRow
+                        label={(bookingDetails.state || bookingDetails.spaceData?.City?.state)?.toLowerCase() === 'delhi' ? "GST (CGST + SGST)" : "IGST"}
+                        value={cgst + sgst}
+                    />
+                )}
+
+                <div className="flex justify-between font-semibold border-t border-gray-200 pt-1">
+                    <span>Subtotal</span>
+                    <span>₹{formatCurrency(hostSubtotal)}</span>
+                </div>
+
+                <AmountRow label="Platform Fee" value={hostPlatFormFee} isNegative />
+                {hostPlatformFeeGST > 0 && (
+                    <AmountRow label="GST on Platform Fee" value={hostPlatformFeeGST} isNegative />
+                )}
+
+                {hasHostGST && <AmountRow label="TCS" value={tcsAmount} isNegative />}
+                <AmountRow label="TDS" value={hostTDS} isNegative />
+
+                {shouldDeductPenalty && (
+                    <AmountRow label="Penalty Amount" value={penaltyAmount} isNegative />
+                )}
+
+                <TotalRow label="Total Payout" value={hostGrandTotal} />
+            </div>
+        );
+    }
+
     return (
         <div className="mt-2 space-y-1">
             <AmountRow label="Base Amount" value={amount} />
+            <AmountRow label="Platform Fee" value={guestFeeNum} />
 
-            {!isInHost && (
-                <>
-                    <AmountRow label="Platform Fee" value={guestFeeNum} />
-                    {guestGSTItems.map((item, i) => (
-                        <AmountRow key={i} label={item.label} value={item.amount} />
-                    ))}
-                </>
+            {discountAmount > 0 && (
+                <AmountRow
+                    label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
+                    value={discountAmount}
+                    isNegative
+                />
             )}
 
-            {isInHost && (
-                <>
-                    <AmountRow label="Platform Fee" value={hostPlatFormFee} />
-                    <AmountRow label="GST on Platform Fee" value={hostPlatformFeeGST} />
-                </>
-            )}
+            <div className="flex justify-between font-semibold border-t border-gray-200 pt-1 text-sm text-gray-600">
+                <span>Subtotal</span>
+                <span>₹{formatCurrency(guestSubtotal)}</span>
+            </div>
 
-            {isInHost && hostHasGST && (
-                <>
-                    <AmountRow label="GST Amount" value={totalHostGST} />
-                    <AmountRow label="TCS (1%)" value={hostTCSAmount} />
-                </>
-            )}
+            {guestGSTItems.map((item, i) => (
+                <AmountRow key={i} label={item.label} value={item.amount} />
+            ))}
 
-            {isInHost && <AmountRow label="TDS (0.10%)" value={hostTDS} />}
-
-            <TotalRow
-                label={isInHost ? 'Total Payout' : 'Total Amount'}
-                value={isInHost ? hostGrandTotal : totalAmountNum}
-            />
+            <TotalRow label="Total Amount" value={totalAmountNum} />
         </div>
     );
 };

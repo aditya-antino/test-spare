@@ -40,24 +40,22 @@ export const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBooki
     const guestBaseAmount = Number(
         bookingDetails?.financial?.baseAmount || bookingDetails?.amount || 0,
     );
-    const guestSubtotal = guestBaseAmount + guestFeeNum;
 
-    // Guest GST breakdown
-    const totalGuestCGST =
-        Number(bookingDetails?.financial?.cgstAmount || bookingDetails?.cgst || 0) +
-        Number(bookingDetails?.financial?.guestPlatformFeeCgstAmount || 0);
-    const totalGuestSGST =
-        Number(bookingDetails?.financial?.sgstAmount || bookingDetails?.sgst || 0) +
-        Number(bookingDetails?.financial?.guestPlatformFeeSgstAmount || 0);
+    const discountAmount = Number(bookingDetails?.financial?.discountAmount) || Number((bookingDetails as any)?.discountAmount) || 0;
+    const couponCode = bookingDetails?.financial?.couponCode || (bookingDetails as any)?.couponCode || '';
+
+    // Calculate subtotal after platform fee and admin/coupon discount
+    const guestSubtotal = guestBaseAmount + guestFeeNum - discountAmount;
+
+    // Guest GST breakdown (calculated over subtotal after admin discount)
+    const totalGuestCGST = guestSubtotal * 0.09;
+    const totalGuestSGST = guestSubtotal * 0.09;
 
     const guestGSTItems = formatGSTForDisplay(
         bookingDetails.state || bookingDetails.spaceData?.City?.state,
         totalGuestCGST,
         totalGuestSGST,
     );
-
-    const discountAmount = Number(bookingDetails?.financial?.discountAmount) || Number(bookingDetails?.discountAmount) || 0;
-    const couponCode = bookingDetails?.financial?.couponCode || bookingDetails?.couponCode || '';
 
     if (isInHost) {
         return (
@@ -97,6 +95,14 @@ export const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBooki
             <AmountRow label="Base Amount" value={guestBaseAmount} />
             <AmountRow label="Platform Fee" value={guestFeeNum} />
 
+            {discountAmount > 0 && (
+                <AmountRow
+                    label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
+                    value={discountAmount}
+                    isNegative
+                />
+            )}
+
             <div className="flex justify-between font-semibold border-t border-gray-200 pt-1 text-sm text-gray-600">
                 <span>Subtotal</span>
                 <span>₹{formatCurrency(guestSubtotal)}</span>
@@ -105,14 +111,6 @@ export const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBooki
             {guestGSTItems.map((item, i) => (
                 <AmountRow key={i} label={item.label} value={item.amount} />
             ))}
-
-            {discountAmount > 0 && (
-                <AmountRow
-                    label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
-                    value={discountAmount}
-                    isNegative
-                />
-            )}
 
             <TotalRow label="Total Amount" value={totalAmountNum} />
         </div>

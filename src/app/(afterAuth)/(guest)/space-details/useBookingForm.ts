@@ -239,124 +239,256 @@ export const useBookingForm = ({
         return now.getHours() * 60 + now.getMinutes();
     }, []);
 
-    const pricing = useMemo(() => {
-        const originalBasePrice = parseFloat(spaceData?.SpaceListing?.price_per_hour) || 80;
-        let discount = parseFloat(String((spaceData?.SpaceListing as any)?.discountAmount || '0'));
-        if (spaceData?.SpaceListing?.isRefundable === true) {
-            discount = discount + 10;
+const pricing = useMemo(() => {
+    const originalBasePrice =
+        parseFloat(spaceData?.SpaceListing?.price_per_hour) || 80;
+
+    // Base Discount
+    let discount = parseFloat(
+        String((spaceData?.SpaceListing as any)?.discountAmount || '0'),
+    );
+
+    if (spaceData?.SpaceListing?.isRefundable === true) {
+        discount += 10;
+    }
+
+    // Duration Discount Config
+    const extra_discount_per =
+        (spaceData?.SpaceListing as any)?.extra_discount_per;
+
+    let appliedExtraDiscount = 0;
+
+    let minutes = 60;
+
+    const hasStart =
+        !bookingDetails.timeStart.includes('HH:MM') &&
+        bookingDetails.timeStart !== 'Start time';
+
+    const hasEnd =
+        !bookingDetails.timeEnd.includes('HH:MM') &&
+        bookingDetails.timeEnd !== 'End time';
+
+    if (
+        bookingDetails.date !== 'Select date' &&
+        hasStart &&
+        hasEnd
+    ) {
+        const startMinutes = timeToMinutes(
+            bookingDetails.timeStart,
+        );
+
+        const endMinutes = timeToMinutes(
+            bookingDetails.timeEnd,
+        );
+
+        minutes = endMinutes - startMinutes;
+
+        if (minutes <= 0) {
+            minutes += 24 * 60;
         }
+    }
 
-        const extra_discount_per = (spaceData?.SpaceListing as any)?.extra_discount_per;
-        let appliedExtraDiscount = 0;
+    const currentBookingHours =
+        Math.max(minutes, 60) / 60;
 
-        let minutes = 60;
-        const hasStart =
-            !bookingDetails.timeStart.includes('HH:MM') &&
-            bookingDetails.timeStart !== 'Start time';
-        const hasEnd =
-            !bookingDetails.timeEnd.includes('HH:MM') && bookingDetails.timeEnd !== 'End time';
+    if (
+        typeof extra_discount_per === 'object' &&
+        extra_discount_per !== null
+    ) {
+        const t12 = parseFloat(
+            String(extra_discount_per.twelve || '0'),
+        );
 
-        if (bookingDetails.date !== 'Select date' && hasStart && hasEnd) {
-            const startMinutes = timeToMinutes(bookingDetails.timeStart);
-            const endMinutes = timeToMinutes(bookingDetails.timeEnd);
-            minutes = endMinutes - startMinutes;
-            if (minutes <= 0) minutes += 24 * 60; // Overnight
+        const t8 = parseFloat(
+            String(extra_discount_per.eight || '0'),
+        );
+
+        const t6 = parseFloat(
+            String(extra_discount_per.six || '0'),
+        );
+
+        const t4 = parseFloat(
+            String(extra_discount_per.four || '0'),
+        );
+
+        if (currentBookingHours >= 12 && t12 > 0) {
+            appliedExtraDiscount = t12;
+        } else if (
+            currentBookingHours >= 8 &&
+            t8 > 0
+        ) {
+            appliedExtraDiscount = t8;
+        } else if (
+            currentBookingHours >= 6 &&
+            t6 > 0
+        ) {
+            appliedExtraDiscount = t6;
+        } else if (
+            currentBookingHours >= 4 &&
+            t4 > 0
+        ) {
+            appliedExtraDiscount = t4;
         }
-
-        const durationHours = minutes / 60;
-
-        if (typeof extra_discount_per === 'object' && extra_discount_per !== null) {
-            const t12 = parseFloat(String(extra_discount_per.twelve || '0'));
-            const t8 = parseFloat(String(extra_discount_per.eight || '0'));
-            const t6 = parseFloat(String(extra_discount_per.six || '0'));
-            const t4 = parseFloat(String(extra_discount_per.four || '0'));
-
-            if (durationHours >= 12 && t12 > 0) appliedExtraDiscount = t12;
-            else if (durationHours >= 8 && t8 > 0) appliedExtraDiscount = t8;
-            else if (durationHours >= 6 && t6 > 0) appliedExtraDiscount = t6;
-            else if (durationHours >= 4 && t4 > 0) appliedExtraDiscount = t4;
+    } else if (extra_discount_per) {
+        if (currentBookingHours >= 6) {
+            appliedExtraDiscount = parseFloat(String(extra_discount_per || '0'));
         }
+    }
 
-        const isLongBooking = appliedExtraDiscount > 0;
+    const isLongBooking =
+        appliedExtraDiscount > 0 || discount > 0;
 
-        // Cumulative Calculation: Apply extra discount ON TOP of the already discounted base price
-        const basePricePostBaseDiscount =
-            discount > 0 ? originalBasePrice * (1 - discount / 100) : originalBasePrice;
+    const totalHostDiscountPerc = discount + appliedExtraDiscount;
 
-        // Calculate what the price would be WITHOUT the extra discount but WITH the base discount
-        const baseAmountWithoutExtra = (basePricePostBaseDiscount / 60) * Math.max(minutes, 60);
+    // Gross Booking Amount
+    const grossAmount = originalBasePrice * currentBookingHours;
 
-        const guestPlatformFeePercentage =
-            parseFloat(bookingSettings?.guest_platform_fee || '5') / 100;
-        const cgstPercentage = parseFloat(bookingSettings?.cgst || '9') / 100;
-        const sgstPercentage = parseFloat(bookingSettings?.sgst || '9') / 100;
+    // Duration Discount Amount
+    const extraDiscountAmount = grossAmount * (totalHostDiscountPerc / 100);
 
-        // Calculate fees and taxes ON THE BASE AMOUNT (before extra duration discount)
-        const guestPlatformFee = baseAmountWithoutExtra * guestPlatformFeePercentage;
-        const subtotal = baseAmountWithoutExtra + guestPlatformFee;
-        const cgstAmount = subtotal * cgstPercentage;
-        const sgstAmount = subtotal * sgstPercentage;
+    // Discounted Base
+    const baseAmount = grossAmount - extraDiscountAmount;
 
-        const grossAmountBeforeExtra = subtotal + cgstAmount + sgstAmount;
+    // =====================================
+    // Fees & Taxes
+    // =====================================
+    const guestPlatformFeePercentage =
+        parseFloat(
+            bookingSettings?.guest_platform_fee || '5',
+        ) / 100;
 
-        // Calculate the extra discount amount strictly on the base rate
-        const extraDiscountAmount = isLongBooking ? baseAmountWithoutExtra * (appliedExtraDiscount / 100) : 0;
+    const cgstPercentage =
+        parseFloat(
+            bookingSettings?.cgst || '9',
+        ) / 100;
 
-        // Final total subtracts the extra discount from the fully-loaded gross amount
-        const totalAmount = grossAmountBeforeExtra - extraDiscountAmount;
+    const sgstPercentage =
+        parseFloat(
+            bookingSettings?.sgst || '9',
+        ) / 100;
 
-        // Effective discounted base price for display (if needed, though this is synthetic now)
-        const discountedPrice = basePricePostBaseDiscount - (basePricePostBaseDiscount * (appliedExtraDiscount / 100));
-        const baseAmount = baseAmountWithoutExtra - extraDiscountAmount;
+    const gstTotalPercentage =
+        cgstPercentage + sgstPercentage;
 
-        const gstTotalPercentage = cgstPercentage + sgstPercentage;
-        const basePriceWithGST = discountedPrice * (1 + gstTotalPercentage);
-        const baseAmountWithGST = baseAmount * (1 + gstTotalPercentage);
+    // Platform fee (calculated on discountedBase/baseAmount)
+    const guestPlatformFee =
+        baseAmount *
+        guestPlatformFeePercentage;
 
-        const currentBookingHours = Math.max(minutes, 60) / 60;
-        const basePriceWithAll = totalAmount / currentBookingHours;
-        const baseAmountWithAll = totalAmount;
+    // Subtotal
+    const subtotal =
+        baseAmount +
+        guestPlatformFee;
 
-        const originalBaseAmount = originalBasePrice * currentBookingHours;
-        const baseDiscountAmountValue =
-            discount > 0
-                ? (originalBasePrice - basePricePostBaseDiscount) * currentBookingHours
-                : 0;
+    // Taxes on subtotal
+    const cgstAmount =
+        subtotal * cgstPercentage;
 
-        const effectiveTotalDiscountPercentage =
-            originalBasePrice > 0
-                ? ((originalBasePrice * currentBookingHours * (1 + guestPlatformFeePercentage) * (1 + gstTotalPercentage) - totalAmount) / (originalBasePrice * currentBookingHours * (1 + guestPlatformFeePercentage) * (1 + gstTotalPercentage))) * 100
-                : 0;
+    const sgstAmount =
+        subtotal * sgstPercentage;
 
-        const totalSavings = (originalBaseAmount * (1 + guestPlatformFeePercentage) * (1 + gstTotalPercentage)) - totalAmount;
+    const totalTax =
+        cgstAmount + sgstAmount;
 
-        return {
-            basePrice: discountedPrice,
-            basePricePostBaseDiscount,
-            basePriceWithGST,
-            basePriceWithAll,
-            baseAmount,
-            baseAmountWithoutExtra,
-            baseAmountWithGST,
-            baseAmountWithAll,
-            originalBasePrice,
-            originalBaseAmount,
-            baseDiscountAmountValue,
-            guestPlatformFee,
-            subtotal,
-            cgstAmount,
-            sgstAmount,
-            totalAmount,
-            bookingHours: currentBookingHours,
-            isLongBooking,
-            extraDiscountAmount,
-            extraDiscountPercentage: appliedExtraDiscount,
-            discountPercentage: effectiveTotalDiscountPercentage,
-            totalSavings,
-            baseDiscount: discount,
-        };
-    }, [spaceData, bookingSettings, bookingDetails, timeToMinutes]);
+    // Grand total
+    const totalAmount =
+        subtotal + totalTax;
 
+    // =====================================
+    // Display Helpers
+    // =====================================
+    const discountedPrice =
+        currentBookingHours > 0
+            ? baseAmount /
+              currentBookingHours
+            : 0;
+
+    const basePriceWithGST =
+        discountedPrice *
+        (1 + gstTotalPercentage);
+
+    const baseAmountWithGST =
+        baseAmount *
+        (1 + gstTotalPercentage);
+
+    const basePriceWithAll =
+        currentBookingHours > 0
+            ? totalAmount /
+              currentBookingHours
+            : 0;
+
+    const baseAmountWithAll =
+        totalAmount;
+
+    const originalBaseAmount =
+        originalBasePrice *
+        currentBookingHours;
+
+    const baseDiscountAmountValue =
+        grossAmount * (discount / 100);
+
+    const originalAllInAmount =
+        originalBaseAmount *
+        (1 + guestPlatformFeePercentage) *
+        (1 + gstTotalPercentage);
+
+    const totalSavings =
+        originalAllInAmount -
+        totalAmount;
+
+    const effectiveTotalDiscountPercentage =
+        originalAllInAmount > 0
+            ? (totalSavings /
+                  originalAllInAmount) *
+              100
+            : 0;
+
+    const basePricePostBaseDiscount = originalBasePrice * (1 - discount / 100);
+    const baseAmountWithoutExtra = grossAmount - (grossAmount * (discount / 100));
+
+    return {
+        basePrice: discountedPrice,
+        basePricePostBaseDiscount,
+        basePriceWithGST,
+        basePriceWithAll,
+
+        baseAmount,
+        baseAmountWithoutExtra,
+        baseAmountWithGST,
+        baseAmountWithAll,
+
+        originalBasePrice,
+        originalBaseAmount,
+
+        baseDiscountAmountValue,
+
+        guestPlatformFee,
+        subtotal,
+
+        cgstAmount,
+        sgstAmount,
+
+        totalAmount,
+
+        bookingHours: currentBookingHours,
+
+        isLongBooking,
+        extraDiscountAmount,
+        extraDiscountPercentage:
+            totalHostDiscountPerc,
+
+        discountPercentage:
+            effectiveTotalDiscountPercentage,
+
+        totalSavings,
+        baseDiscount: discount,
+    };
+}, [
+    spaceData,
+    bookingSettings,
+    bookingDetails,
+    timeToMinutes,
+]);
     const getValidationErrors = useCallback(() => {
         const errors = [];
 

@@ -108,7 +108,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <RootProvider>{children}</RootProvider>
 
                 {/* Google Tag Manager - loads as early as possible (equivalent to top of <head>) */}
-                <Script id="gtm-script" strategy="beforeInteractive">
+                <Script id="gtm-script" strategy="afterInteractive">
                     {`
                         (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
                         new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -140,7 +140,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 {MAP_API_KEY && (
                     <Script
                         src={`https://maps.googleapis.com/maps/api/js?key=${MAP_API_KEY}&libraries=places`}
-                        strategy="beforeInteractive"
+                        strategy="afterInteractive"
                     />
                 )}
 

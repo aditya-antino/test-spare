@@ -116,12 +116,9 @@ const BookingHeader = ({
 
     const grossBasePrice = basePrice * taxMultiplier;
 
-    // The final displayed discounted price applies the duration discount logically as a flat rebate
-    // off the fully loaded gross price, exactly identical to useBookingForm math
-    const grossPriceBeforeExtra = priceAfterBaseDiscount * taxMultiplier;
-    const extraDiscountRebate =
-        appliedExtraDiscount > 0 ? priceAfterBaseDiscount * (appliedExtraDiscount / 100) : 0;
-    const grossDiscountedPrice = grossPriceBeforeExtra - extraDiscountRebate;
+    // Standardized v2 spec formula for gross discounted hourly rate display
+    const totalHostDiscount = calculatedDiscountAmount + appliedExtraDiscount;
+    const grossDiscountedPrice = basePrice * (1 - totalHostDiscount / 100) * taxMultiplier;
 
     return (
         <div className="flex flex-col gap-4">

@@ -176,100 +176,105 @@ export const useBookingReview = () => {
         totalAmount: 0,
     };
 
+    /**
+     * calculatePricing – Computes all monetary values needed for the booking.
+     * This follows the SpareSpace Payment Engine Spec (v2).
+     *
+     * Steps:
+     *   Gross Amount      = hourlyRate × totalHours
+     *   Duration Discount = applied on Gross Amount (host‑configured)
+     *   Discounted Base  = Gross – Duration Discount
+     *   Admin Discount   = coupon % applied on Discounted Base (does NOT affect host payout)
+     *   Net Base         = Discounted Base – Admin Discount
+     *   Platform Fee     = Guest service fee (percentage) calculated on Discounted Base
+     *   Subtotal         = Net Base + Platform Fee (taxable amount)
+     *   GST (9% CGST + 9% SGST) applied on Subtotal
+     *   Grand Total      = Subtotal + GST
+     */
     const calculatePricing = () => {
+        // Guard: ensure required data is present
         if (!currentBookingData || !spaceDetails?.data) return null;
 
-        const originalBasePrice =
-            parseFloat(spaceDetails.data?.SpaceListing?.price_per_hour) || 500;
+        // Hourly rate (fallback to 0)
+        const hourlyRate = parseFloat(spaceDetails.data?.SpaceListing?.price_per_hour) || 0;
 
-        // 1. Calculate Minutes (Handle overnight)
+        // Calculate booking duration (minutes & hours), handling overnight bookings
         const startDateStr = currentBookingData.bookingDetails.date;
         const startTimeStr = currentBookingData.bookingDetails.timeStart;
-        const endTimeStr = currentBookingData.bookingDetails.timeEnd;
-
+        const endTimeStr   = currentBookingData.bookingDetails.timeEnd;
         if (startTimeStr === 'Start time' || endTimeStr === 'End time') return null;
-
         const startTime = new Date(`${startDateStr} ${startTimeStr}`);
         let endTime = new Date(`${startDateStr} ${endTimeStr}`);
-
         if (endTime <= startTime) {
+            // Add a day for overnight stays
             endTime = new Date(endTime.getTime() + 24 * 60 * 60 * 1000);
         }
-
         const bookingMinutes = Math.ceil((endTime.getTime() - startTime.getTime()) / (1000 * 60));
+        const bookingHours   = bookingMinutes / 60;
 
-        // 2. Discounts
-        let baseDiscountPercentage = parseFloat(
-            String((spaceDetails.data?.SpaceListing as any)?.discountAmount || '0'),
-        );
-        if (spaceDetails.data?.SpaceListing?.isRefundable === true) {
-            baseDiscountPercentage += 10;
-        }
-
+        // 2️⃣ Determine host‑configured duration discount
+        let hostDiscountPerc = 0;
         const extra_discount_per = (spaceDetails.data?.SpaceListing as any)?.extra_discount_per;
-        let appliedExtraDiscountPercentage = 0;
-        const durationHours = bookingMinutes / 60;
-
         if (typeof extra_discount_per === 'object' && extra_discount_per !== null) {
-            // Tiered discounts are inclusive of the start hour (e.g., 4+ applies starting at exactly 4.0 hours)
-            if (durationHours >= 12)
-                appliedExtraDiscountPercentage = parseFloat(
-                    String(extra_discount_per.twelve || '0'),
-                );
-            else if (durationHours >= 8)
-                appliedExtraDiscountPercentage = parseFloat(
-                    String(extra_discount_per.eight || '0'),
-                );
-            else if (durationHours >= 6)
-                appliedExtraDiscountPercentage = parseFloat(String(extra_discount_per.six || '0'));
-            else if (durationHours >= 4)
-                appliedExtraDiscountPercentage = parseFloat(String(extra_discount_per.four || '0'));
-        } else {
-            // Fallback for legacy single-value extra discount (inclusive at 6+ hours)
-            if (durationHours >= 6)
-                appliedExtraDiscountPercentage = parseFloat(String(extra_discount_per || '0'));
+            if (bookingHours >= 12) hostDiscountPerc = parseFloat(String(extra_discount_per.twelve || '0'));
+            else if (bookingHours >= 8) hostDiscountPerc = parseFloat(String(extra_discount_per.eight || '0'));
+            else if (bookingHours >= 6) hostDiscountPerc = parseFloat(String(extra_discount_per.six || '0'));
+            else if (bookingHours >= 4) hostDiscountPerc = parseFloat(String(extra_discount_per.four || '0'));
+        } else if (extra_discount_per) {
+            // Legacy single‑value discount (applies at 6+ hours)
+            if (bookingHours >= 6) hostDiscountPerc = parseFloat(String(extra_discount_per || '0'));
         }
+        const flatDiscountPerc = parseFloat(String((spaceDetails.data?.SpaceListing as any)?.discountAmount || '0'));
+        const refundableBonus = spaceDetails.data?.SpaceListing?.isRefundable === true ? 10 : 0;
+        const totalHostDiscountPerc = hostDiscountPerc + flatDiscountPerc + refundableBonus;
 
-        // Cumulative Calculation: Apply extra discount ON TOP of the already discounted base price
-        const basePricePostBaseDiscount =
-            baseDiscountPercentage > 0
-                ? originalBasePrice * (1 - baseDiscountPercentage / 100)
-                : originalBasePrice;
+        // 3️⃣ Gross amount (hourly rate × total hours)
+        const grossAmount = hourlyRate * bookingHours;
 
-        const effectiveBasePrice = basePricePostBaseDiscount; // Taxes applying on undiscounted rate
-        const pricePerMinute = effectiveBasePrice / 60;
-        const baseAmount = pricePerMinute * bookingMinutes;
+        // 4️⃣ Apply host (duration) discount → Discounted Base
+        const durationDiscountAmount = grossAmount * (totalHostDiscountPerc / 100);
+        const discountedBase = grossAmount - durationDiscountAmount;
 
-        // 4. Fees and Taxes
-        const guestPlatformFeePercentage =
-            parseFloat(bookingDetails?.data?.guest_platform_fee || '5') / 100;
-        const cgstPercentage = parseFloat(bookingDetails?.data?.cgst || '9') / 100;
-        const sgstPercentage = parseFloat(bookingDetails?.data?.sgst || '9') / 100;
+        // 5️⃣ Admin (coupon) discount – does NOT affect host payout
+        const adminDiscountPercent = couponDiscountPer; // % from coupon UI
+        const adminDiscountAmount = discountedBase * (adminDiscountPercent / 100);
+        const netBase = discountedBase - adminDiscountAmount;
 
-        // Calculate fees and taxes ON THE BASE AMOUNT (before extra duration discount or coupon discount)
-        const guestPlatformFee = baseAmount * guestPlatformFeePercentage;
-        const subtotal = baseAmount + guestPlatformFee;
-        const cgstAmount = subtotal * cgstPercentage;
-        const sgstAmount = subtotal * sgstPercentage;
-        const grossAmountBeforeExtra = subtotal + cgstAmount + sgstAmount;
+        // 6️⃣ Platform fee – calculated on Discounted Base (pre‑admin)
+        const platformFeePercent = parseFloat(bookingDetails?.data?.guest_platform_fee || '5') / 100;
+        const platformFee = discountedBase * platformFeePercent;
 
-        // Extra discount applied strictly to the base rate
-        const extraDiscountAmount = appliedExtraDiscountPercentage > 0 ? baseAmount * (appliedExtraDiscountPercentage / 100) : 0;
-        const totalAmountBeforeCoupon = grossAmountBeforeExtra - extraDiscountAmount;
+        // 7️⃣ Subtotal – taxable amount (Net Base + Platform Fee)
+        const subtotal = netBase + platformFee;
 
-        // Coupon discount (admin discount) applied on base amount
-        const couponDiscountAmount = couponDiscountPer > 0 ? baseAmount * (couponDiscountPer / 100) : 0;
-        const totalAmount = totalAmountBeforeCoupon - couponDiscountAmount;
+        // 8️⃣ GST – 9% CGST + 9% SGST on Subtotal
+        const cgst = subtotal * 0.09;
+        const sgst = subtotal * 0.09;
+        const totalGST = cgst + sgst;
 
+        // 9️⃣ Grand total – amount the guest actually pays
+        const guestTotal = subtotal + totalGST;
+
+        // Return both UI values and fields required by the backend
         return {
-            baseAmount: baseAmount - extraDiscountAmount - couponDiscountAmount, // For UI display only
-            preCouponBaseAmount: baseAmount - extraDiscountAmount,               // Original base sent to backend
-            guestPlatformFee,
-            cgstAmount,
-            sgstAmount,
-            totalAmount,
+            grossAmount,
+            durationDiscountAmount,
+            discountedBase,
+            adminDiscountAmount,
+            netBase,
+            platformFee,
+            subtotal,
+            cgstAmount: cgst,
+            sgstAmount: sgst,
+            totalGST,
+            guestTotal,
             bookingMinutes,
-            couponDiscountAmount,
+            // Fields used downstream / payload
+            baseAmount: netBase,
+            preCouponBaseAmount: discountedBase,
+            guestPlatformFee: platformFee,
+            totalAmount: guestTotal,
+            couponDiscountAmount: adminDiscountAmount,
         };
     };
 

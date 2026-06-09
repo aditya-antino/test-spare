@@ -1097,19 +1097,14 @@ const MessageHostModal: React.FC<MessageHostModalProps> = ({
 
     // Calculate pricing from real data with null safety and discount
     const originalBasePrice = parseFloat(spaceData?.SpaceListing?.price_per_hour) || 500;
+    
+    // Base Discount (flat listing + refundable)
     let calculatedDiscountAmount = parseFloat(
         String((spaceData?.SpaceListing as any)?.discountAmount || '0'),
     );
-
     if (spaceData?.SpaceListing?.isRefundable === true) {
         calculatedDiscountAmount = calculatedDiscountAmount + 10;
     }
-
-    const hasDiscount = calculatedDiscountAmount > 0;
-    const discountPercentage = calculatedDiscountAmount / 100;
-    const basePrice = hasDiscount
-        ? Math.round(originalBasePrice * (1 - discountPercentage))
-        : originalBasePrice;
 
     // Check if dates are valid before calculating hours
     const hours =
@@ -1133,22 +1128,64 @@ const MessageHostModal: React.FC<MessageHostModalProps> = ({
                     : 0;
             })()
             : 1;
-    const baseAmount = basePrice * Math.max(hours, 1); // Ensure non-negative hours
+
+    const extra_discount_per = (spaceData?.SpaceListing as any)?.extra_discount_per;
+    let appliedExtraDiscount = 0;
+    if (typeof extra_discount_per === 'object' && extra_discount_per !== null) {
+        const t12 = parseFloat(String(extra_discount_per.twelve || '0'));
+        const t8 = parseFloat(String(extra_discount_per.eight || '0'));
+        const t6 = parseFloat(String(extra_discount_per.six || '0'));
+        const t4 = parseFloat(String(extra_discount_per.four || '0'));
+
+        if (hours >= 12 && t12 > 0) {
+            appliedExtraDiscount = t12;
+        } else if (hours >= 8 && t8 > 0) {
+            appliedExtraDiscount = t8;
+        } else if (hours >= 6 && t6 > 0) {
+            appliedExtraDiscount = t6;
+        } else if (hours >= 4 && t4 > 0) {
+            appliedExtraDiscount = t4;
+        }
+    } else if (extra_discount_per) {
+        if (hours >= 6) {
+            appliedExtraDiscount = parseFloat(String(extra_discount_per || '0'));
+        }
+    }
+
+    const totalHostDiscountPerc = calculatedDiscountAmount + appliedExtraDiscount;
+
+    // Gross Booking Amount
+    const grossAmount = originalBasePrice * Math.max(hours, 1);
+
+    // Duration Discount Amount (Host Discount)
+    const extraDiscountAmount = grossAmount * (totalHostDiscountPerc / 100);
+
+    // Discounted Base
+    const discountedBase = grossAmount - extraDiscountAmount;
 
     const guestPlatformFeePercentage = parseFloat(bookingSettings?.guest_platform_fee || '5') / 100;
-
     const cgstPercentage = parseFloat(bookingSettings?.cgst || '9') / 100;
     const sgstPercentage = parseFloat(bookingSettings?.sgst || '9') / 100;
 
-    const guestPlatformFee = Math.round(baseAmount * guestPlatformFeePercentage);
-    const subtotal = baseAmount + guestPlatformFee;
+    const guestPlatformFee = Math.round(discountedBase * guestPlatformFeePercentage);
+    const subtotal = discountedBase + guestPlatformFee;
     const cgstAmount = Math.round(subtotal * cgstPercentage * 100) / 100;
     const sgstAmount = Math.round(subtotal * sgstPercentage * 100) / 100;
     const totalAmount = Math.round((subtotal + cgstAmount + sgstAmount) * 100) / 100;
 
     // Price breakdown data using real calculations
     const priceItems: PriceBreakdownItem[] = [
-        { label: `₹${basePrice} x ${hours} Hours`, amount: `₹${baseAmount}` },
+        { label: `₹${originalBasePrice} x ${hours} Hours`, amount: `₹${grossAmount}` },
+    ];
+
+    if (totalHostDiscountPerc > 0 && extraDiscountAmount > 0) {
+        priceItems.push({
+            label: `Host Discount (${totalHostDiscountPerc}%)`,
+            amount: `-₹${Math.round(extraDiscountAmount)}`,
+        });
+    }
+
+    priceItems.push(
         { label: 'Guest Platform Fee', amount: `₹${guestPlatformFee}` },
         {
             label: `CGST (${parseFloat(bookingSettings?.cgst || '9')}%)`,
@@ -1158,7 +1195,7 @@ const MessageHostModal: React.FC<MessageHostModalProps> = ({
             label: `SGST (${parseFloat(bookingSettings?.sgst || '9')}%)`,
             amount: `₹${sgstAmount.toFixed(2)}`,
         },
-    ];
+    );
 
     // Close dropdowns when clicking outside
     useEffect(() => {

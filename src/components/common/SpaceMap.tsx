@@ -378,15 +378,20 @@ const SpaceMap: React.FC<SpaceMapProps> = ({ spaces, onSpaceClick, className }) 
 
         // Load Google Maps if not already loaded
         if (!window.google) {
-            const script = document.createElement('script');
-            const key =
-                process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ||
-                process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
-            script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
-            script.async = true;
-            script.defer = true;
-            script.onload = initMap;
-            document.head.appendChild(script);
+            const existingScript = document.querySelector('script[src*="maps.googleapis.com"]');
+            if (existingScript) {
+                existingScript.addEventListener('load', initMap);
+            } else {
+                const script = document.createElement('script');
+                const key =
+                    process.env.NEXT_PUBLIC_GOOGLE_MAPS_KEY ||
+                    process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
+                script.src = `https://maps.googleapis.com/maps/api/js?key=${key}&libraries=places`;
+                script.async = true;
+                script.defer = true;
+                script.onload = initMap;
+                document.head.appendChild(script);
+            }
         } else {
             initMap();
         }

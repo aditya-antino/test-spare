@@ -196,7 +196,7 @@ const HostProfileClient = () => {
                                         showWishlist
                                         isInGuestMode={true}
                                         className={'w-full min-w-0'}
-                                        onClick={() => handleSpaceClick(space.title)}
+                                        onClick={() => handleSpaceClick(space.slug)}
                                     />
                                 ))
                             ) : (

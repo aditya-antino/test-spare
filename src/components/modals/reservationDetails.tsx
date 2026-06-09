@@ -46,15 +46,45 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
     // Guest calculations
     const guestBaseAmount = Number(baseAmount);
     const guestPlatformFee = Number(guestPlatformFeeAmount);
-    const guestSubtotal = guestBaseAmount + guestPlatformFee;
 
-    // Total GST for guest (includes base GST + platform fee GST)
-    const totalGuestCGST = Number(cgstAmount) + Number(guestPlatformFeeCgstAmount);
-    const totalGuestSGST = Number(sgstAmount) + Number(guestPlatformFeeSgstAmount);
-    const totalGuestGST = totalGuestCGST + totalGuestSGST;
+    // Calculate booking hours
+    let bookingHours = 1;
+    if (startDatetime && endDatetime) {
+        const start = new Date(startDatetime).getTime();
+        const end = new Date(endDatetime).getTime();
+        if (!isNaN(start) && !isNaN(end)) {
+            bookingHours = Math.ceil((end - start) / (1000 * 60 * 60));
+        }
+    }
+    bookingHours = Math.max(bookingHours, 1);
+
+    // Reconstruct gross amount and host discount
+    const hourlyRate = parseFloat(Space?.SpaceListing?.price_per_hour) || 0;
+    const grossAmount = hourlyRate > 0 ? hourlyRate * bookingHours : guestBaseAmount;
+
+    const hostDiscountAmount = Math.max(0, grossAmount - guestBaseAmount);
+    const totalHostDiscountPerc = grossAmount > 0 ? Math.round((hostDiscountAmount / grossAmount) * 100) : 0;
+
+    // Segregate host discount into space and hourly components
+    const hourlyDiscountPerc = bookingHours >= 6 ? parseFloat(String(Space?.SpaceListing?.extra_discount_per || '0')) : 0;
+    const spaceDiscountPerc = Math.max(0, totalHostDiscountPerc - hourlyDiscountPerc);
+
+    const spaceDiscountAmt = grossAmount * (spaceDiscountPerc / 100);
+    const hourlyDiscountAmt = Math.max(0, hostDiscountAmount - spaceDiscountAmt);
 
     const discount = Number(discountAmount || 0);
-    const guestTotalAmount = Math.max(0, guestSubtotal + totalGuestGST - discount);
+
+    // Subtotal: gross amount - host discount + platform fee - coupon discount
+    const guestSubtotal = guestBaseAmount - discount + guestPlatformFee;
+
+    // Total GST for guest (calculated over subtotal after admin discount)
+    const cgstRate = (Number(data?.cgst_percent) || 9) / 100;
+    const sgstRate = (Number(data?.sgst_percent) || 9) / 100;
+    const totalGuestCGST = guestSubtotal * cgstRate;
+    const totalGuestSGST = guestSubtotal * sgstRate;
+    const totalGuestGST = totalGuestCGST + totalGuestSGST;
+
+    const guestTotalAmount = Math.max(0, guestSubtotal + totalGuestGST);
 
     // Pre-compute GST items for guest display
     const guestGSTItems = formatGSTForDisplay(
@@ -189,9 +219,31 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
                                 Base Amount
                             </Typography>
                             <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                {formatCurrency(guestBaseAmount)}
+                                {formatCurrency(grossAmount)}
                             </Typography>
                         </div>
+
+                        {spaceDiscountPerc > 0 && spaceDiscountAmt > 0 && (
+                            <div className="flex justify-between text-green-600 font-medium">
+                                <Typography color="text-green-600" size="sm" weight="font-medium">
+                                    Space discount ({spaceDiscountPerc}%)
+                                </Typography>
+                                <Typography color="text-green-600" size="sm" weight="font-medium">
+                                    -{formatCurrency(spaceDiscountAmt)}
+                                </Typography>
+                            </div>
+                        )}
+
+                        {hourlyDiscountPerc > 0 && hourlyDiscountAmt > 0 && (
+                            <div className="flex justify-between text-green-600 font-medium">
+                                <Typography color="text-green-600" size="sm" weight="font-medium">
+                                    Hourly discount ({hourlyDiscountPerc}%)
+                                </Typography>
+                                <Typography color="text-green-600" size="sm" weight="font-medium">
+                                    -{formatCurrency(hourlyDiscountAmt)}
+                                </Typography>
+                            </div>
+                        )}
 
                         <div className="flex justify-between">
                             <Typography color="text-gray-600" size="sm" weight="font-medium">
@@ -201,6 +253,17 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
                                 {formatCurrency(guestPlatformFee)}
                             </Typography>
                         </div>
+
+                        {discount > 0 && (
+                            <div className="flex justify-between text-green-600 font-medium">
+                                <Typography color="text-green-600" size="sm" weight="font-medium">
+                                    Coupon discount {couponCode ? `(${couponCode})` : ''}
+                                </Typography>
+                                <Typography color="text-green-600" size="sm" weight="font-medium">
+                                    -{formatCurrency(discount)}
+                                </Typography>
+                            </div>
+                        )}
 
                         <div className="flex justify-between border-t border-gray-200 pt-2">
                             <Typography color="text-gray-900" size="sm" weight="font-semibold">
@@ -222,17 +285,6 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
                                 </Typography>
                             </div>
                         ))}
-
-                        {discount > 0 && (
-                            <div className="flex justify-between text-red-600 font-medium">
-                                <Typography color="text-red-600" size="sm" weight="font-medium">
-                                    Admin Discount {couponCode ? `(${couponCode})` : ''}
-                                </Typography>
-                                <Typography color="text-red-600" size="sm" weight="font-medium">
-                                    -{formatCurrency(discount)}
-                                </Typography>
-                            </div>
-                        )}
 
                         <div className="flex justify-between border-t border-gray-200 pt-2">
                             <Typography color="text-gray-900" size="sm" weight="font-semibold">

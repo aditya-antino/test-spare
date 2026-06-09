@@ -142,26 +142,7 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
 
     const multiplier = guestRefundPercentage === 50 ? 2 : 1;
     const originalBaseAmount = guestBaseAmount * multiplier;
-    const originalCgstAmount = guestCgstAmount * multiplier;
-    const originalSgstAmount = guestSgstAmount * multiplier;
     const originalPlatformFeeAmount = guestPlatformFeeAmount * multiplier;
-    const originalPlatformFeeCgstAmount = guestPlatformFeeCgstAmount * multiplier;
-    const originalPlatformFeeSgstAmount = guestPlatformFeeSgstAmount * multiplier;
-
-    const originalTotalGSTOnGuestPlatformFee =
-        originalPlatformFeeAmount + originalPlatformFeeCgstAmount + originalPlatformFeeSgstAmount;
-
-    const originalTotal =
-        originalBaseAmount +
-        originalCgstAmount +
-        originalSgstAmount +
-        originalTotalGSTOnGuestPlatformFee;
-
-    const currentTotalGSTOnGuestPlatformFee =
-        guestPlatformFeeAmount + guestPlatformFeeCgstAmount + guestPlatformFeeSgstAmount;
-
-    const currentTotal =
-        guestBaseAmount + guestCgstAmount + guestSgstAmount + currentTotalGSTOnGuestPlatformFee;
 
     const discountAmount =
         Number((guestPayout as any)?.discountAmount) ||
@@ -174,7 +155,61 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
         data?.couponCode ||
         '';
 
-    const refundAmount = Math.max(0, (originalTotal - discountAmount) - currentTotal);
+    // Original subtotal calculated after platform fee and admin/coupon discount
+    const originalSubtotal = originalBaseAmount + originalPlatformFeeAmount - discountAmount;
+
+    // Original GST breakdown calculated over originalSubtotal
+    const totalOriginalGuestCGST = originalSubtotal * 0.09;
+    const totalOriginalGuestSGST = originalSubtotal * 0.09;
+
+    const originalGSTItems = formatGSTForDisplay(
+        data?.Space?.City?.state,
+        totalOriginalGuestCGST,
+        totalOriginalGuestSGST
+    );
+
+    // Original total amount paid (includes GST calculated over post-coupon subtotal)
+    const originalTotal = originalSubtotal + totalOriginalGuestCGST + totalOriginalGuestSGST;
+
+    // Remaining/current booking amount after refund percentage is applied
+    const currentDiscountAmount = discountAmount * (1 - guestRefundPercentage / 100);
+    const currentSubtotal = guestBaseAmount + guestPlatformFeeAmount - currentDiscountAmount;
+
+    // Current GST breakdown calculated over currentSubtotal
+    const totalCurrentGuestCGST = currentSubtotal * 0.09;
+    const totalCurrentGuestSGST = currentSubtotal * 0.09;
+
+    const currentGSTItems = formatGSTForDisplay(
+        data?.Space?.City?.state,
+        totalCurrentGuestCGST,
+        totalCurrentGuestSGST
+    );
+
+    // Current total remaining after refund percentage is applied
+    const currentTotal = currentSubtotal + totalCurrentGuestCGST + totalCurrentGuestSGST;
+
+    // Calculate refund amount:
+    let refundAmount = 0;
+    if (guestRefundPercentage === 100) {
+        if (isCancelledByGuest) {
+            const subtotalRefund = originalBaseAmount - discountAmount;
+            refundAmount = subtotalRefund * 1.18;
+        } else {
+            refundAmount = originalTotal;
+        }
+    } else if (guestRefundPercentage === 50) {
+        refundAmount = originalTotal - currentTotal;
+    }
+    refundAmount = Math.max(0, refundAmount);
+
+    const subtotalRefund = originalBaseAmount + (isCancelledByGuest ? 0 : originalPlatformFeeAmount) - discountAmount;
+    const cgstRefund = subtotalRefund * 0.09;
+    const sgstRefund = subtotalRefund * 0.09;
+    const refundGSTItems = formatGSTForDisplay(
+        data?.Space?.City?.state,
+        cgstRefund,
+        sgstRefund
+    );
 
     const refundPercentage = Number(hostPayout.refundPercentage) || 0;
 
@@ -205,26 +240,6 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
     }
 
     const formatCurrency = (amount: number) => `₹${amount.toFixed(2)}`;
-
-    // Pre-compute GST display items to avoid function calls in JSX
-    // For guest view, combine base GST + platform fee GST (like in reservationDetails.tsx)
-    const totalOriginalGuestCGST = originalCgstAmount + originalPlatformFeeCgstAmount;
-    const totalOriginalGuestSGST = originalSgstAmount + originalPlatformFeeSgstAmount;
-
-    const originalGSTItems = formatGSTForDisplay(
-        data?.Space?.City?.state,
-        totalOriginalGuestCGST,
-        totalOriginalGuestSGST
-    );
-
-    const totalCurrentGuestCGST = guestCgstAmount + guestPlatformFeeCgstAmount;
-    const totalCurrentGuestSGST = guestSgstAmount + guestPlatformFeeSgstAmount;
-
-    const currentGSTItems = formatGSTForDisplay(
-        data?.Space?.City?.state,
-        totalCurrentGuestCGST,
-        totalCurrentGuestSGST
-    );
 
     const hostGSTItems = formatGSTForDisplay(
         data?.Space?.City?.state,
@@ -361,14 +376,27 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     {formatCurrency(originalPlatformFeeAmount)}
                                 </Typography>
                             </div>
+
+                            {discountAmount > 0 && (
+                                <div className="flex justify-between text-gray-600">
+                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                        Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                    </Typography>
+                                    <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                        -{formatCurrency(discountAmount)}
+                                    </Typography>
+                                </div>
+                            )}
+
                             <div className="flex justify-between border-t border-gray-200 pt-2">
                                 <Typography color="text-gray-900" size="sm" weight="font-semibold">
                                     Subtotal
                                 </Typography>
                                 <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    {formatCurrency(originalBaseAmount + originalPlatformFeeAmount)}
+                                    {formatCurrency(originalSubtotal)}
                                 </Typography>
                             </div>
+
                             {/* GST Display - Shows IGST for non-Delhi states, CGST+SGST for Delhi */}
                             {originalGSTItems.map((gstItem, index) => (
                                 <div key={index} className="flex justify-between">
@@ -380,43 +408,16 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     </Typography>
                                 </div>
                             ))}
-                            {discountAmount > 0 ? (
-                                <>
-                                    <div className="flex justify-between border-t border-gray-200 pt-2">
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            Total Original Amount
-                                        </Typography>
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            {formatCurrency(originalTotal)}
-                                        </Typography>
-                                    </div>
-                                    <div className="flex justify-between text-gray-600 mt-1">
-                                        <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                            Admin Discount{couponCode ? ` (${couponCode})` : ''}
-                                        </Typography>
-                                        <Typography color="text-red-600" size="sm" weight="font-semibold">
-                                            -{formatCurrency(discountAmount)}
-                                        </Typography>
-                                    </div>
-                                    <div className="flex justify-between border-t border-gray-200 pt-1">
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            Total Amount Charged
-                                        </Typography>
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            {formatCurrency(originalTotal - discountAmount)}
-                                        </Typography>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex justify-between border-t border-gray-200 pt-2">
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        Total Amount Charged
-                                    </Typography>
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        {formatCurrency(originalTotal)}
-                                    </Typography>
-                                </div>
-                            )}
+
+                            <div className="flex justify-between border-t border-gray-200 pt-2">
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    Total Amount Charged
+                                </Typography>
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    {formatCurrency(originalTotal)}
+                                </Typography>
+                            </div>
+
                             <div className="flex justify-between border-t border-red-100 pt-2 bg-red-50 p-2 rounded">
                                 <Typography color="text-red-600" size="sm" weight="font-semibold">
                                     Refund Amount
@@ -460,14 +461,27 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     {formatCurrency(originalPlatformFeeAmount)}
                                 </Typography>
                             </div>
+
+                            {discountAmount > 0 && (
+                                <div className="flex justify-between text-gray-600">
+                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                        Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                    </Typography>
+                                    <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                        -{formatCurrency(discountAmount)}
+                                    </Typography>
+                                </div>
+                            )}
+
                             <div className="flex justify-between border-t border-gray-200 pt-2">
                                 <Typography color="text-gray-900" size="sm" weight="font-semibold">
                                     Subtotal
                                 </Typography>
                                 <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    {formatCurrency(originalBaseAmount + originalPlatformFeeAmount)}
+                                    {formatCurrency(originalSubtotal)}
                                 </Typography>
                             </div>
+
                             {/* GST Display - Shows IGST for non-Delhi states, CGST+SGST for Delhi */}
                             {originalGSTItems.map((gstItem, index) => (
                                 <div key={index} className="flex justify-between">
@@ -479,43 +493,15 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     </Typography>
                                 </div>
                             ))}
-                            {discountAmount > 0 ? (
-                                <>
-                                    <div className="flex justify-between border-t border-gray-200 pt-2">
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            Total Original Amount
-                                        </Typography>
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            {formatCurrency(originalTotal)}
-                                        </Typography>
-                                    </div>
-                                    <div className="flex justify-between text-gray-600 mt-1">
-                                        <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                            Admin Discount{couponCode ? ` (${couponCode})` : ''}
-                                        </Typography>
-                                        <Typography color="text-red-600" size="sm" weight="font-semibold">
-                                            -{formatCurrency(discountAmount)}
-                                        </Typography>
-                                    </div>
-                                    <div className="flex justify-between border-t border-gray-200 pt-1">
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            Total Amount Paid
-                                        </Typography>
-                                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                            {formatCurrency(originalTotal - discountAmount)}
-                                        </Typography>
-                                    </div>
-                                </>
-                            ) : (
-                                <div className="flex justify-between border-t border-gray-200 pt-2">
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        Total Original Amount
-                                    </Typography>
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        {formatCurrency(originalTotal)}
-                                    </Typography>
-                                </div>
-                            )}
+
+                            <div className="flex justify-between border-t border-gray-200 pt-1">
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    Total Amount Paid
+                                </Typography>
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    {formatCurrency(originalTotal)}
+                                </Typography>
+                            </div>
                         </div>
                     </div>
 
@@ -545,32 +531,7 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     {formatCurrency(isCancelledByGuest ? 0 : originalPlatformFeeAmount)}
                                 </Typography>
                             </div>
-                            <div className="flex justify-between border-t border-gray-200 pt-2">
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    Subtotal Refund
-                                </Typography>
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    {formatCurrency(isCancelledByGuest ? originalBaseAmount : originalBaseAmount + originalPlatformFeeAmount)}
-                                </Typography>
-                            </div>
-                            {/* GST Refund Display - Shows IGST for non-Delhi states, CGST+SGST for Delhi */}
-                            {(isCancelledByGuest
-                                ? formatGSTForDisplay(
-                                    data?.Space?.City?.state,
-                                    originalCgstAmount,
-                                    originalSgstAmount
-                                )
-                                : originalGSTItems
-                            ).map((gstItem, index) => (
-                                <div key={index} className="flex justify-between">
-                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                        {gstItem.label} Refund
-                                    </Typography>
-                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                        {formatCurrency(gstItem.amount)}
-                                    </Typography>
-                                </div>
-                            ))}
+
                             {discountAmount > 0 && (
                                 <div className="flex justify-between text-gray-600 mt-1">
                                     <Typography color="text-gray-600" size="sm" weight="font-medium">
@@ -581,16 +542,34 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                     </Typography>
                                 </div>
                             )}
+
+                            <div className="flex justify-between border-t border-gray-200 pt-2">
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    Subtotal Refund
+                                </Typography>
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    {formatCurrency(subtotalRefund)}
+                                </Typography>
+                            </div>
+
+                            {/* GST Refund Display - Shows IGST for non-Delhi states, CGST+SGST for Delhi */}
+                            {refundGSTItems.map((gstItem, index) => (
+                                <div key={index} className="flex justify-between">
+                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                        {gstItem.label} Refund
+                                    </Typography>
+                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                        {formatCurrency(gstItem.amount)}
+                                    </Typography>
+                                </div>
+                            ))}
+
                             <div className="flex justify-between border-t border-green-100 pt-2 bg-green-50 p-2 rounded">
                                 <Typography color="text-green-600" size="sm" weight="font-semibold">
                                     Total Refund Amount
                                 </Typography>
                                 <Typography color="text-green-600" size="sm" weight="font-semibold">
-                                    {isCancelledByGuest
-                                        ? formatCurrency(
-                                            Math.max(0, originalTotal - discountAmount - originalTotalGSTOnGuestPlatformFee),
-                                        )
-                                        : formatCurrency(Math.max(0, originalTotal - discountAmount))}
+                                    {formatCurrency(refundAmount)}
                                 </Typography>
                             </div>
                         </div>
@@ -628,14 +607,27 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                 {formatCurrency(originalPlatformFeeAmount)}
                             </Typography>
                         </div>
+
+                        {discountAmount > 0 && (
+                            <div className="flex justify-between text-gray-600">
+                                <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                    Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                </Typography>
+                                <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                    -{formatCurrency(discountAmount)}
+                                </Typography>
+                            </div>
+                        )}
+
                         <div className="flex justify-between border-t border-gray-200 pt-2">
                             <Typography color="text-gray-900" size="sm" weight="font-semibold">
                                 Subtotal
                             </Typography>
                             <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                {formatCurrency(originalBaseAmount + originalPlatformFeeAmount)}
+                                {formatCurrency(originalSubtotal)}
                             </Typography>
                         </div>
+
                         {/* GST Display - Shows IGST for non-Delhi states, CGST+SGST for Delhi */}
                         {originalGSTItems.map((gstItem, index) => (
                             <div key={index} className="flex justify-between">
@@ -647,43 +639,15 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                 </Typography>
                             </div>
                         ))}
-                        {discountAmount > 0 ? (
-                            <>
-                                <div className="flex justify-between border-t border-gray-200 pt-2">
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        Total Original Amount
-                                    </Typography>
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        {formatCurrency(originalTotal)}
-                                    </Typography>
-                                </div>
-                                <div className="flex justify-between text-gray-600 mt-1">
-                                    <Typography color="text-gray-600" size="sm" weight="font-medium">
-                                        Admin Discount{couponCode ? ` (${couponCode})` : ''}
-                                    </Typography>
-                                    <Typography color="text-red-600" size="sm" weight="font-semibold">
-                                        -{formatCurrency(discountAmount)}
-                                    </Typography>
-                                </div>
-                                <div className="flex justify-between border-t border-gray-200 pt-1">
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        Total Amount Paid
-                                    </Typography>
-                                    <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                        {formatCurrency(originalTotal - discountAmount)}
-                                    </Typography>
-                                </div>
-                            </>
-                        ) : (
-                            <div className="flex justify-between border-t border-gray-200 pt-2">
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    Total Original Amount
-                                </Typography>
-                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                    {formatCurrency(originalTotal)}
-                                </Typography>
-                            </div>
-                        )}
+
+                        <div className="flex justify-between border-t border-gray-200 pt-1">
+                            <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                Total Amount Paid
+                            </Typography>
+                            <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                {formatCurrency(originalTotal)}
+                            </Typography>
+                        </div>
                     </div>
                 </div>
 
@@ -713,14 +677,27 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                                 {formatCurrency(guestPlatformFeeAmount)}
                             </Typography>
                         </div>
+
+                        {discountAmount > 0 && (
+                            <div className="flex justify-between text-gray-600">
+                                <Typography color="text-gray-600" size="sm" weight="font-medium">
+                                    Admin Discount{couponCode ? ` (${couponCode})` : ''}
+                                </Typography>
+                                <Typography color="text-red-600" size="sm" weight="font-semibold">
+                                    -{formatCurrency(currentDiscountAmount)}
+                                </Typography>
+                            </div>
+                        )}
+
                         <div className="flex justify-between border-t border-gray-200 pt-2">
                             <Typography color="text-gray-900" size="sm" weight="font-semibold">
                                 Subtotal
                             </Typography>
                             <Typography color="text-gray-900" size="sm" weight="font-semibold">
-                                {formatCurrency(guestBaseAmount + guestPlatformFeeAmount)}
+                                {formatCurrency(currentSubtotal)}
                             </Typography>
                         </div>
+
                         {/* GST Display - Shows IGST for non-Delhi states, CGST+SGST for Delhi */}
                         {currentGSTItems.map((gstItem, index) => (
                             <div key={index} className="flex justify-between">

@@ -11,7 +11,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Bell, MessageCircle, User, Timer, AlertTriangle, AlertCircle } from 'lucide-react';
+import {
+    ArrowLeft,
+    Bell,
+    MessageCircle,
+    User,
+    Timer,
+    AlertTriangle,
+    AlertCircle,
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useGetGuestBookingCalendar, useGetGuestTimeSlots, useGetKYCDoc } from '@/services';
 import { capitalizeWord } from '../../../../utils/helperFunctions';
@@ -180,8 +188,9 @@ const MessageToHostSection = ({
             <div className="flex flex-col gap-2 h-[157px]">
                 <div className="flex flex-col gap-1 flex-1">
                     <div
-                        className={`relative flex-1 bg-white border rounded-2xl shadow-sm ${hasAnyNumber ? 'border-red-500' : 'border-gray-300'
-                            }`}
+                        className={`relative flex-1 bg-white border rounded-2xl shadow-sm ${
+                            hasAnyNumber ? 'border-red-500' : 'border-gray-300'
+                        }`}
                     >
                         <textarea
                             value={message}
@@ -350,8 +359,8 @@ const TimePickerDropdown = ({
                     ? timeData.fromHours
                     : timeData.fromMinutes
                 : field === 'hours'
-                    ? timeData.toHours
-                    : timeData.toMinutes;
+                  ? timeData.toHours
+                  : timeData.toMinutes;
 
         if (field === 'hours' && (currentValue === '00' || currentValue === '')) {
             onTimeChange(type, field, '');
@@ -365,8 +374,8 @@ const TimePickerDropdown = ({
                     ? timeData.fromHours
                     : timeData.fromMinutes
                 : field === 'hours'
-                    ? timeData.toHours
-                    : timeData.toMinutes;
+                  ? timeData.toHours
+                  : timeData.toMinutes;
 
         // If field is empty after blur, set to default
         if (currentValue === '') {
@@ -521,20 +530,22 @@ const TimePickerDropdown = ({
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('from', 'period', 'AM')}
-                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${timeData.fromPeriod === 'AM'
-                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                            }`}
+                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${
+                                            timeData.fromPeriod === 'AM'
+                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
                                     >
                                         AM
                                     </Button>
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('from', 'period', 'PM')}
-                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${timeData.fromPeriod === 'PM'
-                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                            }`}
+                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${
+                                            timeData.fromPeriod === 'PM'
+                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
                                     >
                                         PM
                                     </Button>
@@ -571,20 +582,22 @@ const TimePickerDropdown = ({
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('to', 'period', 'AM')}
-                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${timeData.toPeriod === 'AM'
-                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                            }`}
+                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${
+                                            timeData.toPeriod === 'AM'
+                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
                                     >
                                         AM
                                     </Button>
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('to', 'period', 'PM')}
-                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${timeData.toPeriod === 'PM'
-                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                            }`}
+                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${
+                                            timeData.toPeriod === 'PM'
+                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                        }`}
                                     >
                                         PM
                                     </Button>
@@ -599,10 +612,11 @@ const TimePickerDropdown = ({
                         <Button
                             onClick={onApply}
                             disabled={isApplyDisabled}
-                            className={`px-6 ${isApplyDisabled
-                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                : 'bg-[#F6CD28] hover:bg-yellow-500 text-black'
-                                }`}
+                            className={`px-6 ${
+                                isApplyDisabled
+                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                    : 'bg-[#F6CD28] hover:bg-yellow-500 text-black'
+                            }`}
                         >
                             Apply
                         </Button>
@@ -739,10 +753,11 @@ const BookingDetailRow = ({
                         if (!isDisabled) onEdit();
                     }}
                     disabled={isDisabled}
-                    className={`w-7 h-7 flex items-center justify-center transition-colors ${isDisabled
-                        ? 'text-gray-200 cursor-not-allowed'
-                        : 'text-gray-400 hover:text-gray-600'
-                        }`}
+                    className={`w-7 h-7 flex items-center justify-center transition-colors ${
+                        isDisabled
+                            ? 'text-gray-200 cursor-not-allowed'
+                            : 'text-gray-400 hover:text-gray-600'
+                    }`}
                 >
                     <SquarePen
                         className={`w-5 h-5 cursor-pointer ${isDisabled ? 'text-gray-200' : 'text-gray-300'}`}
@@ -754,8 +769,9 @@ const BookingDetailRow = ({
                         if (!isDisabled) onEdit();
                     }}
                     disabled={isDisabled}
-                    className={`w-7 h-7 flex items-center justify-center transition-transform ${isDisabled ? 'cursor-not-allowed' : ''
-                        } ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-7 h-7 flex items-center justify-center transition-transform ${
+                        isDisabled ? 'cursor-not-allowed' : ''
+                    } ${isOpen ? 'rotate-180' : ''}`}
                 >
                     <ChevronDown
                         className={`w-5 h-5 cursor-pointer ${isDisabled ? 'text-gray-200' : 'text-gray-300'}`}
@@ -790,7 +806,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
 
     const { data: kycDoc } = useGetKYCDoc();
     const isKycVerified = useMemo(() => {
-        const docs = kycDoc?.data?.filter((doc: any) => doc.type !== 'pan' && doc.type !== 'gst') || [];
+        const docs =
+            kycDoc?.data?.filter((doc: any) => doc.type !== 'pan' && doc.type !== 'gst') || [];
         return docs.length > 0;
     }, [kycDoc]);
 
@@ -838,18 +855,18 @@ const BookingReview: React.FC<BookingReviewProps> = ({
     const selectedDateISO =
         bookingDetails.date !== 'Select date'
             ? (() => {
-                const date = new Date(bookingDetails.date);
-                // Check if the date is valid
-                if (isNaN(date.getTime())) {
-                    console.error('Invalid date:', bookingDetails.date);
-                    return null;
-                }
-                // Create UTC date to avoid timezone conversion
-                const utcDate = new Date(
-                    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
-                );
-                return utcDate.toISOString();
-            })()
+                  const date = new Date(bookingDetails.date);
+                  // Check if the date is valid
+                  if (isNaN(date.getTime())) {
+                      console.error('Invalid date:', bookingDetails.date);
+                      return null;
+                  }
+                  // Create UTC date to avoid timezone conversion
+                  const utcDate = new Date(
+                      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+                  );
+                  return utcDate.toISOString();
+              })()
             : null;
 
     // Convert time to 24-hour format for API with seconds
@@ -1806,94 +1823,129 @@ const BookingReview: React.FC<BookingReviewProps> = ({
 
         return errors;
     };
-
     const validationErrors = getValidationErrors();
     const isFormValid = validationErrors.length === 0;
 
     const originalBasePrice = parseFloat(spaceData?.SpaceListing?.price_per_hour) || 1000;
+    const durationHours = bookingMinutes / 60;
+    const grossAmount = originalBasePrice * durationHours;
 
-    // 1. Base Discount
+    // 1. Base Discount (flat listing + refundable)
     let baseDiscountPercentage = parseFloat(
         String((spaceData?.SpaceListing as any)?.discountAmount || '0'),
     );
     if (spaceData?.SpaceListing?.isRefundable === true) {
-        baseDiscountPercentage = baseDiscountPercentage + 10;
+        baseDiscountPercentage += 10;
     }
 
-    // 2. Extra Discount (Tiered)
+    // 2. Extra Discount (Tiered Duration Discount)
     const extra_discount_per = (spaceData?.SpaceListing as any)?.extra_discount_per;
     let appliedExtraDiscountPercentage = 0;
-    const durationHours = bookingMinutes / 60;
-
     if (typeof extra_discount_per === 'object' && extra_discount_per !== null) {
         const t12 = parseFloat(String(extra_discount_per.twelve || '0'));
         const t8 = parseFloat(String(extra_discount_per.eight || '0'));
         const t6 = parseFloat(String(extra_discount_per.six || '0'));
         const t4 = parseFloat(String(extra_discount_per.four || '0'));
 
-        if (durationHours >= 12 && t12 > 0) appliedExtraDiscountPercentage = t12;
-        else if (durationHours >= 8 && t8 > 0) appliedExtraDiscountPercentage = t8;
-        else if (durationHours >= 6 && t6 > 0) appliedExtraDiscountPercentage = t6;
-        else if (durationHours >= 4 && t4 > 0) appliedExtraDiscountPercentage = t4;
+        if (durationHours >= 12 && t12 > 0) {
+            appliedExtraDiscountPercentage = t12;
+        } else if (durationHours >= 8 && t8 > 0) {
+            appliedExtraDiscountPercentage = t8;
+        } else if (durationHours >= 6 && t6 > 0) {
+            appliedExtraDiscountPercentage = t6;
+        } else if (durationHours >= 4 && t4 > 0) {
+            appliedExtraDiscountPercentage = t4;
+        }
+    } else if (extra_discount_per) {
+        if (durationHours >= 6) {
+            appliedExtraDiscountPercentage = parseFloat(String(extra_discount_per || '0'));
+        }
     }
 
-    const isLongBooking = appliedExtraDiscountPercentage > 0;
+    const isLongBooking = appliedExtraDiscountPercentage > 0 || baseDiscountPercentage > 0;
+    const totalHostDiscountPerc = baseDiscountPercentage + appliedExtraDiscountPercentage;
 
-    // 3. Base Price & Amount Calculations (Cumulative: Extra discount on top of base discount)
-    const basePricePostBaseDiscount =
-        baseDiscountPercentage > 0
-            ? originalBasePrice * (1 - baseDiscountPercentage / 100)
-            : originalBasePrice;
+    // 3. Duration/Host Discount Amounts (Segregated)
+    const spaceDiscountAmount = grossAmount * (baseDiscountPercentage / 100);
+    const hourlyDiscountAmount = grossAmount * (appliedExtraDiscountPercentage / 100);
+    const extraDiscountAmount = spaceDiscountAmount + hourlyDiscountAmount;
 
-    const basePrice = basePricePostBaseDiscount; // Taxes applying on undiscounted rate
-    const pricePerMinute = basePrice / 60;
-    const baseAmount = pricePerMinute * bookingMinutes;
+    // 4. Discounted Base Amount
+    const discountedBaseAmount = grossAmount - extraDiscountAmount;
 
-    // 5. Fees and Taxes
+    // Savings text helper to exclude 0% discounts
+    const discountTexts: string[] = [];
+    if (baseDiscountPercentage > 0) {
+        discountTexts.push(`${baseDiscountPercentage}% space discount applied`);
+    }
+    if (appliedExtraDiscountPercentage > 0) {
+        discountTexts.push(`${appliedExtraDiscountPercentage}% hourly discount applied`);
+    }
+    if (couponDiscountPer > 0) {
+        discountTexts.push(`${couponDiscountPer}% coupon discount applied`);
+    }
+    const savingsDescription = discountTexts.join(' & ');
+
+    // 5. Coupon Discount
+    const couponDiscountAmount =
+        couponDiscountPer > 0 ? discountedBaseAmount * (couponDiscountPer / 100) : 0;
+    const amountAfterCoupon = discountedBaseAmount - couponDiscountAmount;
+
+    // =====================================
+    // Fees & Taxes Configuration
+    // =====================================
     const guestPlatformFeePercentage = parseFloat(bookingSettings?.guest_platform_fee || '5') / 100;
     const cgstPercentage = parseFloat(bookingSettings?.cgst || '9') / 100;
     const sgstPercentage = parseFloat(bookingSettings?.sgst || '9') / 100;
     const gstTotalPercentage = cgstPercentage + sgstPercentage;
 
-    // Calculate fees and taxes ON THE BASE AMOUNT (before extra duration discount)
-    const guestPlatformFee = baseAmount * guestPlatformFeePercentage;
-    const subtotal = baseAmount + guestPlatformFee;
+    // 6. Platform Fee (calculated on discountedBaseAmount, pre-admin discount)
+    const guestPlatformFee = discountedBaseAmount * guestPlatformFeePercentage;
+
+    // 7. Subtotal
+    const subtotal = amountAfterCoupon + guestPlatformFee;
+
+    // 8. Taxes
     const cgstAmount = subtotal * cgstPercentage;
     const sgstAmount = subtotal * sgstPercentage;
-    const grossAmountBeforeExtra = subtotal + cgstAmount + sgstAmount;
+    const taxAmount = cgstAmount + sgstAmount;
 
-    // Extra discount applied strictly to the base rate
-    const extraDiscountAmount = appliedExtraDiscountPercentage > 0 ? baseAmount * (appliedExtraDiscountPercentage / 100) : 0;
-    const totalAmountBeforeCoupon = grossAmountBeforeExtra - extraDiscountAmount;
+    // 9. Grand Total
+    const totalAmount = subtotal + taxAmount;
 
-    // Coupon discount (admin discount) applied on base amount
-    const couponDiscountAmount = couponDiscountPer > 0 ? baseAmount * (couponDiscountPer / 100) : 0;
-    const totalAmount = totalAmountBeforeCoupon - couponDiscountAmount;
-
-    // 6. Savings Tracking & UI Display Helpers
+    // =====================================
+    // Display Helpers
+    // =====================================
+    const baseAmount = grossAmount; // For UI display
     const guestFeeMultiplier = 1 + guestPlatformFeePercentage;
     const taxMultiplier = 1 + gstTotalPercentage;
     const allInMultiplier = guestFeeMultiplier * taxMultiplier;
 
-    const basePriceWithAll = totalAmountBeforeCoupon / (bookingMinutes / 60);
+    // Used in: ₹{basePriceWithAll} x {hours}
+    const basePriceWithAll = durationHours > 0 ? totalAmount / durationHours : 0;
+
     const orig = originalBasePrice * allInMultiplier;
 
-    const discountSavings = (originalBasePrice * (bookingMinutes / 60) * allInMultiplier) - totalAmount;
-    const totalDiscountPercentage = originalBasePrice > 0 ? (discountSavings / orig) * 100 : 0;
+    // Original all-in price before any discounts
+    const origAllInTotal = originalBasePrice * durationHours * allInMultiplier;
+
+    // Total user savings
+    const discountSavings = origAllInTotal - totalAmount;
+
+    const totalDiscountPercentage =
+        origAllInTotal > 0 ? (discountSavings / origAllInTotal) * 100 : 0;
+
     const hasDiscount = totalDiscountPercentage > 0;
 
-    const origAllInTotal = (originalBasePrice / 60) * bookingMinutes * allInMultiplier;
+    // Legacy name used in UI
+    const baseAmountWithAll = totalAmount;
 
-    const baseAmountWithAll = totalAmountBeforeCoupon; // Legacy name used in UI
-
-    // Helper function to format hours like BookingForm
     const formatHours = (hours: number) => {
         return hours % 1 === 0 ? hours.toString() : hours.toFixed(1);
     };
 
-    // Pre-compute GST display items to avoid function calls in JSX
+    // GST display helper
     const gstItems = formatGSTForDisplay(spaceData?.City?.state, cgstAmount, sgstAmount);
-
     // Real-time validation when booking details change (only for date changes or when time becomes invalid)
     useEffect(() => {
         // Only validate if all required fields are filled and time is not in picker state
@@ -2009,9 +2061,14 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                             <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
                                 <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
                                 <div>
-                                    <h3 className="font-semibold text-red-800 text-sm">Account Verification Required</h3>
+                                    <h3 className="font-semibold text-red-800 text-sm">
+                                        Account Verification Required
+                                    </h3>
                                     <p className="text-red-700 text-xs mt-1 leading-relaxed">
-                                        You are currently booking without KYC verification. Please verify your KYC details within 6 hours of booking to prevent automatic cancellation. You can do this from your Account Verification page.
+                                        You are currently booking without KYC verification. Please
+                                        verify your KYC details within 6 hours of booking to prevent
+                                        automatic cancellation. You can do this from your Account
+                                        Verification page.
                                     </p>
                                 </div>
                             </div>
@@ -2045,8 +2102,9 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('keepConversations', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.keepConversations ? 'border-red-500' : ''
-                                        }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
+                                        !agreements.keepConversations ? 'border-red-500' : ''
+                                    }`}
                                 />
                                 <label
                                     htmlFor="keepConversations"
@@ -2070,8 +2128,9 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('processPayments', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.processPayments ? 'border-red-500' : ''
-                                        }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
+                                        !agreements.processPayments ? 'border-red-500' : ''
+                                    }`}
                                 />
                                 <label
                                     htmlFor="processPayments"
@@ -2094,8 +2153,9 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('understandContracts', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.understandContracts ? 'border-red-500' : ''
-                                        }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
+                                        !agreements.understandContracts ? 'border-red-500' : ''
+                                    }`}
                                 />
                                 <label
                                     htmlFor="understandContracts"
@@ -2144,8 +2204,9 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('meetRegulations', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.meetRegulations ? 'border-red-500' : ''
-                                        }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
+                                        !agreements.meetRegulations ? 'border-red-500' : ''
+                                    }`}
                                 />
                                 <label
                                     htmlFor="meetRegulations"
@@ -2178,10 +2239,11 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                             checked,
                                                         )
                                                     }
-                                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!customRulesAgreements[index]
-                                                        ? 'border-red-500'
-                                                        : ''
-                                                        }`}
+                                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
+                                                        !customRulesAgreements[index]
+                                                            ? 'border-red-500'
+                                                            : ''
+                                                    }`}
                                                 />
                                                 <label
                                                     htmlFor={`customRule-${index}`}
@@ -2223,9 +2285,11 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                             </p>
                             <div className="flex items-center gap-1 mt-1">
                                 <span className="text-[#F6CD28] text-xs md:text-sm">★</span>
-                                 <span className="text-xs md:text-sm text-gray-600">
+                                <span className="text-xs md:text-sm text-gray-600">
                                     {parseFloat(spaceData?.avg_rating || '0').toFixed(2)}
-                                    {(spaceData?.reviewCount || spaceData?.Reviews?.length || 0) > 0 && ` (${spaceData?.reviewCount || spaceData?.Reviews?.length})`}
+                                    {(spaceData?.reviewCount || spaceData?.Reviews?.length || 0) >
+                                        0 &&
+                                        ` (${spaceData?.reviewCount || spaceData?.Reviews?.length})`}
                                 </span>
                             </div>
                         </div>
@@ -2432,10 +2496,10 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                         </span>
                                         {(baseDiscountPercentage > 0 ||
                                             appliedExtraDiscountPercentage > 0) && (
-                                                <span className="text-gray-400 line-through text-[10px]">
-                                                    ₹{formatCurrency(orig)}/hr
-                                                </span>
-                                            )}
+                                            <span className="text-gray-400 line-through text-[10px]">
+                                                ₹{formatCurrency(orig)}/hr
+                                            </span>
+                                        )}
                                     </div>
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <Popover>
@@ -2460,80 +2524,116 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                     </div>
 
                                                     {/* Charges */}
-                                                    <div className="px-5 py-4 space-y-3">
-                                                        <div>
-                                                            <p className="text-[10px] font-bold text-gray-400 tracking-wider mb-2">
-                                                                CHARGES
-                                                            </p>
-                                                            <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-sm text-gray-600 font-medium">
-                                                                    Base amount
-                                                                </span>
-                                                                <span className="text-sm text-gray-900 font-bold">
-                                                                    ₹{formatCurrency(baseAmount)}
-                                                                </span>
-                                                            </div>
-                                                            <div className="flex justify-between items-center">
-                                                                <span className="text-sm text-gray-600 font-medium">
-                                                                    Platform fee
-                                                                </span>
-                                                                <span className="text-sm text-gray-900 font-bold">
-                                                                    ₹{formatCurrency(guestPlatformFee)}
-                                                                </span>
-                                                            </div>
-                                                            {isLongBooking && extraDiscountAmount > 0 && (
-                                                                <div className="flex justify-between items-center mt-2">
-                                                                    <span className="text-sm text-green-600 font-medium whitespace-nowrap">
-                                                                        Duration discount ({appliedExtraDiscountPercentage}%)
-                                                                    </span>
-                                                                    <span className="text-sm text-green-700 font-bold">
-                                                                        -₹{formatCurrency(extraDiscountAmount)}
-                                                                    </span>
-                                                                </div>
-                                                            )}
+                                                    <div className="px-5 py-4 border-t border-gray-100">
+                                                        <p className="text-[10px] font-bold text-gray-400 tracking-wider mb-2">
+                                                            CHARGES
+                                                        </p>
+
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <span className="text-sm text-gray-600 font-medium">
+                                                                Base amount
+                                                            </span>
+                                                            <span className="text-sm text-gray-900 font-bold">
+                                                                ₹{formatCurrency(grossAmount)}
+                                                            </span>
                                                         </div>
 
-                                                        <div className="pt-3 border-t border-gray-100">
-                                                            <div className="flex justify-between items-center mb-2">
-                                                                <span className="text-sm text-gray-900 font-bold">
-                                                                    Taxes
-                                                                </span>
-                                                                <span className="text-sm text-gray-900 font-bold">
-                                                                    ₹
-                                                                    {formatCurrency(
-                                                                        cgstAmount + sgstAmount,
-                                                                    )}
-                                                                </span>
-                                                            </div>
-                                                            <div className="space-y-1 pl-4">
-                                                                <div className="flex justify-between items-center">
-                                                                    <span className="text-[12px] text-gray-500">
-                                                                        CGST (
-                                                                        {(
-                                                                            cgstPercentage * 100
-                                                                        ).toFixed(0)}
-                                                                        %)
-                                                                    </span>
-                                                                    <span className="text-[12px] text-gray-700 font-medium">
-                                                                        ₹
-                                                                        {formatCurrency(cgstAmount)}
-                                                                    </span>
-                                                                </div>
-                                                                <div className="flex justify-between items-center">
-                                                                    <span className="text-[12px] text-gray-500">
-                                                                        SGST (
-                                                                        {(
-                                                                            sgstPercentage * 100
-                                                                        ).toFixed(0)}
-                                                                        %)
-                                                                    </span>
-                                                                    <span className="text-[12px] text-gray-700 font-medium">
-                                                                        ₹
-                                                                        {formatCurrency(sgstAmount)}
-                                                                    </span>
-                                                                </div>
-                                                            </div>
+                                                        {baseDiscountPercentage > 0 && spaceDiscountAmount > 0 && (
+                                                             <div className="flex justify-between items-center mb-2">
+                                                                 <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                     Space discount ({baseDiscountPercentage}%)
+                                                                 </span>
+                                                                 <span className="text-sm text-green-700 font-bold">
+                                                                     -₹{formatCurrency(spaceDiscountAmount)}
+                                                                 </span>
+                                                             </div>
+                                                         )}
+
+                                                         {appliedExtraDiscountPercentage > 0 && hourlyDiscountAmount > 0 && (
+                                                             <div className="flex justify-between items-center mb-2">
+                                                                 <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                     Hourly discount ({appliedExtraDiscountPercentage}%)
+                                                                 </span>
+                                                                 <span className="text-sm text-green-700 font-bold">
+                                                                     -₹{formatCurrency(hourlyDiscountAmount)}
+                                                                 </span>
+                                                             </div>
+                                                         )}
+
+                                                         {false && isLongBooking && extraDiscountAmount > 0 && (
+                                                             <div className="flex justify-between items-center mb-2">
+                                                                 <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                     Host discount ({totalHostDiscountPerc}%)
+                                                                 </span>
+                                                                 <span className="text-sm text-green-700 font-bold">
+                                                                     -₹{formatCurrency(extraDiscountAmount)}
+                                                                 </span>
+                                                             </div>
+                                                         )}
+
+                                                         <div className="flex justify-between items-center mb-2">
+                                                            <span className="text-sm text-gray-600 font-medium">
+                                                                Platform fee
+                                                            </span>
+                                                            <span className="text-sm text-gray-900 font-bold">
+                                                                ₹{formatCurrency(guestPlatformFee)}
+                                                            </span>
                                                         </div>
+
+                                                        {couponDiscountPer > 0 && couponDiscountAmount > 0 && (
+                                
+                                                                 <div className="flex justify-between items-center mt-2">
+                                                                     <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                         Coupon discount (
+                                                                         {
+                                                                             couponDiscountPer
+                                                                         }
+                                                                         %)
+                                                                     </span>
+                                                                     <span className="text-sm text-green-700 font-bold">
+                                                                         -₹
+                                                                         {formatCurrency(
+                                                                             couponDiscountAmount,
+                                                                         )}
+                                                                     </span>
+                                                                 </div>
+                                                             )}
+
+                                                        <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100">
+                                                            <span className="text-sm text-gray-900 font-semibold">
+                                                                Subtotal
+                                                            </span>
+                                                            <span className="text-sm text-gray-900 font-bold">
+                                                                ₹{formatCurrency(subtotal)}
+                                                            </span>
+                                                        </div>
+                                                    </div>
+
+                                                    {/* KEEP YOUR EXISTING GST SECTION BELOW THIS */}
+                                                 <div className="px-5 py-4 border-t border-gray-100">
+                                                        <div className="flex justify-between items-center mb-2">
+                                                            <span className="text-sm text-gray-900 font-bold">
+                                                                Taxes
+                                                            </span>
+                                                            <span className="text-sm text-gray-900 font-bold">
+                                                                ₹
+                                                                {formatCurrency(
+                                                                    cgstAmount + sgstAmount,
+                                                                )}
+                                                            </span>
+                                                        </div>
+                                                        <div className="space-y-1">
+                                                             {gstItems.map((item, index) => (
+                                                                 <div key={index} className="flex justify-between items-center">
+                                                                     <span className="text-[12px] text-gray-500">
+                                                                         {item.label}
+                                                                     </span>
+                                                                     <span className="text-[12px] text-gray-700 font-medium">
+                                                                         ₹{formatCurrency(item.amount)}
+                                                                     </span>
+                                                                 </div>
+                                                             ))}
+                                                         </div>
                                                     </div>
 
                                                     {/* Total Section */}
@@ -2549,16 +2649,20 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                                 </span>
                                                             </div>
                                                         )}
-                                                        {couponDiscountPer > 0 && (
+                                                        {/* {couponDiscountPer > 0 && (
                                                             <div className="flex justify-between items-center mb-1">
                                                                 <span className="text-xs text-green-600 font-medium whitespace-nowrap">
-                                                                    Coupon discount ({couponDiscountPer}%)
+                                                                    Coupon discount (
+                                                                    {couponDiscountPer}%)
                                                                 </span>
                                                                 <span className="text-xs text-green-700 font-bold">
-                                                                    -₹{formatCurrency(couponDiscountAmount)}
+                                                                    -₹
+                                                                    {formatCurrency(
+                                                                        couponDiscountAmount,
+                                                                    )}
                                                                 </span>
                                                             </div>
-                                                        )}
+                                                        )} */}
                                                         <div className="flex justify-between items-center">
                                                             <span className="text-base font-bold text-gray-900">
                                                                 Total
@@ -2570,7 +2674,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                     </div>
 
                                                     {/* Savings Alert Box */}
-                                                    {hasDiscount && (
+                                                    {hasDiscount && savingsDescription && (
                                                         <div className="m-4 mt-0 bg-[#E8F3E8] rounded-xl p-3 flex justify-between items-center">
                                                             <div className="flex flex-col pr-2">
                                                                 <p className="text-[#3E7B3E] font-bold text-[13px]">
@@ -2579,24 +2683,26 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                                         discountSavings,
                                                                     )}
                                                                 </p>
-                                                                <p className="text-[#3E7B3E] text-[10px] opacity-80 leading-tight">
+                                                                <p className="text-[#3E7B3E] text-[10px] opacity-80 leading-tight">{savingsDescription}</p>{/*
                                                                     {baseDiscountPercentage > 0
                                                                         ? `${baseDiscountPercentage}% space discount applied`
                                                                         : ''}
                                                                     {baseDiscountPercentage > 0 &&
-                                                                        (isLongBooking || couponDiscountPer > 0)
+                                                                    (isLongBooking ||
+                                                                        couponDiscountPer > 0)
                                                                         ? ' & '
                                                                         : ''}
                                                                     {isLongBooking
                                                                         ? `${appliedExtraDiscountPercentage}% hourly discount applied`
                                                                         : ''}
-                                                                    {isLongBooking && couponDiscountPer > 0
+                                                                    {isLongBooking &&
+                                                                    couponDiscountPer > 0
                                                                         ? ' & '
                                                                         : ''}
                                                                     {couponDiscountPer > 0
                                                                         ? `${couponDiscountPer}% coupon discount applied`
                                                                         : ''}
-                                                                </p>
+                                                                */}
                                                             </div>
                                                             {/* <span className="text-[#3E7B3E] font-bold text-xs whitespace-nowrap">
                                                                 {totalDiscountPercentage.toFixed(0)}
@@ -2703,7 +2809,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                             <div className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-start gap-2">
                                 <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                                 <p className="text-red-800 text-xs leading-normal font-medium">
-                                    Please verify your KYC within 6 hours of booking to prevent automatic cancellation.
+                                    Please verify your KYC within 6 hours of booking to prevent
+                                    automatic cancellation.
                                 </p>
                             </div>
                         )}
@@ -2758,8 +2865,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     ? 'Processing Payment...'
                                     : 'Submitting...'
                                 : isInstantBooking
-                                    ? 'Pay Now'
-                                    : 'Request to Book'}
+                                  ? 'Pay Now'
+                                  : 'Request to Book'}
                         </Button>
                         <p className="text-xs text-gray-500 text-center">
                             Agreeing to the policies and terms is mandatory to continue.
@@ -2769,22 +2876,22 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                     {/* Cancellation Policy */}
                     {(bookingDetails?.cancellationPolicy ||
                         spaceData?.SpaceListing?.cancellationPolicy) && (
-                            <div className="mt-8 pt-6 border-t border-gray-100 bg-red-100 p-5 rounded-xl">
-                                <h3 className="font-semibold text-gray-900 text-sm md:text-base mb-3">
-                                    Cancellation Policy
-                                </h3>
-                                <div className="space-y-2">
-                                    <p className="text-sm font-medium text-gray-900 capitalize">
-                                        {bookingDetails?.cancellationPolicy?.key ||
-                                            spaceData?.SpaceListing?.cancellationPolicy?.key}
-                                    </p>
-                                    <p className="text-xs text-gray-500 leading-relaxed">
-                                        {bookingDetails?.cancellationPolicy?.message ||
-                                            spaceData?.SpaceListing?.cancellationPolicy?.message}
-                                    </p>
-                                </div>
+                        <div className="mt-8 pt-6 border-t border-gray-100 bg-red-100 p-5 rounded-xl">
+                            <h3 className="font-semibold text-gray-900 text-sm md:text-base mb-3">
+                                Cancellation Policy
+                            </h3>
+                            <div className="space-y-2">
+                                <p className="text-sm font-medium text-gray-900 capitalize">
+                                    {bookingDetails?.cancellationPolicy?.key ||
+                                        spaceData?.SpaceListing?.cancellationPolicy?.key}
+                                </p>
+                                <p className="text-xs text-gray-500 leading-relaxed">
+                                    {bookingDetails?.cancellationPolicy?.message ||
+                                        spaceData?.SpaceListing?.cancellationPolicy?.message}
+                                </p>
                             </div>
-                        )}
+                        </div>
+                    )}
                 </div>
             </div>
         </div>

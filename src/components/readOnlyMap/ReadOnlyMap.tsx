@@ -39,10 +39,27 @@ export default function ReadOnlyMap({
   const mapRef = useRef<HTMLDivElement | null>(null);
   const mapInstance = useRef<google.maps.Map | null>(null);
   const circleRef = useRef<google.maps.Circle | null>(null);
+  const [isLoaded, setIsLoaded] = React.useState(false);
+
+  // -------- Wait for Google Maps to Load ----------
+  useEffect(() => {
+    let retryCount = 0;
+    const maxRetries = 100; // 10 seconds max wait time
+
+    const checkGoogleMaps = () => {
+      if (window.google && window.google.maps) {
+        setIsLoaded(true);
+      } else if (retryCount < maxRetries) {
+        retryCount++;
+        setTimeout(checkGoogleMaps, 100);
+      }
+    };
+    checkGoogleMaps();
+  }, []);
 
   // --- init map once ---
   useEffect(() => {
-    if (!window.google?.maps || !mapRef.current) return;
+    if (!isLoaded || !window.google?.maps || !mapRef.current) return;
 
     const map = new google.maps.Map(mapRef.current, {
       center: coordinates,
@@ -107,7 +124,7 @@ export default function ReadOnlyMap({
       mapInstance.current = null;
     };
 
-  }, []);
+  }, [isLoaded]);
 
   // --- keep center in sync ---
   useEffect(() => {
