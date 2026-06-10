@@ -104,6 +104,8 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
     const hostTDS = Number(tdsAmount);
     const hostPenalty = Number(penaltyAmount);
 
+    const isCancelled = status?.toLowerCase() === 'cancelled';
+
     // Calculate final payout
     let finalPayout = hostSubtotal - hostPlatformFee - hostPlatformFeeGST - hostTDS;
 
@@ -112,10 +114,22 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
         finalPayout = finalPayout - hostTCS;
     }
 
+    const expectedPayout =
+        hostSubtotal -
+        hostPlatformFee -
+        hostPlatformFeeGST -
+        hostTDS -
+        (hostGst ? hostTCS : 0);
+
     // Deduct penalty only if penaltyAmount > 0 AND refundPercentage !== 100
     const shouldDeductPenalty = hostPenalty > 0 && refundPercentage !== 100;
     if (shouldDeductPenalty) {
         finalPayout = finalPayout - hostPenalty;
+    }
+
+    // If cancelled and full refund (100%), host amount is 0
+    if (isCancelled && refundPercentage === 100) {
+        finalPayout = 0;
     }
 
     // Round to 2 decimal places to avoid floating-point precision issues
@@ -372,6 +386,17 @@ const ReservationDetails: React.FC<ReservationDetailsProps> = ({ isOpen, onClose
                                 -{formatCurrency(hostTDS)}
                             </Typography>
                         </div>
+
+                        {isCancelled && (
+                            <div className="flex justify-between border-t border-gray-200 pt-2">
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    Expected Payout
+                                </Typography>
+                                <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                                    {formatCurrency(expectedPayout)}
+                                </Typography>
+                            </div>
+                        )}
 
                         {shouldDeductPenalty && (
                             <div className="flex justify-between">

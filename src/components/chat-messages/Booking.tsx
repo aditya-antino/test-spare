@@ -771,12 +771,14 @@ interface HostCancellationAmountsProps {
     hostPayout: any;
     state?: string;
     bookingDetails?: any;
+    cancelledByType?: string;
 }
 
 const HostCancellationAmounts = ({
     hostPayout,
     state,
     bookingDetails,
+    cancelledByType,
 }: HostCancellationAmountsProps) => {
     let amounts = getHostPayoutAmounts(hostPayout);
     const refundPercentage = hostPayout?.refundPercentage || 0;
@@ -876,10 +878,12 @@ const HostCancellationAmounts = ({
 
                 <AmountRow label="TDS" value={-amounts.tdsAmount} isNegative />
 
-                <div className="flex justify-between font-semibold border-t border-gray-200 pt-1 text-sm text-gray-700">
-                    <span>Expected Payout</span>
-                    <span>₹{formatCurrency(expectedPayout)}</span>
-                </div>
+                {cancelledByType === 'host' && (
+                    <div className="flex justify-between font-semibold border-t border-gray-200 pt-1 text-sm text-gray-700">
+                        <span>Expected Payout</span>
+                        <span>₹{formatCurrency(expectedPayout)}</span>
+                    </div>
+                )}
 
                 {shouldDeductPenalty && (
                     <AmountRow label="Penalty Amount" value={penaltyAmount} isNegative />
@@ -929,6 +933,7 @@ const BookingAmounts = ({
                         hostPayout={cancellationData.data.hostPayout}
                         state={bookingDetails.state || bookingDetails.spaceData?.City?.state}
                         bookingDetails={bookingDetails}
+                        cancelledByType={cancellationData?.data?.cancelledBy?.cancelledByType}
                     />
                 )}
             </div>

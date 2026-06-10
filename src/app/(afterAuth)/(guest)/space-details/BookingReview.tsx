@@ -188,9 +188,8 @@ const MessageToHostSection = ({
             <div className="flex flex-col gap-2 h-[157px]">
                 <div className="flex flex-col gap-1 flex-1">
                     <div
-                        className={`relative flex-1 bg-white border rounded-2xl shadow-sm ${
-                            hasAnyNumber ? 'border-red-500' : 'border-gray-300'
-                        }`}
+                        className={`relative flex-1 bg-white border rounded-2xl shadow-sm ${hasAnyNumber ? 'border-red-500' : 'border-gray-300'
+                            }`}
                     >
                         <textarea
                             value={message}
@@ -359,8 +358,8 @@ const TimePickerDropdown = ({
                     ? timeData.fromHours
                     : timeData.fromMinutes
                 : field === 'hours'
-                  ? timeData.toHours
-                  : timeData.toMinutes;
+                    ? timeData.toHours
+                    : timeData.toMinutes;
 
         if (field === 'hours' && (currentValue === '00' || currentValue === '')) {
             onTimeChange(type, field, '');
@@ -374,8 +373,8 @@ const TimePickerDropdown = ({
                     ? timeData.fromHours
                     : timeData.fromMinutes
                 : field === 'hours'
-                  ? timeData.toHours
-                  : timeData.toMinutes;
+                    ? timeData.toHours
+                    : timeData.toMinutes;
 
         // If field is empty after blur, set to default
         if (currentValue === '') {
@@ -530,22 +529,20 @@ const TimePickerDropdown = ({
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('from', 'period', 'AM')}
-                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${
-                                            timeData.fromPeriod === 'AM'
-                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                        }`}
+                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${timeData.fromPeriod === 'AM'
+                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            }`}
                                     >
                                         AM
                                     </Button>
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('from', 'period', 'PM')}
-                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${
-                                            timeData.fromPeriod === 'PM'
-                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                        }`}
+                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${timeData.fromPeriod === 'PM'
+                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            }`}
                                     >
                                         PM
                                     </Button>
@@ -582,22 +579,20 @@ const TimePickerDropdown = ({
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('to', 'period', 'AM')}
-                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${
-                                            timeData.toPeriod === 'AM'
-                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                        }`}
+                                        className={`px-3 rounded-none rounded-l-md font-semibold text-sm ${timeData.toPeriod === 'AM'
+                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            }`}
                                     >
                                         AM
                                     </Button>
                                     <Button
                                         type="button"
                                         onClick={() => onTimeChange('to', 'period', 'PM')}
-                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${
-                                            timeData.toPeriod === 'PM'
-                                                ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
-                                                : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
-                                        }`}
+                                        className={`px-3 rounded-none rounded-r-md font-semibold text-sm ${timeData.toPeriod === 'PM'
+                                            ? 'bg-[#F6CD28] text-black hover:bg-yellow-500'
+                                            : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            }`}
                                     >
                                         PM
                                     </Button>
@@ -612,11 +607,10 @@ const TimePickerDropdown = ({
                         <Button
                             onClick={onApply}
                             disabled={isApplyDisabled}
-                            className={`px-6 ${
-                                isApplyDisabled
-                                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                                    : 'bg-[#F6CD28] hover:bg-yellow-500 text-black'
-                            }`}
+                            className={`px-6 ${isApplyDisabled
+                                ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                                : 'bg-[#F6CD28] hover:bg-yellow-500 text-black'
+                                }`}
                         >
                             Apply
                         </Button>
@@ -753,11 +747,10 @@ const BookingDetailRow = ({
                         if (!isDisabled) onEdit();
                     }}
                     disabled={isDisabled}
-                    className={`w-7 h-7 flex items-center justify-center transition-colors ${
-                        isDisabled
-                            ? 'text-gray-200 cursor-not-allowed'
-                            : 'text-gray-400 hover:text-gray-600'
-                    }`}
+                    className={`w-7 h-7 flex items-center justify-center transition-colors ${isDisabled
+                        ? 'text-gray-200 cursor-not-allowed'
+                        : 'text-gray-400 hover:text-gray-600'
+                        }`}
                 >
                     <SquarePen
                         className={`w-5 h-5 cursor-pointer ${isDisabled ? 'text-gray-200' : 'text-gray-300'}`}
@@ -769,9 +762,8 @@ const BookingDetailRow = ({
                         if (!isDisabled) onEdit();
                     }}
                     disabled={isDisabled}
-                    className={`w-7 h-7 flex items-center justify-center transition-transform ${
-                        isDisabled ? 'cursor-not-allowed' : ''
-                    } ${isOpen ? 'rotate-180' : ''}`}
+                    className={`w-7 h-7 flex items-center justify-center transition-transform ${isDisabled ? 'cursor-not-allowed' : ''
+                        } ${isOpen ? 'rotate-180' : ''}`}
                 >
                     <ChevronDown
                         className={`w-5 h-5 cursor-pointer ${isDisabled ? 'text-gray-200' : 'text-gray-300'}`}
@@ -855,18 +847,18 @@ const BookingReview: React.FC<BookingReviewProps> = ({
     const selectedDateISO =
         bookingDetails.date !== 'Select date'
             ? (() => {
-                  const date = new Date(bookingDetails.date);
-                  // Check if the date is valid
-                  if (isNaN(date.getTime())) {
-                      console.error('Invalid date:', bookingDetails.date);
-                      return null;
-                  }
-                  // Create UTC date to avoid timezone conversion
-                  const utcDate = new Date(
-                      Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
-                  );
-                  return utcDate.toISOString();
-              })()
+                const date = new Date(bookingDetails.date);
+                // Check if the date is valid
+                if (isNaN(date.getTime())) {
+                    console.error('Invalid date:', bookingDetails.date);
+                    return null;
+                }
+                // Create UTC date to avoid timezone conversion
+                const utcDate = new Date(
+                    Date.UTC(date.getFullYear(), date.getMonth(), date.getDate()),
+                );
+                return utcDate.toISOString();
+            })()
             : null;
 
     // Convert time to 24-hour format for API with seconds
@@ -2102,9 +2094,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('keepConversations', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
-                                        !agreements.keepConversations ? 'border-red-500' : ''
-                                    }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.keepConversations ? 'border-red-500' : ''
+                                        }`}
                                 />
                                 <label
                                     htmlFor="keepConversations"
@@ -2128,9 +2119,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('processPayments', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
-                                        !agreements.processPayments ? 'border-red-500' : ''
-                                    }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.processPayments ? 'border-red-500' : ''
+                                        }`}
                                 />
                                 <label
                                     htmlFor="processPayments"
@@ -2153,9 +2143,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('understandContracts', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
-                                        !agreements.understandContracts ? 'border-red-500' : ''
-                                    }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.understandContracts ? 'border-red-500' : ''
+                                        }`}
                                 />
                                 <label
                                     htmlFor="understandContracts"
@@ -2204,9 +2193,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     onCheckedChange={(checked) =>
                                         handleAgreementChange('meetRegulations', checked)
                                     }
-                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
-                                        !agreements.meetRegulations ? 'border-red-500' : ''
-                                    }`}
+                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!agreements.meetRegulations ? 'border-red-500' : ''
+                                        }`}
                                 />
                                 <label
                                     htmlFor="meetRegulations"
@@ -2239,11 +2227,10 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                             checked,
                                                         )
                                                     }
-                                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${
-                                                        !customRulesAgreements[index]
-                                                            ? 'border-red-500'
-                                                            : ''
-                                                    }`}
+                                                    className={`mt-1 cursor-pointer data-[state=checked]:bg-[#F6CD28] data-[state=checked]:border-[#F6CD28] ${!customRulesAgreements[index]
+                                                        ? 'border-red-500'
+                                                        : ''
+                                                        }`}
                                                 />
                                                 <label
                                                     htmlFor={`customRule-${index}`}
@@ -2496,10 +2483,10 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                         </span>
                                         {(baseDiscountPercentage > 0 ||
                                             appliedExtraDiscountPercentage > 0) && (
-                                            <span className="text-gray-400 line-through text-[10px]">
-                                                ₹{formatCurrency(orig)}/hr
-                                            </span>
-                                        )}
+                                                <span className="text-gray-400 line-through text-[10px]">
+                                                    ₹{formatCurrency(orig)}/hr
+                                                </span>
+                                            )}
                                     </div>
                                     <div className="flex items-center gap-2 flex-wrap">
                                         <Popover>
@@ -2539,39 +2526,39 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                         </div>
 
                                                         {baseDiscountPercentage > 0 && spaceDiscountAmount > 0 && (
-                                                             <div className="flex justify-between items-center mb-2">
-                                                                 <span className="text-sm text-green-600 font-medium whitespace-nowrap">
-                                                                     Space discount ({baseDiscountPercentage}%)
-                                                                 </span>
-                                                                 <span className="text-sm text-green-700 font-bold">
-                                                                     -₹{formatCurrency(spaceDiscountAmount)}
-                                                                 </span>
-                                                             </div>
-                                                         )}
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                    Space discount ({baseDiscountPercentage}%)
+                                                                </span>
+                                                                <span className="text-sm text-green-700 font-bold">
+                                                                    -₹{formatCurrency(spaceDiscountAmount)}
+                                                                </span>
+                                                            </div>
+                                                        )}
 
-                                                         {appliedExtraDiscountPercentage > 0 && hourlyDiscountAmount > 0 && (
-                                                             <div className="flex justify-between items-center mb-2">
-                                                                 <span className="text-sm text-green-600 font-medium whitespace-nowrap">
-                                                                     Hourly discount ({appliedExtraDiscountPercentage}%)
-                                                                 </span>
-                                                                 <span className="text-sm text-green-700 font-bold">
-                                                                     -₹{formatCurrency(hourlyDiscountAmount)}
-                                                                 </span>
-                                                             </div>
-                                                         )}
+                                                        {appliedExtraDiscountPercentage > 0 && hourlyDiscountAmount > 0 && (
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                    Hourly discount ({appliedExtraDiscountPercentage}%)
+                                                                </span>
+                                                                <span className="text-sm text-green-700 font-bold">
+                                                                    -₹{formatCurrency(hourlyDiscountAmount)}
+                                                                </span>
+                                                            </div>
+                                                        )}
 
-                                                         {false && isLongBooking && extraDiscountAmount > 0 && (
-                                                             <div className="flex justify-between items-center mb-2">
-                                                                 <span className="text-sm text-green-600 font-medium whitespace-nowrap">
-                                                                     Host discount ({totalHostDiscountPerc}%)
-                                                                 </span>
-                                                                 <span className="text-sm text-green-700 font-bold">
-                                                                     -₹{formatCurrency(extraDiscountAmount)}
-                                                                 </span>
-                                                             </div>
-                                                         )}
+                                                        {false && isLongBooking && extraDiscountAmount > 0 && (
+                                                            <div className="flex justify-between items-center mb-2">
+                                                                <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                    Host discount ({totalHostDiscountPerc}%)
+                                                                </span>
+                                                                <span className="text-sm text-green-700 font-bold">
+                                                                    -₹{formatCurrency(extraDiscountAmount)}
+                                                                </span>
+                                                            </div>
+                                                        )}
 
-                                                         <div className="flex justify-between items-center mb-2">
+                                                        <div className="flex justify-between items-center mb-2">
                                                             <span className="text-sm text-gray-600 font-medium">
                                                                 Platform fee
                                                             </span>
@@ -2581,23 +2568,23 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                         </div>
 
                                                         {couponDiscountPer > 0 && couponDiscountAmount > 0 && (
-                                
-                                                                 <div className="flex justify-between items-center mt-2">
-                                                                     <span className="text-sm text-green-600 font-medium whitespace-nowrap">
-                                                                         Coupon discount (
-                                                                         {
-                                                                             couponDiscountPer
-                                                                         }
-                                                                         %)
-                                                                     </span>
-                                                                     <span className="text-sm text-green-700 font-bold">
-                                                                         -₹
-                                                                         {formatCurrency(
-                                                                             couponDiscountAmount,
-                                                                         )}
-                                                                     </span>
-                                                                 </div>
-                                                             )}
+
+                                                            <div className="flex justify-between items-center mt-2">
+                                                                <span className="text-sm text-green-600 font-medium whitespace-nowrap">
+                                                                    Coupon discount (
+                                                                    {
+                                                                        couponDiscountPer
+                                                                    }
+                                                                    %)
+                                                                </span>
+                                                                <span className="text-sm text-green-700 font-bold">
+                                                                    -₹
+                                                                    {formatCurrency(
+                                                                        couponDiscountAmount,
+                                                                    )}
+                                                                </span>
+                                                            </div>
+                                                        )}
 
                                                         <div className="flex justify-between items-center mt-2 pt-2 border-t border-gray-100">
                                                             <span className="text-sm text-gray-900 font-semibold">
@@ -2610,7 +2597,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                     </div>
 
                                                     {/* KEEP YOUR EXISTING GST SECTION BELOW THIS */}
-                                                 <div className="px-5 py-4 border-t border-gray-100">
+                                                    <div className="px-5 py-4 border-t border-gray-100">
                                                         <div className="flex justify-between items-center mb-2">
                                                             <span className="text-sm text-gray-900 font-bold">
                                                                 Taxes
@@ -2623,17 +2610,17 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                                             </span>
                                                         </div>
                                                         <div className="space-y-1">
-                                                             {gstItems.map((item, index) => (
-                                                                 <div key={index} className="flex justify-between items-center">
-                                                                     <span className="text-[12px] text-gray-500">
-                                                                         {item.label}
-                                                                     </span>
-                                                                     <span className="text-[12px] text-gray-700 font-medium">
-                                                                         ₹{formatCurrency(item.amount)}
-                                                                     </span>
-                                                                 </div>
-                                                             ))}
-                                                         </div>
+                                                            {gstItems.map((item, index) => (
+                                                                <div key={index} className="flex justify-between items-center">
+                                                                    <span className="text-[12px] text-gray-500">
+                                                                        {item.label}
+                                                                    </span>
+                                                                    <span className="text-[12px] text-gray-700 font-medium">
+                                                                        ₹{formatCurrency(item.amount)}
+                                                                    </span>
+                                                                </div>
+                                                            ))}
+                                                        </div>
                                                     </div>
 
                                                     {/* Total Section */}
@@ -2865,8 +2852,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     ? 'Processing Payment...'
                                     : 'Submitting...'
                                 : isInstantBooking
-                                  ? 'Pay Now'
-                                  : 'Request to Book'}
+                                    ? 'Pay Now'
+                                    : 'Request to Book'}
                         </Button>
                         <p className="text-xs text-gray-500 text-center">
                             Agreeing to the policies and terms is mandatory to continue.
@@ -2876,22 +2863,22 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                     {/* Cancellation Policy */}
                     {(bookingDetails?.cancellationPolicy ||
                         spaceData?.SpaceListing?.cancellationPolicy) && (
-                        <div className="mt-8 pt-6 border-t border-gray-100 bg-red-100 p-5 rounded-xl">
-                            <h3 className="font-semibold text-gray-900 text-sm md:text-base mb-3">
-                                Cancellation Policy
-                            </h3>
-                            <div className="space-y-2">
-                                <p className="text-sm font-medium text-gray-900 capitalize">
-                                    {bookingDetails?.cancellationPolicy?.key ||
-                                        spaceData?.SpaceListing?.cancellationPolicy?.key}
-                                </p>
-                                <p className="text-xs text-gray-500 leading-relaxed">
-                                    {bookingDetails?.cancellationPolicy?.message ||
-                                        spaceData?.SpaceListing?.cancellationPolicy?.message}
-                                </p>
+                            <div className="mt-8 pt-6 border-t border-gray-100 bg-red-100 p-5 rounded-xl">
+                                <h3 className="font-semibold text-gray-900 text-sm md:text-base mb-3">
+                                    Cancellation Policy
+                                </h3>
+                                <div className="space-y-2">
+                                    <p className="text-sm font-medium text-gray-900 capitalize">
+                                        {bookingDetails?.cancellationPolicy?.key ||
+                                            spaceData?.SpaceListing?.cancellationPolicy?.key}
+                                    </p>
+                                    <p className="text-xs text-gray-500 leading-relaxed">
+                                        {bookingDetails?.cancellationPolicy?.message ||
+                                            spaceData?.SpaceListing?.cancellationPolicy?.message}
+                                    </p>
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
                 </div>
             </div>
         </div>

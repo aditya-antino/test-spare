@@ -366,9 +366,10 @@ interface HostCancellationAmountsProps {
     hostPayout: any;
     state?: string;
     bookingDetails?: any;
+    cancelledByType?: string;
 }
 
-export const HostCancellationAmounts = ({ hostPayout, state, bookingDetails }: HostCancellationAmountsProps) => {
+export const HostCancellationAmounts = ({ hostPayout, state, bookingDetails, cancelledByType }: HostCancellationAmountsProps) => {
     let amounts = getHostPayoutAmounts(hostPayout);
     const refundPercentage = hostPayout?.refundPercentage || 0;
     const hostHasGST = hostPayout?.hostGst ?? bookingDetails?.financial?.hostGst ?? false;
@@ -456,10 +457,12 @@ export const HostCancellationAmounts = ({ hostPayout, state, bookingDetails }: H
                 {hostHasGST && <AmountRow label="TCS" value={amounts.tcsAmount} isNegative />}
                 <AmountRow label="TDS" value={amounts.tdsAmount} isNegative />
 
-                <div className="flex justify-between font-semibold border-t border-gray-200 pt-1 text-sm text-gray-700">
-                    <span>Expected Payout</span>
-                    <span>₹{formatCurrency(expectedPayout.toFixed(2))}</span>
-                </div>
+                {cancelledByType === 'host' && (
+                    <div className="flex justify-between font-semibold border-t border-gray-200 pt-1 text-sm text-gray-700">
+                        <span>Expected Payout</span>
+                        <span>₹{formatCurrency(expectedPayout.toFixed(2))}</span>
+                    </div>
+                )}
 
                 {shouldDeductPenalty && (
                     <AmountRow label="Penalty Amount" value={penaltyAmount} isNegative />
@@ -520,6 +523,7 @@ export const BookingAmounts = ({
                         hostPayout={cancellationData.data.hostPayout}
                         state={bookingDetails.state || bookingDetails.spaceData?.City?.state}
                         bookingDetails={bookingDetails}
+                        cancelledByType={cancellationData?.data?.cancelledBy?.cancelledByType}
                     />
                 )}
             </div>

@@ -118,17 +118,52 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
     const { hostPayout, guestPayout, cancelledBy } = cancellationData?.data;
 
     const isCancelledByGuest = cancelledBy?.cancelledByType === 'guest';
-    const baseAmount = Number(hostPayout.baseAmount) || 0;
-    const hasHostGST = hostPayout.hostGst || false;
-    const hostCgstAmount = Number(hostPayout.cgstAmount) || 0;
-    const hostSgstAmount = Number(hostPayout.sgstAmount) || 0;
-    const hostPlatformFeeAmount = Number(hostPayout.hostPlatformFeeAmount) || 0;
-    const hostPlatformFeeCgstAmount = Number(hostPayout.hostPlatformFeeCgstAmount) || 0;
-    const hostPlatformFeeSgstAmount = Number(hostPayout.hostPlatformFeeSgstAmount) || 0;
+    const hostRefundPercentage = Number(hostPayout?.refundPercentage) || 0;
+    const isFullRefund = hostRefundPercentage === 100;
+    const fin = data?.financial || data?.Financial || {};
+
+    const baseAmount = isFullRefund
+        ? (Number(fin.baseAmount) || Number(data?.amount) || 0)
+        : (Number(hostPayout?.baseAmount) || 0);
+
+    const hasHostGST = isFullRefund
+        ? (fin.hostGst || false)
+        : (hostPayout?.hostGst || false);
+
+    const hostCgstAmount = isFullRefund
+        ? (Number(fin.cgstAmount) || Number(data?.cgst) || 0)
+        : (Number(hostPayout?.cgstAmount) || 0);
+
+    const hostSgstAmount = isFullRefund
+        ? (Number(fin.sgstAmount) || Number(data?.sgst) || 0)
+        : (Number(hostPayout?.sgstAmount) || 0);
+
+    const hostPlatformFeeAmount = isFullRefund
+        ? (Number(fin.hostPlatformFeeAmount) || 0)
+        : (Number(hostPayout?.hostPlatformFeeAmount) || 0);
+
+    const hostPlatformFeeCgstAmount = isFullRefund
+        ? (Number(fin.hostPlatformFeeCgstAmount) || 0)
+        : (Number(hostPayout?.hostPlatformFeeCgstAmount) || 0);
+
+    const hostPlatformFeeSgstAmount = isFullRefund
+        ? (Number(fin.hostPlatformFeeSgstAmount) || 0)
+        : (Number(hostPayout?.hostPlatformFeeSgstAmount) || 0);
+
     const toatalHostPlatformFeeWithGST =
         hostPlatformFeeAmount + hostPlatformFeeCgstAmount + hostPlatformFeeSgstAmount;
-    const tdsAmount = Number(hostPayout.tdsAmount) || 0;
-    const hostRefundPercentage = hostPayout.refundPercentage || 0;
+
+    const tdsAmount = isFullRefund
+        ? (Number(fin.tdsAmount) || 0)
+        : (Number(hostPayout?.tdsAmount) || 0);
+
+    const hostTCSAmount = isFullRefund
+        ? (Number(fin.tcsAmount) || 0)
+        : (Number(hostPayout?.tcsAmount) || 0);
+
+    const hostPenaltyAmount = isFullRefund
+        ? (Number(hostPayout?.penaltyAmount || fin.penaltyAmount || 0) || 0)
+        : (Number(hostPayout?.penaltyAmount) || 0);
 
     const guestBaseAmount = Math.abs(Number(guestPayout.baseAmount)) || 0;
     const guestCgstAmount = Math.abs(Number(guestPayout.cgstAmount)) || 0;
@@ -137,8 +172,6 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
     const guestPlatformFeeCgstAmount = Math.abs(Number(guestPayout.guestPlatformFeeCgstAmount)) || 0;
     const guestPlatformFeeSgstAmount = Math.abs(Number(guestPayout.guestPlatformFeeSgstAmount)) || 0;
     const guestRefundPercentage = guestPayout.refundPercentage || 0;
-    const hostPenaltyAmount = Number(hostPayout.penaltyAmount) || 0;
-    const hostTCSAmount = Number(hostPayout.tcsAmount) || 0;
 
     const multiplier = guestRefundPercentage === 50 ? 2 : 1;
     const originalBaseAmount = guestBaseAmount * multiplier;
@@ -240,6 +273,13 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
     if (refundPercentage === 100) {
         hostTotal = 0;
     }
+
+    const expectedPayout =
+        hostSubtotal -
+        hostPlatformFeeAmount -
+        (hostPlatformFeeCgstAmount + hostPlatformFeeSgstAmount) -
+        tdsAmount -
+        (hasHostGST ? hostTCSAmount : 0);
 
     const formatCurrency = (amount: number) => `₹${amount.toFixed(2)}`;
 
@@ -855,6 +895,15 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
                             </Typography>
                         </div>
                     )}
+
+                    <div className="flex justify-between border-t border-gray-200 pt-2 mt-2">
+                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                            Expected Payout
+                        </Typography>
+                        <Typography color="text-gray-900" size="sm" weight="font-semibold">
+                            {formatCurrency(expectedPayout)}
+                        </Typography>
+                    </div>
 
                     <div className="flex justify-between border-t border-gray-300 pt-2 mt-2">
                         <Typography color="text-gray-900" size="sm" weight="font-semibold">

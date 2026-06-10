@@ -239,256 +239,254 @@ export const useBookingForm = ({
         return now.getHours() * 60 + now.getMinutes();
     }, []);
 
-const pricing = useMemo(() => {
-    const originalBasePrice =
-        parseFloat(spaceData?.SpaceListing?.price_per_hour) || 80;
+    const pricing = useMemo(() => {
+        const originalBasePrice =
+            parseFloat(spaceData?.SpaceListing?.price_per_hour) || 80;
 
-    // Base Discount
-    let discount = parseFloat(
-        String((spaceData?.SpaceListing as any)?.discountAmount || '0'),
-    );
-
-    if (spaceData?.SpaceListing?.isRefundable === true) {
-        discount += 10;
-    }
-
-    // Duration Discount Config
-    const extra_discount_per =
-        (spaceData?.SpaceListing as any)?.extra_discount_per;
-
-    let appliedExtraDiscount = 0;
-
-    let minutes = 60;
-
-    const hasStart =
-        !bookingDetails.timeStart.includes('HH:MM') &&
-        bookingDetails.timeStart !== 'Start time';
-
-    const hasEnd =
-        !bookingDetails.timeEnd.includes('HH:MM') &&
-        bookingDetails.timeEnd !== 'End time';
-
-    if (
-        bookingDetails.date !== 'Select date' &&
-        hasStart &&
-        hasEnd
-    ) {
-        const startMinutes = timeToMinutes(
-            bookingDetails.timeStart,
+        // Base Discount
+        let discount = parseFloat(
+            String((spaceData?.SpaceListing as any)?.discountAmount || '0'),
         );
 
-        const endMinutes = timeToMinutes(
-            bookingDetails.timeEnd,
-        );
-
-        minutes = endMinutes - startMinutes;
-
-        if (minutes <= 0) {
-            minutes += 24 * 60;
+        if (spaceData?.SpaceListing?.isRefundable === true) {
+            discount += 10;
         }
-    }
 
-    const currentBookingHours =
-        Math.max(minutes, 60) / 60;
+        // Duration Discount Config
+        const extra_discount_per =
+            (spaceData?.SpaceListing as any)?.extra_discount_per;
 
-    if (
-        typeof extra_discount_per === 'object' &&
-        extra_discount_per !== null
-    ) {
-        const t12 = parseFloat(
-            String(extra_discount_per.twelve || '0'),
-        );
+        let appliedExtraDiscount = 0;
 
-        const t8 = parseFloat(
-            String(extra_discount_per.eight || '0'),
-        );
+        let minutes = 60;
 
-        const t6 = parseFloat(
-            String(extra_discount_per.six || '0'),
-        );
+        const hasStart =
+            !bookingDetails.timeStart.includes('HH:MM') &&
+            bookingDetails.timeStart !== 'Start time';
 
-        const t4 = parseFloat(
-            String(extra_discount_per.four || '0'),
-        );
+        const hasEnd =
+            !bookingDetails.timeEnd.includes('HH:MM') &&
+            bookingDetails.timeEnd !== 'End time';
 
-        if (currentBookingHours >= 12 && t12 > 0) {
-            appliedExtraDiscount = t12;
-        } else if (
-            currentBookingHours >= 8 &&
-            t8 > 0
+        if (
+            bookingDetails.date !== 'Select date' &&
+            hasStart &&
+            hasEnd
         ) {
-            appliedExtraDiscount = t8;
-        } else if (
-            currentBookingHours >= 6 &&
-            t6 > 0
-        ) {
-            appliedExtraDiscount = t6;
-        } else if (
-            currentBookingHours >= 4 &&
-            t4 > 0
-        ) {
-            appliedExtraDiscount = t4;
+            const startMinutes = timeToMinutes(
+                bookingDetails.timeStart,
+            );
+
+            const endMinutes = timeToMinutes(
+                bookingDetails.timeEnd,
+            );
+
+            minutes = endMinutes - startMinutes;
+
+            if (minutes <= 0) {
+                minutes += 24 * 60;
+            }
         }
-    } else if (extra_discount_per) {
-        if (currentBookingHours >= 6) {
-            appliedExtraDiscount = parseFloat(String(extra_discount_per || '0'));
+
+        const currentBookingHours =
+            Math.max(minutes, 60) / 60;
+
+        if (
+            typeof extra_discount_per === 'object' &&
+            extra_discount_per !== null
+        ) {
+            const t12 = parseFloat(
+                String(extra_discount_per.twelve || '0'),
+            );
+
+            const t8 = parseFloat(
+                String(extra_discount_per.eight || '0'),
+            );
+
+            const t6 = parseFloat(
+                String(extra_discount_per.six || '0'),
+            );
+
+            const t4 = parseFloat(
+                String(extra_discount_per.four || '0'),
+            );
+
+            if (currentBookingHours >= 12 && t12 > 0) {
+                appliedExtraDiscount = t12;
+            } else if (
+                currentBookingHours >= 8 &&
+                t8 > 0
+            ) {
+                appliedExtraDiscount = t8;
+            } else if (
+                currentBookingHours >= 6 &&
+                t6 > 0
+            ) {
+                appliedExtraDiscount = t6;
+            } else if (
+                currentBookingHours >= 4 &&
+                t4 > 0
+            ) {
+                appliedExtraDiscount = t4;
+            }
+        } else if (extra_discount_per) {
+            if (currentBookingHours >= 6) {
+                appliedExtraDiscount = parseFloat(String(extra_discount_per || '0'));
+            }
         }
-    }
 
-    const isLongBooking =
-        appliedExtraDiscount > 0 || discount > 0;
+        const isLongBooking =
+            appliedExtraDiscount > 0 || discount > 0;
 
-    const totalHostDiscountPerc = discount + appliedExtraDiscount;
+        const totalHostDiscountPerc = discount + appliedExtraDiscount;
 
-    // Gross Booking Amount
-    const grossAmount = originalBasePrice * currentBookingHours;
+        // Gross Booking Amount
+        const grossAmount = originalBasePrice * currentBookingHours;
 
-    // Duration Discount Amount
-    const extraDiscountAmount = grossAmount * (totalHostDiscountPerc / 100);
+        // Duration Discount Amount
+        const extraDiscountAmount = grossAmount * (totalHostDiscountPerc / 100);
 
-    // Discounted Base
-    const baseAmount = grossAmount - extraDiscountAmount;
+        // Discounted Base
+        const baseAmount = grossAmount - extraDiscountAmount;
 
-    // =====================================
-    // Fees & Taxes
-    // =====================================
-    const guestPlatformFeePercentage =
-        parseFloat(
-            bookingSettings?.guest_platform_fee || '5',
-        ) / 100;
+        // =====================================
+        // Fees & Taxes
+        // =====================================
+        const guestPlatformFeePercentage =
+            parseFloat(
+                bookingSettings?.guest_platform_fee || '5',
+            ) / 100;
 
-    const cgstPercentage =
-        parseFloat(
-            bookingSettings?.cgst || '9',
-        ) / 100;
+        const cgstPercentage =
+            parseFloat(
+                bookingSettings?.cgst || '9',
+            ) / 100;
 
-    const sgstPercentage =
-        parseFloat(
-            bookingSettings?.sgst || '9',
-        ) / 100;
+        const sgstPercentage =
+            parseFloat(
+                bookingSettings?.sgst || '9',
+            ) / 100;
 
-    const gstTotalPercentage =
-        cgstPercentage + sgstPercentage;
+        const gstTotalPercentage =
+            cgstPercentage + sgstPercentage;
 
-    // Platform fee (calculated on discountedBase/baseAmount)
-    const guestPlatformFee =
-        baseAmount *
-        guestPlatformFeePercentage;
+        // Platform fee (calculated on discountedBase/baseAmount)
+        const guestPlatformFee =
+            baseAmount *
+            guestPlatformFeePercentage;
 
-    // Subtotal
-    const subtotal =
-        baseAmount +
-        guestPlatformFee;
+        // Subtotal
+        const subtotal =
+            baseAmount +
+            guestPlatformFee;
 
-    // Taxes on subtotal
-    const cgstAmount =
-        subtotal * cgstPercentage;
+        // Taxes on subtotal
+        const cgstAmount =
+            subtotal * cgstPercentage;
 
-    const sgstAmount =
-        subtotal * sgstPercentage;
+        const sgstAmount =
+            subtotal * sgstPercentage;
 
-    const totalTax =
-        cgstAmount + sgstAmount;
+        const totalTax =
+            cgstAmount + sgstAmount;
 
-    // Grand total
-    const totalAmount =
-        subtotal + totalTax;
+        // Grand total
+        const totalAmount =
+            subtotal + totalTax;
 
-    // =====================================
-    // Display Helpers
-    // =====================================
-    const discountedPrice =
-        currentBookingHours > 0
-            ? baseAmount /
-              currentBookingHours
-            : 0;
+        // =====================================
+        // Display Helpers
+        // =====================================
+        const discountedPrice =
+            currentBookingHours > 0
+                ? baseAmount /
+                currentBookingHours
+                : 0;
 
-    const basePriceWithGST =
-        discountedPrice *
-        (1 + gstTotalPercentage);
+        const basePriceWithGST =
+            discountedPrice *
+            (1 + gstTotalPercentage);
 
-    const baseAmountWithGST =
-        baseAmount *
-        (1 + gstTotalPercentage);
+        const baseAmountWithGST =
+            baseAmount *
+            (1 + gstTotalPercentage);
 
-    const basePriceWithAll =
-        currentBookingHours > 0
-            ? totalAmount /
-              currentBookingHours
-            : 0;
+        const basePriceWithAll =
+            currentBookingHours > 0
+                ? totalAmount /
+                currentBookingHours
+                : 0;
 
-    const baseAmountWithAll =
-        totalAmount;
+        const baseAmountWithAll =
+            totalAmount;
 
-    const originalBaseAmount =
-        originalBasePrice *
-        currentBookingHours;
+        const originalBaseAmount =
+            originalBasePrice *
+            currentBookingHours;
 
-    const baseDiscountAmountValue =
-        grossAmount * (discount / 100);
+        const baseDiscountAmountValue =
+            grossAmount * (discount / 100);
 
-    const originalAllInAmount =
-        originalBaseAmount *
-        (1 + guestPlatformFeePercentage) *
-        (1 + gstTotalPercentage);
+        const totalSavings = extraDiscountAmount;
 
-    const totalSavings =
-        originalAllInAmount -
-        totalAmount;
+        const originalAllInAmount =
+            originalBaseAmount *
+            (1 + guestPlatformFeePercentage) *
+            (1 + gstTotalPercentage);
 
-    const effectiveTotalDiscountPercentage =
-        originalAllInAmount > 0
-            ? (totalSavings /
-                  originalAllInAmount) *
-              100
-            : 0;
+        const effectiveTotalDiscountPercentage =
+            originalAllInAmount > 0
+                ? (totalSavings /
+                    originalAllInAmount) *
+                100
+                : 0;
 
-    const basePricePostBaseDiscount = originalBasePrice * (1 - discount / 100);
-    const baseAmountWithoutExtra = grossAmount - (grossAmount * (discount / 100));
+        const basePricePostBaseDiscount = originalBasePrice * (1 - discount / 100);
+        const baseAmountWithoutExtra = grossAmount - (grossAmount * (discount / 100));
 
-    return {
-        basePrice: discountedPrice,
-        basePricePostBaseDiscount,
-        basePriceWithGST,
-        basePriceWithAll,
+        return {
+            basePrice: discountedPrice,
+            basePricePostBaseDiscount,
+            basePriceWithGST,
+            basePriceWithAll,
 
-        baseAmount,
-        baseAmountWithoutExtra,
-        baseAmountWithGST,
-        baseAmountWithAll,
+            baseAmount,
+            baseAmountWithoutExtra,
+            baseAmountWithGST,
+            baseAmountWithAll,
 
-        originalBasePrice,
-        originalBaseAmount,
+            originalBasePrice,
+            originalBaseAmount,
 
-        baseDiscountAmountValue,
+            baseDiscountAmountValue,
 
-        guestPlatformFee,
-        subtotal,
+            guestPlatformFee,
+            subtotal,
 
-        cgstAmount,
-        sgstAmount,
+            cgstAmount,
+            sgstAmount,
 
-        totalAmount,
+            totalAmount,
 
-        bookingHours: currentBookingHours,
+            bookingHours: currentBookingHours,
 
-        isLongBooking,
-        extraDiscountAmount,
-        extraDiscountPercentage:
-            totalHostDiscountPerc,
+            isLongBooking,
+            extraDiscountAmount,
+            extraDiscountPercentage:
+                totalHostDiscountPerc,
 
-        discountPercentage:
-            effectiveTotalDiscountPercentage,
+            discountPercentage:
+                effectiveTotalDiscountPercentage,
 
-        totalSavings,
-        baseDiscount: discount,
-    };
-}, [
-    spaceData,
-    bookingSettings,
-    bookingDetails,
-    timeToMinutes,
-]);
+            totalSavings,
+            baseDiscount: discount,
+        };
+    }, [
+        spaceData,
+        bookingSettings,
+        bookingDetails,
+        timeToMinutes,
+    ]);
     const getValidationErrors = useCallback(() => {
         const errors = [];
 
