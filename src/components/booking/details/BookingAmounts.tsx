@@ -41,8 +41,14 @@ export const RegularBookingAmounts = ({ bookingDetails, isInHost }: RegularBooki
         bookingDetails?.financial?.baseAmount || bookingDetails?.amount || 0,
     );
 
-    const discountAmount = Number(bookingDetails?.financial?.discountAmount) || Number((bookingDetails as any)?.discountAmount) || 0;
-    const couponCode = bookingDetails?.financial?.couponCode || (bookingDetails as any)?.couponCode || '';
+    const discountAmount =
+        Number(bookingDetails?.financial?.discountAmount) ||
+        Number((bookingDetails as any)?.discountAmount) ||
+        0;
+    const couponCode =
+        bookingDetails?.financial?.couponCode ||
+        (bookingDetails as any)?.couponCode ||
+        '';
 
     // Calculate subtotal after platform fee and admin/coupon discount
     const guestSubtotal = guestBaseAmount + guestFeeNum - discountAmount;
@@ -121,65 +127,92 @@ interface GuestCancellationAmountsProps {
     guestPayout: any;
     isCancelledByGuest?: boolean;
     state?: string;
+    bookingDetails?: BookingDetailsType;
 }
 
 export const GuestCancellationAmounts = ({
     guestPayout,
     isCancelledByGuest = false,
     state,
+    bookingDetails,
 }: GuestCancellationAmountsProps) => {
     const guestRefundPercentage = guestPayout?.refundPercentage || 0;
 
-    const guestBaseAmount = Number(guestPayout.baseAmount) || 0;
-    const guestCgstAmount = Number(guestPayout.cgstAmount) || 0;
-    const guestSgstAmount = Number(guestPayout.sgstAmount) || 0;
-    const guestPlatformFeeAmount = Number(guestPayout.guestPlatformFeeAmount) || 0;
-    const guestPlatformFeeCgstAmount = Number(guestPayout.guestPlatformFeeCgstAmount) || 0;
-    const guestPlatformFeeSgstAmount = Number(guestPayout.guestPlatformFeeSgstAmount) || 0;
+    const guestBaseAmount = Math.abs(Number(guestPayout.baseAmount)) || 0;
+    const guestPlatformFeeAmount = Math.abs(Number(guestPayout.guestPlatformFeeAmount)) || 0;
 
     const multiplier = guestRefundPercentage === 50 ? 2 : 1;
 
     const originalBaseAmount = guestBaseAmount * multiplier;
-    const originalCgstAmount = guestCgstAmount * multiplier;
-    const originalSgstAmount = guestSgstAmount * multiplier;
     const originalPlatformFeeAmount = guestPlatformFeeAmount * multiplier;
-    const originalPlatformFeeCgstAmount = guestPlatformFeeCgstAmount * multiplier;
-    const originalPlatformFeeSgstAmount = guestPlatformFeeSgstAmount * multiplier;
 
-    const originalTotalGSTOnGuestPlatformFee =
-        originalPlatformFeeAmount + originalPlatformFeeCgstAmount + originalPlatformFeeSgstAmount;
+    const discountAmount =
+        Math.abs(Number((guestPayout as any)?.discountAmount)) ||
+        Math.abs(Number(bookingDetails?.financial?.discountAmount)) ||
+        Math.abs(Number((bookingDetails as any)?.discountAmount)) ||
+        0;
+    const couponCode =
+        (guestPayout as any)?.couponCode ||
+        bookingDetails?.financial?.couponCode ||
+        (bookingDetails as any)?.couponCode ||
+        '';
 
-    const originalTotal =
-        originalBaseAmount +
-        originalCgstAmount +
-        originalSgstAmount +
-        originalPlatformFeeAmount +
-        originalPlatformFeeCgstAmount +
-        originalPlatformFeeSgstAmount;
+    // 1. originalSubtotal = originalBaseAmount + originalPlatformFeeAmount - discountAmount
+    const originalSubtotal = originalBaseAmount + originalPlatformFeeAmount - discountAmount;
 
-    const totalOriginalGuestCGST = originalCgstAmount + originalPlatformFeeCgstAmount;
-    const totalOriginalGuestSGST = originalSgstAmount + originalPlatformFeeSgstAmount;
+    // 2. original GST breakdown calculated over originalSubtotal
+    const totalOriginalGuestCGST = originalSubtotal * 0.09;
+    const totalOriginalGuestSGST = originalSubtotal * 0.09;
 
     const originalGSTItems = formatGSTForDisplay(
         state,
         totalOriginalGuestCGST,
-        totalOriginalGuestSGST
+        totalOriginalGuestSGST,
     );
 
-    const totalCurrentGuestCGST = guestCgstAmount + guestPlatformFeeCgstAmount;
-    const totalCurrentGuestSGST = guestSgstAmount + guestPlatformFeeSgstAmount;
+    // 3. originalTotal
+    const originalTotal = originalSubtotal + totalOriginalGuestCGST + totalOriginalGuestSGST;
+
+    // 4. Remaining/current booking amount after refund percentage is applied
+    const currentDiscountAmount = discountAmount * (1 - guestRefundPercentage / 100);
+    const currentSubtotal = guestBaseAmount + guestPlatformFeeAmount - currentDiscountAmount;
+
+    // Current GST breakdown calculated over currentSubtotal
+    const totalCurrentGuestCGST = currentSubtotal * 0.09;
+    const totalCurrentGuestSGST = currentSubtotal * 0.09;
 
     const currentGSTItems = formatGSTForDisplay(
         state,
         totalCurrentGuestCGST,
-        totalCurrentGuestSGST
+        totalCurrentGuestSGST,
     );
 
-    const currentTotal =
-        guestBaseAmount + guestCgstAmount + guestSgstAmount + guestPlatformFeeAmount + guestPlatformFeeCgstAmount + guestPlatformFeeSgstAmount;
+    // Current total remaining after refund percentage is applied
+    const currentTotal = currentSubtotal + totalCurrentGuestCGST + totalCurrentGuestSGST;
 
-    const refundAmount = originalTotal - currentTotal;
+    // 5. Calculate refund amount
+    let refundAmount = 0;
+    if (guestRefundPercentage === 100) {
+        if (isCancelledByGuest) {
+            const subtotalRefund = originalBaseAmount - discountAmount;
+            refundAmount = subtotalRefund * 1.18;
+        } else {
+            refundAmount = originalTotal;
+        }
+    } else if (guestRefundPercentage === 50) {
+        refundAmount = originalTotal - currentTotal;
+    }
+    refundAmount = Math.max(0, refundAmount);
 
+    // For 100% refund view subtotal and GST refunds
+    const subtotalRefund = originalBaseAmount + (isCancelledByGuest ? 0 : originalPlatformFeeAmount) - discountAmount;
+    const cgstRefund = subtotalRefund * 0.09;
+    const sgstRefund = subtotalRefund * 0.09;
+    const refundGSTItems = formatGSTForDisplay(
+        state,
+        cgstRefund,
+        sgstRefund
+    );
 
     if (guestRefundPercentage === 0) {
         return (
@@ -191,9 +224,17 @@ export const GuestCancellationAmounts = ({
                     <AmountRow label="Base Amount" value={originalBaseAmount} />
                     <AmountRow label="Platform Fee" value={originalPlatformFeeAmount} />
 
+                    {discountAmount > 0 && (
+                        <AmountRow
+                            label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
+                            value={discountAmount}
+                            isNegative
+                        />
+                    )}
+
                     <div className="flex justify-between text-gray-600 font-semibold border-t border-gray-200 pt-1 text-sm">
                         <span>Subtotal</span>
-                        <span>₹{formatCurrency(originalBaseAmount + originalPlatformFeeAmount)}</span>
+                        <span>₹{formatCurrency(originalSubtotal)}</span>
                     </div>
 
                     {originalGSTItems.map((item, i) => (
@@ -215,9 +256,16 @@ export const GuestCancellationAmounts = ({
                     <div className="space-y-2">
                         <AmountRow label="Base Amount" value={originalBaseAmount} />
                         <AmountRow label="Platform Fee" value={originalPlatformFeeAmount} />
+                        {discountAmount > 0 && (
+                            <AmountRow
+                                label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
+                                value={discountAmount}
+                                isNegative
+                            />
+                        )}
                         <div className="flex justify-between text-gray-600 font-semibold border-t border-gray-200 pt-1 text-sm">
                             <span>Subtotal</span>
-                            <span>₹{formatCurrency(originalBaseAmount + originalPlatformFeeAmount)}</span>
+                            <span>₹{formatCurrency(originalSubtotal)}</span>
                         </div>
                         {originalGSTItems.map((item, i) => (
                             <AmountRow key={i} label={item.label} value={item.amount} />
@@ -229,28 +277,31 @@ export const GuestCancellationAmounts = ({
                 <div className="space-y-3">
                     <h4 className="font-medium text-gray-700">Full Refund (100%)</h4>
                     <div className="space-y-2">
-                        <AmountRow label="Base Amount Refund" value={originalBaseAmount} isNegative />
+                        <AmountRow label="Base Amount Refund" value={originalBaseAmount} />
                         <AmountRow
                             label="Platform Fee Refund"
                             value={isCancelledByGuest ? 0 : originalPlatformFeeAmount}
-                            isNegative
                         />
+                        {discountAmount > 0 && (
+                            <AmountRow
+                                label={`Admin Discount Refund${couponCode ? ` (${couponCode})` : ''}`}
+                                value={discountAmount}
+                                isNegative
+                            />
+                        )}
 
                         <div className="flex justify-between text-gray-600 font-semibold border-t border-gray-200 pt-1 text-sm">
                             <span>Subtotal Refund</span>
-                            <span>-₹{formatCurrency(isCancelledByGuest ? originalBaseAmount : originalBaseAmount + originalPlatformFeeAmount)}</span>
+                            <span>₹{formatCurrency(subtotalRefund)}</span>
                         </div>
 
-                        {(isCancelledByGuest
-                            ? formatGSTForDisplay(state, originalCgstAmount, originalSgstAmount)
-                            : originalGSTItems
-                        ).map((item, i) => (
-                            <AmountRow key={i} label={`${item.label} Refund`} value={item.amount} isNegative />
+                        {refundGSTItems.map((item, i) => (
+                            <AmountRow key={i} label={`${item.label} Refund`} value={item.amount}/>
                         ))}
 
                         <TotalRow
                             label="Total Refund Amount"
-                            value={isCancelledByGuest ? (originalTotal - (originalPlatformFeeAmount + originalPlatformFeeCgstAmount + originalPlatformFeeSgstAmount)) : originalTotal}
+                            value={refundAmount}
                         />
                     </div>
                 </div>
@@ -265,9 +316,16 @@ export const GuestCancellationAmounts = ({
                 <div className="space-y-2">
                     <AmountRow label="Base Amount" value={originalBaseAmount} />
                     <AmountRow label="Platform Fee" value={originalPlatformFeeAmount} />
+                    {discountAmount > 0 && (
+                        <AmountRow
+                            label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
+                            value={discountAmount}
+                            isNegative
+                        />
+                    )}
                     <div className="flex justify-between text-gray-600 font-semibold border-t border-gray-200 pt-1 text-sm">
                         <span>Subtotal</span>
-                        <span>₹{formatCurrency(originalBaseAmount + originalPlatformFeeAmount)}</span>
+                        <span>₹{formatCurrency(originalSubtotal)}</span>
                     </div>
                     {originalGSTItems.map((item, i) => (
                         <AmountRow key={i} label={item.label} value={item.amount} />
@@ -281,9 +339,16 @@ export const GuestCancellationAmounts = ({
                 <div className="space-y-2">
                     <AmountRow label="Base Amount" value={guestBaseAmount} />
                     <AmountRow label="Platform Fee" value={guestPlatformFeeAmount} />
+                    {discountAmount > 0 && (
+                        <AmountRow
+                            label={`Admin Discount${couponCode ? ` (${couponCode})` : ''}`}
+                            value={currentDiscountAmount}
+                            isNegative
+                        />
+                    )}
                     <div className="flex justify-between text-gray-600 font-semibold border-t border-gray-200 pt-1 text-sm">
                         <span>Subtotal</span>
-                        <span>₹{formatCurrency(guestBaseAmount + guestPlatformFeeAmount)}</span>
+                        <span>₹{formatCurrency(currentSubtotal)}</span>
                     </div>
                     {currentGSTItems.map((item, i) => (
                         <AmountRow key={i} label={item.label} value={item.amount} />
@@ -300,14 +365,31 @@ export const GuestCancellationAmounts = ({
 interface HostCancellationAmountsProps {
     hostPayout: any;
     state?: string;
+    bookingDetails?: any;
 }
 
-export const HostCancellationAmounts = ({ hostPayout, state }: HostCancellationAmountsProps) => {
-    const amounts = getHostPayoutAmounts(hostPayout);
+export const HostCancellationAmounts = ({ hostPayout, state, bookingDetails }: HostCancellationAmountsProps) => {
+    let amounts = getHostPayoutAmounts(hostPayout);
     const refundPercentage = hostPayout?.refundPercentage || 0;
-    const hostHasGST = hostPayout?.hostGst;
+    const hostHasGST = hostPayout?.hostGst ?? bookingDetails?.financial?.hostGst ?? false;
 
-    const penaltyAmount = Number(hostPayout?.penaltyAmount || 0);
+    if (refundPercentage === 100 && bookingDetails) {
+        const fin = bookingDetails.financial || {};
+        amounts = {
+            baseAmount: Number(fin.baseAmount) || Number(bookingDetails.amount) || 0,
+            cgstAmount: Number(fin.cgstAmount) || Number(bookingDetails.cgst) || 0,
+            sgstAmount: Number(fin.sgstAmount) || Number(bookingDetails.sgst) || 0,
+            hostPlatformFee: Number(fin.hostPlatformFeeAmount) || 0,
+            hostPlatformFeeCgst: Number(fin.hostPlatformFeeCgstAmount) || 0,
+            hostPlatformFeeSgst: Number(fin.hostPlatformFeeSgstAmount) || 0,
+            tdsAmount: Number(fin.tdsAmount) || 0,
+            tcsAmount: Number(fin.tcsAmount) || 0,
+            penaltyAmount: Number(hostPayout?.penaltyAmount || fin.penaltyAmount || 0) || 0,
+            hostGst: fin.hostGst || false,
+        };
+    }
+
+    const penaltyAmount = Number(amounts.penaltyAmount || 0);
 
     // Step 1: Calculate subtotal (Base + GST if host has GST)
     let hostSubtotal = amounts.baseAmount;
@@ -336,6 +418,13 @@ export const HostCancellationAmounts = ({ hostPayout, state }: HostCancellationA
 
     const hostRefundPerc =
         refundPercentage === 0 ? 100 : refundPercentage === 100 ? 0 : refundPercentage;
+
+    const expectedPayout =
+        hostSubtotal -
+        amounts.hostPlatformFee -
+        (amounts.hostPlatformFeeCgst + amounts.hostPlatformFeeSgst) -
+        amounts.tdsAmount -
+        (hostHasGST ? amounts.tcsAmount : 0);
 
     return (
         <div className="space-y-3">
@@ -366,6 +455,11 @@ export const HostCancellationAmounts = ({ hostPayout, state }: HostCancellationA
 
                 {hostHasGST && <AmountRow label="TCS" value={amounts.tcsAmount} isNegative />}
                 <AmountRow label="TDS" value={amounts.tdsAmount} isNegative />
+
+                <div className="flex justify-between font-semibold border-t border-gray-200 pt-1 text-sm text-gray-700">
+                    <span>Expected Payout</span>
+                    <span>₹{formatCurrency(expectedPayout.toFixed(2))}</span>
+                </div>
 
                 {shouldDeductPenalty && (
                     <AmountRow label="Penalty Amount" value={penaltyAmount} isNegative />
@@ -417,6 +511,7 @@ export const BookingAmounts = ({
                         guestPayout={cancellationData.data.guestPayout}
                         isCancelledByGuest={isCancelledByGuest}
                         state={bookingDetails.state || bookingDetails.spaceData?.City?.state}
+                        bookingDetails={bookingDetails}
                     />
                 )}
 
@@ -424,6 +519,7 @@ export const BookingAmounts = ({
                     <HostCancellationAmounts
                         hostPayout={cancellationData.data.hostPayout}
                         state={bookingDetails.state || bookingDetails.spaceData?.City?.state}
+                        bookingDetails={bookingDetails}
                     />
                 )}
             </div>

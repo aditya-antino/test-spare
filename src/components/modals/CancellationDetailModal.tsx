@@ -130,12 +130,12 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
     const tdsAmount = Number(hostPayout.tdsAmount) || 0;
     const hostRefundPercentage = hostPayout.refundPercentage || 0;
 
-    const guestBaseAmount = Number(guestPayout.baseAmount) || 0;
-    const guestCgstAmount = Number(guestPayout.cgstAmount) || 0;
-    const guestSgstAmount = Number(guestPayout.sgstAmount) || 0;
-    const guestPlatformFeeAmount = Number(guestPayout.guestPlatformFeeAmount) || 0;
-    const guestPlatformFeeCgstAmount = Number(guestPayout.guestPlatformFeeCgstAmount) || 0;
-    const guestPlatformFeeSgstAmount = Number(guestPayout.guestPlatformFeeSgstAmount) || 0;
+    const guestBaseAmount = Math.abs(Number(guestPayout.baseAmount)) || 0;
+    const guestCgstAmount = Math.abs(Number(guestPayout.cgstAmount)) || 0;
+    const guestSgstAmount = Math.abs(Number(guestPayout.sgstAmount)) || 0;
+    const guestPlatformFeeAmount = Math.abs(Number(guestPayout.guestPlatformFeeAmount)) || 0;
+    const guestPlatformFeeCgstAmount = Math.abs(Number(guestPayout.guestPlatformFeeCgstAmount)) || 0;
+    const guestPlatformFeeSgstAmount = Math.abs(Number(guestPayout.guestPlatformFeeSgstAmount)) || 0;
     const guestRefundPercentage = guestPayout.refundPercentage || 0;
     const hostPenaltyAmount = Number(hostPayout.penaltyAmount) || 0;
     const hostTCSAmount = Number(hostPayout.tcsAmount) || 0;
@@ -145,13 +145,15 @@ const CancellationDetailModal: React.FC<CancellationDetailModalProps> = ({
     const originalPlatformFeeAmount = guestPlatformFeeAmount * multiplier;
 
     const discountAmount =
-        Number((guestPayout as any)?.discountAmount) ||
-        Number(data?.financial?.discountAmount) ||
-        Number(data?.discountAmount) ||
+        Math.abs(Number((guestPayout as any)?.discountAmount)) ||
+        Math.abs(Number(data?.financial?.discountAmount)) ||
+        Math.abs(Number(data?.Financial?.discountAmount)) ||
+        Math.abs(Number(data?.discountAmount)) ||
         0;
     const couponCode =
         (guestPayout as any)?.couponCode ||
         data?.financial?.couponCode ||
+        data?.Financial?.couponCode ||
         data?.couponCode ||
         '';
 
