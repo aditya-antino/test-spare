@@ -50,6 +50,7 @@ export default function HeroHomeSection() {
                         width={250}
                         height={100}
                         priority
+                        sizes="250px"
                         className="rounded-lg object-contain hover:scale-[1.02] hover:z-0 transition-all duration-300"
                     />
 
@@ -59,6 +60,7 @@ export default function HeroHomeSection() {
                         width={250}
                         height={800}
                         priority
+                        sizes="250px"
                         className="rounded-lg object-cover row-span-3 translate-y-16 hover:scale-[1.02] hover:z-0 transition-all duration-300"
                     />
 
@@ -68,6 +70,7 @@ export default function HeroHomeSection() {
                         width={250}
                         height={100}
                         priority
+                        sizes="250px"
                         className="rounded-lg object-cover hover:scale-[1.02] hover:z-0 transition-all duration-300"
                     />
                 </div>

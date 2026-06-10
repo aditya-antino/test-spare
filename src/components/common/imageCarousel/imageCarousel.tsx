@@ -116,7 +116,7 @@ export default function ImageCarousel({ images, isBookingCard = false }: ImageCa
                                     fill
                                     priority={index === 0}
                                     quality={80}
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 100vw"
+                                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                     className="object-cover"
                                 />
                             </div>

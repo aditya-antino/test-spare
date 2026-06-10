@@ -118,8 +118,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     `}
                 </Script>
 
-                
-
                 {GA_MEASUREMENT_ID && (
                     <>
                         <Script
