@@ -1,7 +1,8 @@
+import React from 'react';
 import TestimonialCarousel from './TestimonialCarousel';
 import { TESTIMONIALS } from '@/constants';
 
-const TestimonialSection = () => {
+const TestimonialSection = React.memo(function TestimonialSection() {
     return (
         <section className="py-18 px-8 bg-[#fefaee]">
             <div className="flex flex-col justify-center items-center  mb-2">
@@ -16,6 +17,6 @@ const TestimonialSection = () => {
             <TestimonialCarousel testimonials={TESTIMONIALS} loading={false} />
         </section>
     );
-};
+});
 
 export default TestimonialSection;

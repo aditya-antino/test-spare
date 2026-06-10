@@ -10,7 +10,6 @@ import HomeHeroSection from '@/components/homePage/HomeHeroSection';
 import StayUpated from '@/components/homePage/StayUpated';
 import Footer from '@/components/layout/footer';
 import { TestimonialSection } from '@/components';
-import LandingPageTracker from '@/components/homePage/LandingPageTracker';
 import AfterAuthLayout from './(afterAuth)/layout';
 
 import { getCitiesData, getHomeSpacesData } from '@/services/landing/cities.services';
@@ -75,29 +74,38 @@ export default async function Home() {
     let initialCategories = [];
 
     try {
+        // Fetch cities and categories in parallel
         const [citiesRes, categoriesRes] = await Promise.allSettled([
             getCitiesData(),
             getCategoriesData(),
         ]);
 
+        let firstCityId: string | number | null = null;
+        let firstCityName: string | null = null;
+
         if (citiesRes.status === 'fulfilled' && citiesRes.value.status === 200) {
             initialCities = citiesRes.value.data.data || [];
             if (initialCities.length > 0) {
-                const firstCity = initialCities[0];
-                const spacesRes = await getHomeSpacesData(firstCity.id).catch(() => null);
-                if (spacesRes?.status === 200) {
-                    initialSpacesData = {
-                        [firstCity.city]: {
-                            mostBooked: spacesRes.data.data.mostBookedSpaces || [],
-                            recentlyAdded: spacesRes.data.data.recentlyAddedSpaces || [],
-                        },
-                    };
-                }
+                firstCityId = initialCities[0].id;
+                firstCityName = initialCities[0].city;
             }
         }
 
         if (categoriesRes.status === 'fulfilled' && categoriesRes.value?.status === 200) {
             initialCategories = categoriesRes.value.data?.data?.categories || [];
+        }
+
+        // Fetch spaces in parallel with the above — only if we have a city
+        if (firstCityId && firstCityName) {
+            const spacesRes = await getHomeSpacesData(firstCityId).catch(() => null);
+            if (spacesRes?.status === 200) {
+                initialSpacesData = {
+                    [firstCityName]: {
+                        mostBooked: spacesRes.data.data.mostBookedSpaces || [],
+                        recentlyAdded: spacesRes.data.data.recentlyAddedSpaces || [],
+                    },
+                };
+            }
         }
     } catch (error) {
         console.error('Error fetching initial data for SSR:', error);
@@ -106,7 +114,6 @@ export default async function Home() {
     return (
         <AfterAuthLayout>
             <div className="flex flex-col w-full gap-8 md:gap-24">
-                <LandingPageTracker />
                 <HomeHeroSection />
                 <BrowseByActivities />
                 <FeaturedCategories initialCategories={initialCategories} />

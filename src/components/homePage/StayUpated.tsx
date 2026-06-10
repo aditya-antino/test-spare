@@ -6,11 +6,11 @@ import Image from 'next/image';
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 
-const StayUpdated = () => {
+const StayUpdated = React.memo(function StayUpdated() {
     const [email, setEmail] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = React.useCallback(async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         if (!email) return toast.error('Please enter your email.');
 
@@ -26,7 +26,7 @@ const StayUpdated = () => {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [email]);
 
     return (
         <div className="flex flex-col lg:flex-row justify-between items-center py-0 px-4 md:px-16 w-full bg-white relative overflow-hidden">
@@ -132,6 +132,6 @@ const StayUpdated = () => {
             </div>
         </div>
     );
-};
+});
 
 export default StayUpdated;

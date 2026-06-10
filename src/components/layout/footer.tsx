@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { ChevronDown, Mail, Phone } from 'lucide-react';
@@ -7,42 +7,35 @@ import logo from '@/assets/logo.svg';
 import { CONTACT } from '@/constants/contact';
 import { PATHS } from '@/constants/path';
 
-const Footer = () => {
-    // Make all sections open by default
-    const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-        company: true,
-        support: true,
-        legal: true,
-        connect: true,
-    });
+interface FooterSectionProps {
+    title: string;
+    children: React.ReactNode;
+    sectionKey: string;
+    isOpen: boolean;
+    onToggle: (key: string) => void;
+}
 
-    const toggleSection = (section: string) => {
-        setOpenSections((prev) => ({
-            ...prev,
-            [section]: !prev[section],
-        }));
-    };
-
-    const FooterSection = ({
-        title,
-        children,
-        sectionKey,
-    }: {
-        title: string;
-        children: React.ReactNode;
-        sectionKey: string;
-    }) => (
+const FooterSection = React.memo(function FooterSection({
+    title,
+    children,
+    sectionKey,
+    isOpen,
+    onToggle,
+}: FooterSectionProps) {
+    return (
         <div className="w-full">
             {/* Mobile accordion header */}
             <div className="lg:hidden">
                 <button
-                    onClick={() => toggleSection(sectionKey)}
+                    onClick={() => onToggle(sectionKey)}
                     className="w-full flex justify-between items-center py-5 pl-6"
                 >
                     <h3 className="text-gray-800 text-sm font-bold text-center flex-1">{title}</h3>
                     <div className="w-6 h-6 flex items-center justify-center">
                         <ChevronDown
-                            className={`w-4 h-4 transition-transform duration-300 ease-in-out ${openSections[sectionKey] ? 'rotate-180' : ''}`}
+                            className={`w-4 h-4 transition-transform duration-300 ease-in-out ${
+                                isOpen ? 'rotate-180' : ''
+                            }`}
                         />
                     </div>
                 </button>
@@ -50,7 +43,7 @@ const Footer = () => {
                 {/* Animated content container */}
                 <div
                     className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                        openSections[sectionKey] ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
+                        isOpen ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0'
                     }`}
                 >
                     <div className="pb-4">{children}</div>
@@ -66,6 +59,22 @@ const Footer = () => {
             </div>
         </div>
     );
+});
+
+const Footer = React.memo(function Footer() {
+    const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+        company: true,
+        support: true,
+        legal: true,
+        connect: true,
+    });
+
+    const toggleSection = useCallback((section: string) => {
+        setOpenSections((prev) => ({
+            ...prev,
+            [section]: !prev[section],
+        }));
+    }, []);
 
     return (
         <div className="w-full">
@@ -115,7 +124,7 @@ const Footer = () => {
                         <div className="w-full lg:w-[927px]">
                             {/* Mobile accordion layout */}
                             <div className="lg:hidden flex flex-col">
-                                <FooterSection title="Company" sectionKey="company">
+                                <FooterSection title="Company" sectionKey="company" isOpen={openSections.company} onToggle={toggleSection}>
                                     <div className="flex flex-col gap-4 items-center animate-fade-in">
                                         <Link
                                             href={PATHS.ABOUT}
@@ -162,7 +171,7 @@ const Footer = () => {
                                     </div>
                                 </FooterSection> */}
 
-                                <FooterSection title="Support" sectionKey="legal">
+                                <FooterSection title="Support" sectionKey="legal" isOpen={openSections.legal} onToggle={toggleSection}>
                                     <div className="flex flex-col gap-4 items-center animate-fade-in">
                                         <Link
                                             href={PATHS.TERMS}
@@ -191,7 +200,7 @@ const Footer = () => {
                                     </div>
                                 </FooterSection>
 
-                                <FooterSection title="Connect with Us" sectionKey="connect">
+                                <FooterSection title="Connect with Us" sectionKey="connect" isOpen={openSections.connect} onToggle={toggleSection}>
                                     <div className="flex flex-col gap-4 items-center animate-fade-in">
                                         <Link
                                             href={PATHS.SOCIAL_INSTAGRAM}
@@ -235,7 +244,7 @@ const Footer = () => {
                             {/* Desktop grid layout */}
                             <div className="hidden lg:flex lg:gap-10">
                                 {/* Company */}
-                                <FooterSection title="Company" sectionKey="company">
+                                <FooterSection title="Company" sectionKey="company" isOpen={openSections.company} onToggle={toggleSection}>
                                     <div className="flex flex-col gap-4">
                                         <Link
                                             href={PATHS.ABOUT}
@@ -284,7 +293,7 @@ const Footer = () => {
                                 </FooterSection> */}
 
                                 {/* Support */}
-                                <FooterSection title="Support" sectionKey="legal">
+                                <FooterSection title="Support" sectionKey="legal" isOpen={openSections.legal} onToggle={toggleSection}>
                                     <div className="flex flex-col gap-4">
                                         <Link
                                             href={PATHS.TERMS}
@@ -308,7 +317,7 @@ const Footer = () => {
                                 </FooterSection>
 
                                 {/* Connect with Us */}
-                                <FooterSection title="Connect with Us" sectionKey="connect">
+                                <FooterSection title="Connect with Us" sectionKey="connect" isOpen={openSections.connect} onToggle={toggleSection}>
                                     <div className="flex flex-col gap-4">
                                         <Link
                                             href={PATHS.SOCIAL_INSTAGRAM}
@@ -359,6 +368,6 @@ const Footer = () => {
             </div>
         </div>
     );
-};
+});
 
 export default Footer;

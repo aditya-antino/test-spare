@@ -11,15 +11,12 @@ import HomeHeroSection from '@/components/homePage/HomeHeroSection';
 import StayUpated from '@/components/homePage/StayUpated';
 import Footer from '@/components/layout/footer';
 import { TestimonialSection } from '@/components';
-import LandingPageTracker from '@/components/homePage/LandingPageTracker';
-
 export async function generateMetadata(): Promise<Metadata> {
     const headersList = await headers();
     const host = headersList.get('host');
 
     const protocol = host?.includes('localhost') ? 'http' : 'https';
     const baseUrl = `${protocol}://${host}`;
-    console.log('BASE ', baseUrl);
 
     return {
         title: 'Find Unique Spaces for Activities | Spare Space',
@@ -65,7 +62,6 @@ export async function generateMetadata(): Promise<Metadata> {
 export default function Home() {
     return (
         <div className="flex flex-col w-full gap-8 md:gap-24">
-            <LandingPageTracker />
             <HomeHeroSection />
             <BrowseByActivities />
             <FeaturedCategories />

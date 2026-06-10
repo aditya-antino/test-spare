@@ -8,9 +8,10 @@ import {
 } from '../ui/dropdown-menu';
 import { ChevronDown, UserIcon } from 'lucide-react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Button } from '../ui/button';
 import { PATHS } from '@/constants/path';
-import { GUEST_ACCOUNT_OPTIONS, HOST_ACCOUNT_OPTIONS } from '../layout/header';
+import { GUEST_ACCOUNT_OPTIONS, HOST_ACCOUNT_OPTIONS } from '../layout/header-components/headerConstants';
 
 interface ProfileDropdownProps {
     isOpen: boolean;
@@ -40,9 +41,11 @@ const ProfileDropdown = ({
             <DropdownMenuTrigger asChild>
                 <div className="flex items-center gap-2 cursor-pointer border border-gray-200 rounded-full pl-3 pr-2 py-2 shadow-sm">
                     {userData?.avatar ? (
-                        <img
+                        <Image
                             src={userData.avatar}
                             alt="user avatar"
+                            width={40}
+                            height={40}
                             className="rounded-full w-10 h-10 object-cover"
                         />
                     ) : (

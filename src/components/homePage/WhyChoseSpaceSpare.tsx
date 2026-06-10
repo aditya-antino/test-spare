@@ -1,10 +1,9 @@
-'use client';
-
 import Image from 'next/image';
 import Typography from '@/components/ui/typoGraphy';
 import { aboutUsImage } from '@/assets';
+import React from 'react';
 
-export default function WhyChoseSpaceSpare() {
+const WhyChoseSpaceSpare = React.memo(function WhyChoseSpaceSpare() {
     return (
         <section className="md:py-4 py-8 px-4 md:px-16 h-full flex flex-col lg:flex-row items-center gap-10">
             {/* Left - Image */}
@@ -114,4 +113,6 @@ export default function WhyChoseSpaceSpare() {
             </div>
         </section>
     );
-}
+});
+
+export default WhyChoseSpaceSpare;

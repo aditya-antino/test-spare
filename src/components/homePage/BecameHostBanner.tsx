@@ -15,7 +15,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import ConfirmHostModal from '../layout/confirmHostModal';
 import { Button } from '../ui/button';
 import { handleApiError } from '@/hooks/handleApiError';
-import { IMAGE_URL } from '@/constants';
 
 interface BecameHostBannerProps {
     // Optional props for customization
@@ -99,7 +98,6 @@ export default function BecameHostBanner({
 
     const displayButtonText = getButtonText();
 
-    const displayImageSrc = hostIllustration;
     const displayImageAlt = 'Host illustration';
 
     const renderHeadline = () => {

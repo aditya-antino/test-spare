@@ -1,9 +1,6 @@
-'use client';
-
 import Image from 'next/image';
 import Typography from '@/components/ui/typoGraphy';
 import HomePageSearchBarTab from './HomePageSearchBarTab';
-import { IMAGE_URL } from '@/constants';
 import { heroImage01, heroImage02, heroImage03 } from '@/assets';
 
 export default function HeroHomeSection() {

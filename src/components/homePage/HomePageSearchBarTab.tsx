@@ -13,6 +13,7 @@ import { useHomePageSearch } from './useHomePageSearch';
 import LightIcon from '../icons/LightIcon';
 import LocationIcon from '../icons/LocationIcon';
 import CalendarViewIcon from '../icons/CalendarIcon';
+import MobileSearchModal from './MobileSearchModal';
 
 interface HomePageSearchBarTabProps {
     className?: string;
@@ -21,8 +22,8 @@ interface HomePageSearchBarTabProps {
         date?: Date;
         startTime?: string;
         endTime?: string;
-        selectedCategory?: any;
-        selectedPlace?: any;
+        selectedCategory?: unknown;
+        selectedPlace?: unknown;
     }) => void;
 }
 
@@ -62,7 +63,7 @@ const HomePageSearchBarTab = ({
     return (
         <>
             <div
-                className={`hidden md:flex w-full rounded-[130px] shadow-lg items-center justify-between px-4 pb-2 pt-2 bg-white/95 ${className}`}
+                className={`hidden md:flex w-full rounded-[130px] shadow-lg items-center justify-between px-4 pb-2 pt-2 bg-white/95 ${className || ''}`}
             >
                 <div
                     className="relative flex items-center justify-center gap-3 pl-4"
@@ -131,7 +132,7 @@ const HomePageSearchBarTab = ({
                         <p className="text-black text-lg font-bold">When</p>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <div className="flex items-center justify-center gap-3 cursor-pointer select-none">
+                                <Button variant="ghost" className="flex items-center justify-center gap-3 cursor-pointer select-none outline-none h-auto p-0 hover:bg-transparent font-normal">
                                     <div className="text-slate-700 text-sm font-normal">
                                         {date && startTime && endTime ? (
                                             `${format(date, 'dd MMM yyyy')} | ${startTime} - ${endTime}`
@@ -141,7 +142,7 @@ const HomePageSearchBarTab = ({
                                             <span className="text-black">Select date and time</span>
                                         )}
                                     </div>
-                                </div>
+                                </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                                 align="start"
@@ -184,9 +185,10 @@ const HomePageSearchBarTab = ({
                     </div>
 
                     <Button
-                        variant={null as any}
-                        className="w-16 h-16 rounded-full bg-[#F7CD29] shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 group p-0 flex items-center justify-center border-none"
+                        variant="ghost"
+                        className="w-16 h-16 rounded-full bg-[#F7CD29] shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 group p-0 flex items-center justify-center border-none hover:bg-[#F7CD29] focus:outline-none focus:ring-2 focus:ring-[#F7CD29]/50"
                         onClick={handlePressSearch}
+                        aria-label="Search"
                     >
                         <SearchIcon className="w-6 h-6 text-white transition-transform duration-200 group-hover:scale-110" />
                     </Button>
@@ -194,8 +196,9 @@ const HomePageSearchBarTab = ({
             </div>
 
             <div className="flex flex-col md:hidden rounded-3xl mt-3 bg-white/80 shadow backdrop-blur-[32px]">
-                <div
-                    className="relative flex items-center gap-3 w-full px-6 py-4 border-b border-gray-100"
+                <Button
+                    variant="ghost"
+                    className="relative flex items-center gap-3 w-full px-6 py-4 border-b border-gray-100 text-left hover:bg-white/50 focus:bg-white/50 focus:outline-none transition-colors rounded-t-3xl h-auto font-normal justify-start"
                     onClick={() => handleMobileInputFocus('category')}
                 >
                     <LightIcon />
@@ -207,10 +210,11 @@ const HomePageSearchBarTab = ({
                             {getDisplayText('category')}
                         </div>
                     </div>
-                </div>
+                </Button>
 
-                <div
-                    className="relative flex items-center justify-between gap-3 w-full px-6 py-4 border-b border-gray-100"
+                <Button
+                    variant="ghost"
+                    className="relative flex items-center justify-between gap-3 w-full px-6 py-4 border-b border-gray-100 text-left hover:bg-white/50 focus:bg-white/50 focus:outline-none transition-colors h-auto font-normal justify-start"
                     onClick={() => handleMobileInputFocus('place')}
                 >
                     <LocationIcon />
@@ -220,7 +224,7 @@ const HomePageSearchBarTab = ({
                             {getDisplayText('place')}
                         </div>
                     </div>
-                </div>
+                </Button>
 
                 <div className="flex items-center justify-between gap-3 w-full px-6 py-4 border-t">
                     <CalendarViewIcon />
@@ -228,7 +232,7 @@ const HomePageSearchBarTab = ({
                         <div className="text-gray-900 text-base font-semibold mb-1">When</div>
                         <DropdownMenu>
                             <DropdownMenuTrigger asChild>
-                                <div className="flex items-center justify-center gap-3 cursor-pointer select-none">
+                                <Button variant="ghost" className="flex items-center justify-center gap-3 cursor-pointer select-none outline-none text-left h-auto p-0 hover:bg-transparent font-normal">
                                     <div className="text-zinc-800 text-sm font-normal">
                                         {date && startTime && endTime
                                             ? `${format(date, 'dd MMM yyyy')} | ${startTime} - ${endTime}`
@@ -236,7 +240,7 @@ const HomePageSearchBarTab = ({
                                               ? `${format(date, 'dd MMM yyyy')}`
                                               : 'Select date and time'}
                                     </div>
-                                </div>
+                                </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent
                                 align="center"
@@ -270,65 +274,39 @@ const HomePageSearchBarTab = ({
             </div>
 
             {isMobile && activeMobileInput === 'category' && (
-                <div className="fixed inset-0 z-[9999] bg-white flex flex-col" ref={mobileModalRef}>
-                    <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                        <button onClick={handleCloseMobileModal} className="p-2">
-                            <X className="w-5 h-5" />
-                        </button>
-                        <div className="text-lg font-semibold">What are you planning?</div>
-                        <div className="w-9"></div>
-                    </div>
-
-                    <div className="p-4 border-b border-gray-200">
-                        <Input
-                            value={searchVal}
-                            onChange={handleSearchValChange}
-                            placeholder="Search activities..."
-                            className="w-full"
-                            autoFocus
-                        />
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto">
-                        <HeroSpacesDropdown
-                            isOpen={true}
-                            searchVal={searchVal}
-                            onSelect={handleSelect}
-                            onClose={handleCloseMobileModal}
-                        />
-                    </div>
-                </div>
+                <MobileSearchModal
+                    title="What are you planning?"
+                    placeholder="Search activities..."
+                    searchVal={searchVal}
+                    onSearchValChange={handleSearchValChange}
+                    onClose={handleCloseMobileModal}
+                    modalRef={mobileModalRef}
+                >
+                    <HeroSpacesDropdown
+                        isOpen={true}
+                        searchVal={searchVal}
+                        onSelect={handleSelect}
+                        onClose={handleCloseMobileModal}
+                    />
+                </MobileSearchModal>
             )}
 
             {isMobile && activeMobileInput === 'place' && (
-                <div className="fixed inset-0 z-[9999] bg-white flex flex-col" ref={mobileModalRef}>
-                    <div className="flex items-center justify-between p-4 border-b border-gray-200">
-                        <button onClick={handleCloseMobileModal} className="p-2">
-                            <X className="w-5 h-5" />
-                        </button>
-                        <div className="text-lg font-semibold">Where</div>
-                        <div className="w-9"></div>
-                    </div>
-
-                    <div className="p-4 border-b border-gray-200">
-                        <Input
-                            value={placesSearchVal}
-                            onChange={handlePlacesSearchValChange}
-                            placeholder="Search cities..."
-                            className="w-full"
-                            autoFocus
-                        />
-                    </div>
-
-                    <div className="flex-1 overflow-y-auto">
-                        <HeroPlacesDropdown
-                            isOpen={true}
-                            searchVal={placesSearchVal}
-                            onSelect={handleSelectPlaces}
-                            onClose={handleCloseMobileModal}
-                        />
-                    </div>
-                </div>
+                <MobileSearchModal
+                    title="Where"
+                    placeholder="Search cities..."
+                    searchVal={placesSearchVal}
+                    onSearchValChange={handlePlacesSearchValChange}
+                    onClose={handleCloseMobileModal}
+                    modalRef={mobileModalRef}
+                >
+                    <HeroPlacesDropdown
+                        isOpen={true}
+                        searchVal={placesSearchVal}
+                        onSelect={handleSelectPlaces}
+                        onClose={handleCloseMobileModal}
+                    />
+                </MobileSearchModal>
             )}
 
             {!activeMobileInput && (
@@ -342,9 +320,10 @@ const HomePageSearchBarTab = ({
                         Clear all
                     </Button>
                     <Button
-                        variant={null as any}
-                        className="w-full md:hidden h-12 !bg-primary-p1 hover:!bg-primary-p2 rounded-full shadow-md mt-3 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center border-none"
+                        variant="ghost"
+                        className="w-full md:hidden h-12 bg-primary-p1 hover:bg-primary-p2 rounded-full shadow-md mt-3 transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] flex items-center justify-center border-none focus:outline-none focus:ring-2 focus:ring-primary-p1/50"
                         onClick={handlePressSearch}
+                        aria-label="Search"
                     >
                         <SearchIcon className="w-5 h-5 text-black" />
                     </Button>

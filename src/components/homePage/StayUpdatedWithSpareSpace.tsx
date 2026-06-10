@@ -2,7 +2,6 @@
 
 import React from 'react';
 import YouTube from 'react-youtube';
-import Typography from '../ui/typoGraphy';
 
 const videos = [
     { id: 1, videoUrl: 'https://youtube.com/shorts/h2FZy4guYuU?si=all5gDr1FgrYz-k9' },
@@ -17,7 +16,20 @@ function extractVideoId(url: string) {
     return match ? match[1] : '';
 }
 
-function DesktopVideos(props: { opts: any }) {
+const VIDEO_OPTS = {
+    height: '450',
+    width: '250',
+    playerVars: {
+        autoplay: 1 as const,
+        mute: 1 as const,
+        loop: 1 as const,
+        controls: 0 as const,
+        playlist: '',
+        modestbranding: 1 as const,
+    },
+};
+
+const DesktopVideos = React.memo(function DesktopVideos(props: { opts: typeof VIDEO_OPTS }) {
     return (
         <div className="hidden md:flex flex-nowrap gap-6 justify-center mt-10 overflow-x-auto no-scrollbar pb-4">
             {videos.map(function (video) {
@@ -37,9 +49,9 @@ function DesktopVideos(props: { opts: any }) {
             })}
         </div>
     );
-}
+});
 
-function MobileCarousel(props: { opts: any }) {
+const MobileCarousel = React.memo(function MobileCarousel(props: { opts: typeof VIDEO_OPTS }) {
     return (
         <div className="md:hidden mt-8 overflow-x-auto flex gap-4 snap-x snap-mandatory pb-3 no-scrollbar">
             {videos.map(function (video) {
@@ -63,22 +75,9 @@ function MobileCarousel(props: { opts: any }) {
             })}
         </div>
     );
-}
+});
 
-export default function SpareSpaceVideoSection() {
-    const opts = {
-        height: '450',
-        width: '250',
-        playerVars: {
-            autoplay: 1,
-            mute: 1,
-            loop: 1,
-            controls: 0,
-            playlist: '',
-            modestbranding: 1,
-        },
-    };
-
+const SpareSpaceVideoSection = React.memo(function SpareSpaceVideoSection() {
     return (
         <section className="w-full py-4 px-4 md:px-16 relative overflow-hidden mt-8">
             <div className="flex flex-col items-center text-center gap-4 relative z-10 mb-8">
@@ -91,8 +90,10 @@ export default function SpareSpaceVideoSection() {
                 </p>
             </div>
 
-            <DesktopVideos opts={opts} />
-            <MobileCarousel opts={opts} />
+            <DesktopVideos opts={VIDEO_OPTS} />
+            <MobileCarousel opts={VIDEO_OPTS} />
         </section>
     );
-}
+});
+
+export default SpareSpaceVideoSection;
