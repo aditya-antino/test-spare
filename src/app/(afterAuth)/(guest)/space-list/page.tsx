@@ -72,6 +72,8 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
             if (matched?.CategoryMaster?.imgUrl) {
                 ogImageUrl = matched.CategoryMaster.imgUrl;
             }
+
+            console.log(ogImageUrl);
         } catch (_) {}
     }
 
@@ -96,7 +98,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
         openGraph: {
             title,
             description,
-            url: baseUrl,
+            url: `${baseUrl}/space-list${space ? `?space=${space}` : ''}${activity ? `&activity=${activity}` : ''}`,
             siteName: 'Spare Space',
             images: [
                 {
