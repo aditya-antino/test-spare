@@ -2010,7 +2010,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
     return (
         <div className="min-h-screen bg-white">
             {/* Sticky Timer Top Bar */}
-            <div className="sticky top-0 z-[60] bg-red-50 border-b border-red-100 px-4 py-3 md:py-4">
+            <div className="sticky top-0 z-[40] bg-red-50 border-b border-red-100 px-4 py-3 md:py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2 md:gap-3">
                         <div className="bg-red-100 p-1.5 md:p-2 rounded-full">

@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Toggle } from '@/components/ui/toggle';
+import { Checkbox } from '@/components/ui/checkbox';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useUpdateSpaceListStep4, SpaceDetailsInterface } from '@/services';
 import { PATHS } from '@/constants/path';
@@ -198,6 +199,8 @@ interface DayRowProps {
         timeType: 'from' | 'to',
         period: string,
     ) => void;
+    applyToAllDays: (day: keyof Step4FormValues) => void;
+    disabled?: boolean;
     errors: any;
 }
 
@@ -209,36 +212,40 @@ const DayRow = ({
     removeSession,
     updateTime,
     handlePeriodChange,
+    applyToAllDays,
+    disabled,
     errors,
 }: DayRowProps) => {
+    const isCurrentlyOpen = disabled ? false : dayData.isOpen;
+
     return (
-        <div className="flex flex-col border-b border-gray-100 py-4">
+        <div className={`flex flex-col border-b border-gray-100 py-4 ${disabled ? 'cursor-not-allowed select-none opacity-60' : ''}`}>
             <div className="flex w-full sm:w-56 justify-between items-center gap-4 min-w-[120px]">
-                <Label className="text-zinc-800 text-base font-semibold">{day}</Label>
+                <Label className={`text-base font-semibold ${disabled ? 'text-gray-400' : 'text-zinc-800'}`}>{day}</Label>
                 <div className="flex w-28 justify-between items-center gap-2">
                     <Toggle
                         type="button"
-                        pressed={dayData.isOpen}
-                        onPressedChange={() => toggleDay(day)}
-                        className={`relative w-12 h-6 rounded-full cursor-pointer p-0 transition-colors duration-300 ease-in-out 
+                        pressed={isCurrentlyOpen}
+                        onPressedChange={() => !disabled && toggleDay(day)}
+                        disabled={disabled}
+                        className={`relative w-12 h-6 rounded-full p-0 transition-colors duration-300 ease-in-out 
                     data-[state=on]:bg-[#F6CD28] 
                     data-[state=off]:bg-gray-300 
-                    hover:data-[state=on]:bg-amber-500 
-                    hover:data-[state=off]:bg-gray-400`}
+                    ${disabled ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer hover:data-[state=on]:bg-amber-500 hover:data-[state=off]:bg-gray-400'}`}
                     >
                         <div
                             className={`absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full shadow-sm
                         transition-all duration-300 ease-in-out
-                        ${dayData.isOpen ? 'translate-x-6' : 'translate-x-0'}`}
+                        ${isCurrentlyOpen ? 'translate-x-6' : 'translate-x-0'}`}
                         />
                     </Toggle>
-                    <span className="text-sm text-gray-600">
-                        {dayData.isOpen ? 'Open' : 'Closed'}
+                    <span className={`text-sm ${disabled ? 'text-gray-400' : 'text-gray-600'}`}>
+                        {isCurrentlyOpen ? 'Open' : 'Closed'}
                     </span>
                 </div>
             </div>
 
-            {dayData.isOpen && (
+            {isCurrentlyOpen && (
                 <div className="flex flex-col gap-4 mt-4">
                     {dayData.sessions.map((session: any, idx: number) => (
                         <div key={idx} className="flex flex-col md:flex-row md:items-start gap-6">
@@ -280,17 +287,31 @@ const DayRow = ({
                             )}
                         </div>
                     ))}
-                    <Button
-                        type="button"
-                        variant="outline"
-                        onClick={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            addSession(day);
-                        }}
-                    >
-                        + Add Slot
-                    </Button>
+                    <div className="flex gap-4">
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                addSession(day);
+                            }}
+                        >
+                            + Add Slot
+                        </Button>
+                        <Button
+                            type="button"
+                            variant="outline"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                applyToAllDays(day);
+                            }}
+                            className="border-[#F6CD28] hover:bg-[#F6CD28]/10 text-gray-800"
+                        >
+                            Apply to all days
+                        </Button>
+                    </div>
                 </div>
             )}
         </div>
@@ -320,6 +341,106 @@ const Step4 = ({ editData, isEdit }: Step4Props) => {
 
     const operatingHours = watch();
 
+    const getDefaultHours = () => {
+        if (isEdit === 'true' && editData?.SpaceListing?.operating_hours) {
+            const updatedHours: any = JSON.parse(JSON.stringify(initialOperationHours));
+            const editHours = editData.SpaceListing.operating_hours;
+
+            Object.keys(editHours).forEach((day) => {
+                if (!updatedHours[day]) return;
+                const dayData = editHours[day];
+                updatedHours[day].isOpen = dayData.is_open;
+
+                if (dayData.is_open && dayData.sessions?.length) {
+                    updatedHours[day].sessions = dayData.sessions.map((s: any) => {
+                        const fromMatch = s.from.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                        const toMatch = s.to.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
+                        return {
+                            fromHours: fromMatch ? fromMatch[1].padStart(2, '0') : '',
+                            fromMinutes: fromMatch ? fromMatch[2] : '',
+                            fromPeriod: fromMatch ? fromMatch[3].toUpperCase() : 'AM',
+                            toHours: toMatch ? toMatch[1].padStart(2, '0') : '',
+                            toMinutes: toMatch ? toMatch[2] : '',
+                            toPeriod: toMatch ? toMatch[3].toUpperCase() : 'PM',
+                        };
+                    });
+                }
+            });
+            return updatedHours;
+        }
+        return initialOperationHours;
+    };
+
+    const is24_7Session = (sessions: any[]) => {
+        if (sessions?.length !== 2) return false;
+        const s1 = sessions[0];
+        const s2 = sessions[1];
+        const hasS1 = s1.fromHours === '12' && s1.fromMinutes === '00' && s1.fromPeriod === 'AM' &&
+                      s1.toHours === '12' && s1.toMinutes === '00' && s1.toPeriod === 'PM';
+        const hasS2 = s2.fromHours === '12' && s2.fromMinutes === '00' && s2.fromPeriod === 'PM' &&
+                      s2.toHours === '12' && s2.toMinutes === '00' && s2.toPeriod === 'AM';
+        
+        return (hasS1 && hasS2) || (
+            s1.fromHours === '12' && s1.fromMinutes === '00' && s1.fromPeriod === 'PM' &&
+            s1.toHours === '12' && s1.toMinutes === '00' && s1.toPeriod === 'AM' &&
+            s2.fromHours === '12' && s2.fromMinutes === '00' && s2.fromPeriod === 'AM' &&
+            s2.toHours === '12' && s2.toMinutes === '00' && s2.toPeriod === 'PM'
+        );
+    };
+
+    const isAllDays24_7_of = (hours: any) => {
+        const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+        return days.every((day) => hours[day]?.isOpen && is24_7Session(hours[day]?.sessions));
+    };
+
+    const isAllDays24_7 = () => {
+        return isAllDays24_7_of(operatingHours);
+    };
+
+    const isOpen247 = isAllDays24_7();
+
+    const handleOpen247Toggle = (checked: boolean) => {
+        saveScroll();
+        if (checked) {
+            const open247Data: any = {};
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+            days.forEach((day) => {
+                open247Data[day] = {
+                    isOpen: true,
+                    sessions: [
+                        {
+                            fromHours: '12',
+                            fromMinutes: '00',
+                            fromPeriod: 'AM',
+                            toHours: '12',
+                            toMinutes: '00',
+                            toPeriod: 'PM',
+                        },
+                        {
+                            fromHours: '12',
+                            fromMinutes: '00',
+                            fromPeriod: 'PM',
+                            toHours: '12',
+                            toMinutes: '00',
+                            toPeriod: 'AM',
+                        },
+                    ],
+                };
+            });
+            reset(open247Data);
+        } else {
+            reset({
+                Monday: { isOpen: true, sessions: [makeSession()] },
+                Tuesday: { isOpen: false, sessions: [makeSession()] },
+                Wednesday: { isOpen: false, sessions: [makeSession()] },
+                Thursday: { isOpen: false, sessions: [makeSession()] },
+                Friday: { isOpen: false, sessions: [makeSession()] },
+                Saturday: { isOpen: false, sessions: [makeSession()] },
+                Sunday: { isOpen: false, sessions: [makeSession()] },
+            });
+        }
+    };
+
     const { mutate: submitStep4, isPending } = useUpdateSpaceListStep4({
         onSuccess: (response) => {
             toast.success(response.message);
@@ -334,32 +455,7 @@ const Step4 = ({ editData, isEdit }: Step4Props) => {
 
     useEffect(() => {
         if (isEdit === 'true' && !isInitializedRef.current && editData) {
-            if (editData?.SpaceListing?.operating_hours) {
-                const updatedHours: any = JSON.parse(JSON.stringify(initialOperationHours));
-                const editHours = editData.SpaceListing.operating_hours;
-
-                Object.keys(editHours).forEach((day) => {
-                    if (!updatedHours[day]) return;
-                    const dayData = editHours[day];
-                    updatedHours[day].isOpen = dayData.is_open;
-
-                    if (dayData.is_open && dayData.sessions?.length) {
-                        updatedHours[day].sessions = dayData.sessions.map((s: any) => {
-                            const fromMatch = s.from.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-                            const toMatch = s.to.match(/(\d{1,2}):(\d{2})\s*(AM|PM)/i);
-                            return {
-                                fromHours: fromMatch ? fromMatch[1].padStart(2, '0') : '',
-                                fromMinutes: fromMatch ? fromMatch[2] : '',
-                                fromPeriod: fromMatch ? fromMatch[3].toUpperCase() : 'AM',
-                                toHours: toMatch ? toMatch[1].padStart(2, '0') : '',
-                                toMinutes: toMatch ? toMatch[2] : '',
-                                toPeriod: toMatch ? toMatch[3].toUpperCase() : 'PM',
-                            };
-                        });
-                    }
-                });
-                reset(updatedHours);
-            }
+            reset(getDefaultHours());
             setIsLoading(false);
             isInitializedRef.current = true;
         }
@@ -398,6 +494,19 @@ const Step4 = ({ editData, isEdit }: Step4Props) => {
             `${day}.sessions` as any,
             currentSessions.filter((_, i) => i !== index),
         );
+    };
+
+    const applyToAllDays = (sourceDay: keyof Step4FormValues) => {
+        saveScroll();
+        const sourceData = operatingHours[sourceDay];
+        const days = Object.keys(operatingHours) as (keyof Step4FormValues)[];
+        days.forEach((day) => {
+            if (day !== sourceDay) {
+                setValue(day, JSON.parse(JSON.stringify(sourceData)), {
+                    shouldValidate: true,
+                });
+            }
+        });
     };
 
     const handlePeriodChange = (
@@ -450,9 +559,21 @@ const Step4 = ({ editData, isEdit }: Step4Props) => {
     return (
         <form onSubmit={handleSubmit(onSubmit)}>
             <div className="space-y-4 md:p-8 p-4 rounded-2xl outline outline-offset-[-1px] outline-gray-200">
-                <Typography weight="semibold" color="text-gray-900" size="2xl">
-                    Operating Hours
-                </Typography>
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-gray-100 pb-4">
+                    <Typography weight="semibold" color="text-gray-900" size="2xl">
+                        Operating Hours
+                    </Typography>
+                    <div className="flex items-center gap-2">
+                        <Checkbox
+                            id="open-24-7"
+                            checked={isOpen247}
+                            onCheckedChange={(checked) => handleOpen247Toggle(!!checked)}
+                        />
+                        <Label htmlFor="open-24-7" className="text-sm font-semibold text-gray-700 cursor-pointer select-none">
+                            Open 24/7
+                        </Label>
+                    </div>
+                </div>
                 <div className="space-y-1">
                     {/* Render global error if any (e.g. at least one day open) */}
                     {(Object.keys(operatingHours) as (keyof Step4FormValues)[]).map((day) => (
@@ -465,6 +586,8 @@ const Step4 = ({ editData, isEdit }: Step4Props) => {
                             removeSession={removeSession}
                             updateTime={updateTime}
                             handlePeriodChange={handlePeriodChange}
+                            applyToAllDays={applyToAllDays}
+                            disabled={isOpen247}
                             errors={errors}
                         />
                     ))}
