@@ -12,19 +12,33 @@ import { Calendar } from '@/components/ui/calendar';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
-    ArrowLeft,
-    Bell,
-    MessageCircle,
-    User,
     Timer,
-    AlertTriangle,
     AlertCircle,
 } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useGetGuestBookingCalendar, useGetGuestTimeSlots, useGetKYCDoc } from '@/services';
-import { capitalizeWord } from '../../../../utils/helperFunctions';
 import { formatCurrency } from '@/lib/utils';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { useGetGSTDetails, usePostGSTDetails } from '@/services';
+import { gstSchema, GSTFormValues } from '@/lib/schemas/gst.schema';
+import { handleApiError } from '@/hooks/handleApiError';
+import { useMediaQuery } from '@/hooks';
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogOverlay,
+} from '@/components/ui/dialog';
+import {
+    Drawer,
+    DrawerContent,
+    DrawerHeader,
+    DrawerTitle,
+} from '@/components/ui/drawer';
+
 
 interface TimeData {
     fromHours: string;
@@ -795,6 +809,196 @@ const BookingReview: React.FC<BookingReviewProps> = ({
 }) => {
     const router = useRouter();
     const [localCouponInput, setLocalCouponInput] = useState<string>('');
+
+    const [isGSTModalOpen, setIsGSTModalOpen] = useState(false);
+    const { data: gstResponse, refetch: refetchGST } = useGetGSTDetails();
+    const gstData = gstResponse?.data;
+    const { mutate: handleUpdateGST, isPending: isUpdatingGST } = usePostGSTDetails();
+
+    const {
+        register: registerGST,
+        handleSubmit: handleSubmitGST,
+        reset: resetGST,
+        formState: { errors: errorsGST },
+    } = useForm<GSTFormValues>({
+        resolver: zodResolver(gstSchema),
+        mode: 'onChange',
+    });
+
+    useEffect(() => {
+        if (gstData && Object.keys(gstData).length > 0) {
+            resetGST({
+                companyName: gstData.companyName || '',
+                companyAddress: gstData.companyAddress || '',
+                phoneNumber: gstData.phoneNumber || '',
+                gstNumber: gstData.gstNumber || '',
+                panNumber: gstData.panNumber || '',
+            });
+        } else {
+            resetGST({
+                companyName: '',
+                companyAddress: '',
+                phoneNumber: '',
+                gstNumber: '',
+                panNumber: '',
+            });
+        }
+    }, [gstData, resetGST, isGSTModalOpen]);
+
+    const handleCancelGST = () => {
+        if (gstData && Object.keys(gstData).length > 0) {
+            resetGST({
+                companyName: gstData.companyName || '',
+                companyAddress: gstData.companyAddress || '',
+                phoneNumber: gstData.phoneNumber || '',
+                gstNumber: gstData.gstNumber || '',
+                panNumber: gstData.panNumber || '',
+            });
+        } else {
+            resetGST({
+                companyName: '',
+                companyAddress: '',
+                phoneNumber: '',
+                gstNumber: '',
+                panNumber: '',
+            });
+        }
+        setIsGSTModalOpen(false);
+    };
+
+    const onSubmitGST = (data: GSTFormValues) => {
+        const payload = {
+            panNumber: data.panNumber.trim().toUpperCase(),
+            gstNumber: data.gstNumber.trim().toUpperCase(),
+            companyName: data.companyName.trim(),
+            companyAddress: data.companyAddress.trim(),
+            phoneNumber: data.phoneNumber.trim(),
+        };
+
+        handleUpdateGST(payload, {
+            onSuccess: (response) => {
+                toast.success(response?.message || 'GST details saved successfully!');
+                refetchGST();
+                setIsGSTModalOpen(false);
+            },
+            onError: (err) => {
+                handleApiError(err);
+            },
+        });
+    };
+
+    const isDesktop = useMediaQuery('(min-width: 768px)');
+
+    const renderGSTFormContent = () => (
+        <form onSubmit={handleSubmitGST(onSubmitGST)} className="space-y-4 py-2 px-1 md:px-0">
+            {/* Company Name Field */}
+            <div className="space-y-1">
+                <Label className="text-xs font-semibold text-gray-700">
+                    Company Name *
+                </Label>
+                <Input
+                    placeholder="Enter your company legal name"
+                    disabled={isUpdatingGST}
+                    {...registerGST('companyName')}
+                    className="w-full text-sm rounded-xl"
+                />
+                {errorsGST.companyName && (
+                    <p className="text-red-500 text-xs mt-1">{errorsGST.companyName.message}</p>
+                )}
+            </div>
+
+            {/* Company Address Field */}
+            <div className="space-y-1">
+                <Label className="text-xs font-semibold text-gray-700">
+                    Company Address *
+                </Label>
+                <Textarea
+                    placeholder="Enter complete registered office address"
+                    disabled={isUpdatingGST}
+                    {...registerGST('companyAddress')}
+                    className="w-full text-sm min-h-[80px] rounded-xl border border-gray-200"
+                />
+                {errorsGST.companyAddress && (
+                    <p className="text-red-500 text-xs mt-1">{errorsGST.companyAddress.message}</p>
+                )}
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {/* Phone Number Field */}
+                <div className="space-y-1">
+                    <Label className="text-xs font-semibold text-gray-700">
+                        Phone Number *
+                    </Label>
+                    <Input
+                        placeholder="Company phone number"
+                        disabled={isUpdatingGST}
+                        {...registerGST('phoneNumber')}
+                        maxLength={10}
+                        className="w-full text-sm rounded-xl"
+                    />
+                    {errorsGST.phoneNumber && (
+                        <p className="text-red-500 text-xs mt-1">{errorsGST.phoneNumber.message}</p>
+                    )}
+                </div>
+
+                {/* PAN Number Field */}
+                <div className="space-y-1">
+                    <Label className="text-xs font-semibold text-gray-700">
+                        PAN Number *
+                    </Label>
+                    <Input
+                        placeholder="AAAAA1234A"
+                        disabled={isUpdatingGST}
+                        {...registerGST('panNumber')}
+                        maxLength={10}
+                        className="w-full text-sm uppercase rounded-xl"
+                    />
+                    {errorsGST.panNumber && (
+                        <p className="text-red-500 text-xs mt-1">{errorsGST.panNumber.message}</p>
+                    )}
+                </div>
+            </div>
+
+            {/* GST Number Field */}
+            <div className="space-y-1">
+                <Label className="text-xs font-semibold text-gray-700">
+                    GST Number *
+                </Label>
+                <Input
+                    placeholder="22AAAAA0000A1Z5"
+                    disabled={isUpdatingGST}
+                    {...registerGST('gstNumber')}
+                    maxLength={15}
+                    className="w-full text-sm uppercase rounded-xl"
+                />
+                <p className="text-[10px] text-gray-400">
+                    Format: 22AAAAA0000A1Z5 (15 characters)
+                </p>
+                {errorsGST.gstNumber && (
+                    <p className="text-red-500 text-xs mt-1">{errorsGST.gstNumber.message}</p>
+                )}
+            </div>
+
+            <div className="flex gap-4 pt-4 border-t border-gray-100 mt-6 pb-6 md:pb-0">
+                <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancelGST}
+                    disabled={isUpdatingGST}
+                    className="flex-1 rounded-xl"
+                >
+                    Cancel
+                </Button>
+                <Button
+                    type="submit"
+                    disabled={isUpdatingGST}
+                    className="flex-1 rounded-xl bg-[#F7CD29] hover:bg-[#E2BB24] text-gray-900 font-semibold"
+                >
+                    {isUpdatingGST ? 'Saving...' : 'Save Details'}
+                </Button>
+            </div>
+        </form>
+    );
 
     const { data: kycDoc } = useGetKYCDoc();
     const isKycVerified = useMemo(() => {
@@ -2243,6 +2447,27 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                     </>
                                 )}
                         </div>
+
+                        {/* GST Details Section (only shown when empty) */}
+                        {(!gstData || Object.keys(gstData).length === 0) && (
+                            <div className="mb-6 md:mb-8 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
+                                <div className="flex flex-col gap-1 pr-4">
+                                    <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                                        GST Details
+                                    </h3>
+                                    <p className="text-xs md:text-sm text-gray-500">
+                                        Add your GST details for corporate tax invoicing (optional).
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsGSTModalOpen(true)}
+                                    className="bg-[#F7CD29] hover:bg-[#E2BB24] text-[#333] font-semibold py-2 px-5 rounded-full text-xs md:text-sm transition-colors whitespace-nowrap cursor-pointer shadow-sm"
+                                >
+                                    Fill GST Details
+                                </button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -2881,6 +3106,34 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                         )}
                 </div>
             </div>
+
+            {/* GST Details Dialog Modal */}
+            {isDesktop ? (
+                <Dialog open={isGSTModalOpen} onOpenChange={(open) => !open && handleCancelGST()}>
+                    <DialogOverlay className="bg-black/50 backdrop-blur-sm z-[70]" />
+                    <DialogContent className="sm:max-w-lg z-[80] overflow-y-auto max-h-[90vh]">
+                        <DialogHeader>
+                            <DialogTitle className="text-xl font-semibold text-gray-900 font-poppins">
+                                {gstData && Object.keys(gstData).length > 0 ? 'Edit GST Details' : 'Add GST Details'}
+                            </DialogTitle>
+                        </DialogHeader>
+                        {renderGSTFormContent()}
+                    </DialogContent>
+                </Dialog>
+            ) : (
+                <Drawer open={isGSTModalOpen} onOpenChange={(open) => !open && handleCancelGST()}>
+                    <DrawerContent className="z-[80] rounded-t-3xl bg-white">
+                        <DrawerHeader className="border-b border-gray-100 pb-3">
+                            <DrawerTitle className="text-xl font-semibold text-gray-900 font-poppins text-center">
+                                {gstData && Object.keys(gstData).length > 0 ? 'Edit GST Details' : 'Add GST Details'}
+                            </DrawerTitle>
+                        </DrawerHeader>
+                        <div className="overflow-y-auto px-4 py-4 max-h-[calc(80vh-80px)] pb-12">
+                            {renderGSTFormContent()}
+                        </div>
+                    </DrawerContent>
+                </Drawer>
+            )}
         </div>
     );
 };
