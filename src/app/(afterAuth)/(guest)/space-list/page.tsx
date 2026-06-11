@@ -14,10 +14,10 @@ const toSlug = (text: string) =>
         .replace(/(^-|-$)/g, '');
 
 type Props = {
-    searchParams: {
+    searchParams: Promise<{
         space?: string;
         activity?: string;
-    };
+    }>;
 };
 
 export async function generateMetadata({ searchParams }: Props): Promise<Metadata> {
@@ -35,8 +35,10 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
             .join(' ');
     };
 
-    const space = searchParams.space;
-    const activity = searchParams.activity;
+    // Next.js 15: searchParams is now a Promise
+    const params = await searchParams;
+    const space = params.space;
+    const activity = params.activity;
 
     const formattedSpace = formatTitle(space);
     const formattedActivity = formatTitle(activity);
@@ -61,7 +63,7 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
         try {
             const categoriesRes: any = await ServerGet(endpoints.GET_PUBLIC_CATEGORIES);
             const categories: any[] = categoriesRes?.data?.categories ?? [];
-            const firstSlug = space.split(',')[0]; // Use the first selected category slug
+            const firstSlug = space.split(',')[0];
 
             const matched = categories.find(
                 (c: any) => c.CategoryMaster?.name && toSlug(c.CategoryMaster.name) === firstSlug,
@@ -171,8 +173,9 @@ async function getSpaceList(searchParams: any, metadata: any) {
 }
 
 export default async function ListingPage({ searchParams }: Props) {
+    const params = await searchParams;
     const metadata = await getMetadata();
-    const initialSpaceData = await getSpaceList(searchParams, metadata);
+    const initialSpaceData = await getSpaceList(params, metadata);
 
     return <SpaceListClient initialSpaceData={initialSpaceData} />;
 }

@@ -115,7 +115,6 @@ const SpaceListClient = ({ initialSpaceData }: SpaceListClientProps) => {
                 )}
             </div>
 
-
             <div className="flex md:hidden px-4 w-full justify-start items-center border-b pb-4 mb-2">
                 <ProudlyNotAi variant="pill" popoverAlign="right" />
             </div>
