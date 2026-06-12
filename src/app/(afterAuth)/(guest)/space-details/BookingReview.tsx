@@ -2214,7 +2214,7 @@ const BookingReview: React.FC<BookingReviewProps> = ({
     return (
         <div className="min-h-screen bg-white">
             {/* Sticky Timer Top Bar */}
-            <div className="sticky top-0 z-[40] bg-red-50 border-b border-red-100 px-4 py-3 md:py-4">
+            <div className="sticky top-0 z-[60] bg-red-50 border-b border-red-100 px-4 py-3 md:py-4">
                 <div className="max-w-7xl mx-auto flex items-center justify-between gap-4">
                     <div className="flex items-center gap-2 md:gap-3">
                         <div className="bg-red-100 p-1.5 md:p-2 rounded-full">
@@ -2252,23 +2252,6 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                 Booking Review
                             </p>
                         </div>
-
-                        {!isKycVerified && (
-                            <div className="mb-6 bg-red-50 border border-red-200 rounded-2xl p-4 flex items-start gap-3 shadow-sm">
-                                <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
-                                <div>
-                                    <h3 className="font-semibold text-red-800 text-sm">
-                                        Account Verification Required
-                                    </h3>
-                                    <p className="text-red-700 text-xs mt-1 leading-relaxed">
-                                        You are currently booking without KYC verification. Please
-                                        verify your KYC details within 6 hours of booking to prevent
-                                        automatic cancellation. You can do this from your Account
-                                        Verification page.
-                                    </p>
-                                </div>
-                            </div>
-                        )}
 
                         {/* Message to Host */}
                         <div className="mb-6 md:mb-8">
