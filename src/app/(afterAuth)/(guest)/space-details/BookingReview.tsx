@@ -2431,8 +2431,8 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                 )}
                         </div>
 
-                        {/* GST Details Section (only shown when empty) */}
-                        {(!gstData || Object.keys(gstData).length === 0) && (
+                        {/* GST Details Section */}
+                        {(!gstData || Object.keys(gstData).length === 0) ? (
                             <div className="mb-6 md:mb-8 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex items-center justify-between">
                                 <div className="flex flex-col gap-1 pr-4">
                                     <h3 className="font-semibold text-gray-900 text-sm md:text-base">
@@ -2449,6 +2449,54 @@ const BookingReview: React.FC<BookingReviewProps> = ({
                                 >
                                     Fill GST Details
                                 </button>
+                            </div>
+                        ) : (
+                            <div className="mb-6 md:mb-8 bg-white border border-gray-200 rounded-2xl p-5 shadow-sm">
+                                <div className="flex items-center justify-between mb-4 pb-3 border-b border-gray-100">
+                                    <div className="flex flex-col gap-1 pr-4">
+                                        <h3 className="font-semibold text-gray-900 text-sm md:text-base">
+                                            GST Details
+                                        </h3>
+                                        <p className="text-xs md:text-sm text-gray-500">
+                                            Your corporate tax invoicing details.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => setIsGSTModalOpen(true)}
+                                        className="bg-[#F7CD29] hover:bg-[#E2BB24] text-[#333] font-semibold py-2 px-5 rounded-full text-xs md:text-sm transition-colors whitespace-nowrap cursor-pointer shadow-sm"
+                                    >
+                                        Edit Details
+                                    </button>
+                                </div>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs md:text-sm">
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-gray-400 font-medium">Company Name</span>
+                                        <span className="text-gray-800 font-semibold">{gstData.companyName}</span>
+                                    </div>
+                                    <div className="flex flex-col gap-0.5">
+                                        <span className="text-gray-400 font-medium">GST Number</span>
+                                        <span className="text-gray-800 font-semibold">{gstData.gstNumber}</span>
+                                    </div>
+                                    {gstData.panNumber && (
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-gray-400 font-medium">PAN Number</span>
+                                            <span className="text-gray-800 font-semibold">{gstData.panNumber}</span>
+                                        </div>
+                                    )}
+                                    {gstData.phoneNumber && (
+                                        <div className="flex flex-col gap-0.5">
+                                            <span className="text-gray-400 font-medium">Phone Number</span>
+                                            <span className="text-gray-800 font-semibold">{gstData.phoneNumber}</span>
+                                        </div>
+                                    )}
+                                    {gstData.companyAddress && (
+                                        <div className="flex flex-col gap-0.5 md:col-span-2">
+                                            <span className="text-gray-400 font-medium">Company Address</span>
+                                            <span className="text-gray-800 font-semibold leading-relaxed">{gstData.companyAddress}</span>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         )}
                     </div>

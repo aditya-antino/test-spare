@@ -119,11 +119,11 @@ const sessionSchema = z
                 path: ['fromHours'],
             });
         }
-        if (duration > 720) {
-            // 12 hours
+        if (duration > 1440) {
+            // 24 hours
             ctx.addIssue({
                 code: z.ZodIssueCode.custom,
-                message: 'Slot exceeds 12 hours',
+                message: 'Slot exceeds 24 hours',
                 path: ['fromHours'],
             });
         }

@@ -56,7 +56,7 @@ const ProfileDropdown = ({
                     />
                 </div>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 bg-white rounded-md shadow-lg mt-2" align="end">
+            <DropdownMenuContent className="w-56 bg-white rounded-md shadow-lg mt-2 z-[70]" align="end">
                 {accountOptions.map((item) => (
                     <DropdownMenuItem asChild key={item.key}>
                         <Link href={item.link} className="w-full px-4 py-3 text-zinc-800 text-sm">

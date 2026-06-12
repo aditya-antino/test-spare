@@ -34,7 +34,7 @@ const NotificationDropdownWrapper = ({
                 </div>
             </DropdownMenuTrigger>
             <DropdownMenuContent
-                className="w-fit mt-4 bg-white rounded-md shadow-lg p-0"
+                className="w-fit mt-4 bg-white rounded-md shadow-lg p-0 z-[70]"
                 align="end"
             >
                 <NotificationDropdown
